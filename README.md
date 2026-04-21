@@ -31,6 +31,23 @@ pnpm build
 
 After building, Zebar loads the generated `dist/` assets from this directory through `zpack.json`.
 
+## Design References
+
+- Official Rosé Pine palette overview: [rosepinetheme.com/palette](https://rosepinetheme.com/palette/)
+- Official Rosé Pine ingredient table with canonical hex values, including Dawn: [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)
+- Zebar runtime and provider documentation: [github.com/glzr-io/zebar](https://github.com/glzr-io/zebar)
+- Legacy visual reference used for this pack refresh: [github.com/adriankarlen/rose-pine.zebar](https://github.com/adriankarlen/rose-pine.zebar)
+
+Use the Rosé Pine Dawn values from the official palette references above as the color source of truth for this repository.
+
+## Customization
+
+- Font stacks are configured in [src/styles.css](./src/styles.css) through the `--font-sans` and `--font-mono` root variables.
+- Shipped icons are local inline SVGs in [src/icons.tsx](./src/icons.tsx), so the pack does not depend on remote icon fonts for runtime rendering.
+- Candidate brand copy for the left chip is stored in [docs/brand-copy.md](./docs/brand-copy.md), with a Korean companion in [docs/brand-copy.ko.md](./docs/brand-copy.ko.md).
+- Runtime brand-copy data and rotation rules live in [src/brand-copy.entries.json](./src/brand-copy.entries.json) and [src/brand-copy.ts](./src/brand-copy.ts).
+- To verify that all candidate lines still fit in the current brand-chip width budget, run `pnpm check:brand-copy`.
+
 ## Features
 
 - Rose Pine Dawn palette-driven theme

@@ -31,6 +31,23 @@ pnpm build
 
 빌드 후 Zebar는 이 디렉토리의 `zpack.json`을 기준으로 `dist/` 산출물을 로드합니다.
 
+## 참고 문서
+
+- Rosé Pine 공식 팔레트 개요: [rosepinetheme.com/palette](https://rosepinetheme.com/palette/)
+- Rosé Pine Dawn을 포함한 canonical hex 값 표: [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)
+- Zebar 런타임 및 provider 문서: [github.com/glzr-io/zebar](https://github.com/glzr-io/zebar)
+- 이번 스타일 갱신에서 시각 참고로 사용한 구 버전 테마: [github.com/adriankarlen/rose-pine.zebar](https://github.com/adriankarlen/rose-pine.zebar)
+
+이 저장소의 색상 기준은 위 Rosé Pine 공식 문서의 Dawn 팔레트를 source of truth로 사용합니다.
+
+## 커스터마이징
+
+- 글꼴 스택은 [src/styles.css](./src/styles.css)의 `--font-sans`, `--font-mono` 루트 변수에서 바로 수정할 수 있습니다.
+- shipped icon은 [src/icons.tsx](./src/icons.tsx)의 로컬 inline SVG로 렌더링되므로, 런타임에서 원격 아이콘 폰트에 의존하지 않습니다.
+- 왼쪽 브랜드 칩에 넣을 후보 문구는 [docs/brand-copy.md](./docs/brand-copy.md)에 정리했고, 한국어 보조 문서는 [docs/brand-copy.ko.md](./docs/brand-copy.ko.md)입니다.
+- 런타임에서 사용하는 문구 데이터와 로테이션 규칙은 [src/brand-copy.entries.json](./src/brand-copy.entries.json), [src/brand-copy.ts](./src/brand-copy.ts)에 있습니다.
+- 현재 브랜드 칩 폭에서 모든 후보 문구가 들어가는지 확인하려면 `pnpm check:brand-copy`를 실행하면 됩니다.
+
 ## 특징
 
 - Rose Pine Dawn 공식 팔레트 기반 테마
