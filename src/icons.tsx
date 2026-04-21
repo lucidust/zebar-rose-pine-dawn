@@ -141,6 +141,16 @@ function iconNode(name: string): JSX.Element {
           <path d="M4.5 12h15" />
         </>
       );
+    case 'custom-tray':
+      return (
+        <>
+          <path d="M5 8.5h14" />
+          <path d="M7 8.5v7.5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V8.5" />
+          <path d="M9.5 12.5h.01" />
+          <path d="M12 12.5h.01" />
+          <path d="M14.5 12.5h.01" />
+        </>
+      );
     case 'nf-md-application_outline':
       return (
         <>

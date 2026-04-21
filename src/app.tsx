@@ -88,6 +88,7 @@ export function App(props: AppProps) {
             />
           </Show>
           <DateTimeChip value={date()} />
+          <WeatherChip weather={weather()} />
         </>
       );
     }
@@ -104,6 +105,7 @@ export function App(props: AppProps) {
             />
           </Show>
           <DateTimeChip value={date()} />
+          <WeatherChip weather={weather()} />
         </>
       );
     }
@@ -111,6 +113,7 @@ export function App(props: AppProps) {
     return (
       <>
         <DateTimeChip value={date()} />
+        <WeatherChip weather={weather()} />
       </>
     );
   }
@@ -124,12 +127,10 @@ export function App(props: AppProps) {
           <Show when={props.variant === 'with-glazewm' && glaze()}>
             <GlazeControls glazewm={glaze()} />
           </Show>
-          <TrafficChip network={output.network} />
           <MemoryChip memory={output.memory} />
           <CpuChip cpu={output.cpu} />
           <BatteryChip battery={output.battery} />
           <NetworkChip network={output.network} />
-          <WeatherChip weather={weather()} />
           <AudioChip audio={audio()} audioProvider={output.audio} />
           <MediaChip media={media()} mediaProvider={output.media} />
           <SystrayStrip systray={output.systray} />
@@ -417,24 +418,6 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
 }
 
 function NetworkChip(props: { network: any }) {
-  return (
-    <Show when={props.network}>
-      <div
-        class="chip chip-network responsive-hide-md"
-        title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
-      >
-        <IconBadge node={networkIcon(props.network)} tone="pine" />
-        <span class="network-value">
-          {props.network?.defaultInterface
-            ? compactNetworkLabel(props.network)
-            : 'Offline'}
-        </span>
-      </div>
-    </Show>
-  );
-}
-
-function TrafficChip(props: { network: any }) {
   const [downBps, setDownBps] = createSignal<number | null>(null);
   const [upBps, setUpBps] = createSignal<number | null>(null);
   const [todayDown, setTodayDown] = createSignal(0);
@@ -458,6 +441,20 @@ function TrafficChip(props: { network: any }) {
 
   const baselineStorageKey = (dayKey: string) =>
     `zebar-rpd-traffic-baseline:${dayKey}`;
+
+  const persistBaseline = (dayKey: string) => {
+    try {
+      window.localStorage.setItem(
+        baselineStorageKey(dayKey),
+        JSON.stringify({
+          received: baselineReceived,
+          transmitted: baselineTransmitted,
+        }),
+      );
+    } catch {
+      // Ignore storage failures and keep the runtime baseline only.
+    }
+  };
 
   const ensureBaseline = (
     dayKey: string,
@@ -499,20 +496,6 @@ function TrafficChip(props: { network: any }) {
     }
   };
 
-  const persistBaseline = (dayKey: string) => {
-    try {
-      window.localStorage.setItem(
-        baselineStorageKey(dayKey),
-        JSON.stringify({
-          received: baselineReceived,
-          transmitted: baselineTransmitted,
-        }),
-      );
-    } catch {
-      // Ignore storage failures and keep the runtime baseline only.
-    }
-  };
-
   createEffect(() => {
     const traffic = props.network?.traffic;
     if (!traffic?.totalReceived || !traffic?.totalTransmitted) {
@@ -548,15 +531,18 @@ function TrafficChip(props: { network: any }) {
   });
 
   return (
-    <Show when={props.network?.traffic}>
-      <div class="chip chip-traffic responsive-hide-xl">
-        <IconBadge node={networkIcon(props.network)} tone="foam" />
+    <Show when={props.network}>
+      <div
+        class="chip chip-network responsive-hide-md"
+        title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
+      >
+        <IconBadge node={networkIcon(props.network)} tone="pine" />
         <div class="stacked">
-          <span class="chip-label traffic-primary">
-            {`↓ ${formatDataRate(downBps())}  ↑ ${formatDataRate(upBps())}`}
+          <span class="chip-label network-line">
+            {`↓ ${formatDataRate(downBps())} · ${formatDataAmount(todayDown())}`}
           </span>
-          <span class="chip-detail traffic-secondary">
-            {`Today ${formatDataAmount(todayDown())} · ${formatDataAmount(todayUp())}`}
+          <span class="chip-detail network-line network-line-secondary">
+            {`↑ ${formatDataRate(upBps())} · ${formatDataAmount(todayUp())}`}
           </span>
         </div>
       </div>
@@ -608,9 +594,7 @@ function SystrayStrip(props: { systray: any }) {
   const [isOpen, setIsOpen] = createSignal(false);
   let rootRef: HTMLDivElement | undefined;
 
-  const visibleIcons = createMemo(() => props.systray?.icons?.slice(0, 5) ?? []);
-  const hiddenIcons = createMemo(() => props.systray?.icons?.slice(5) ?? []);
-  const teaserIcon = createMemo(() => hiddenIcons()[0] ?? null);
+  const allIcons = createMemo(() => props.systray?.icons ?? []);
 
   const closeOnOutsidePointer = (event: PointerEvent) => {
     if (!isOpen() || !rootRef) {
@@ -627,42 +611,25 @@ function SystrayStrip(props: { systray: any }) {
 
   return (
     <Show when={props.systray?.icons?.length}>
-        <div class="chip chip-systray" ref={rootRef}>
-        <div class={`tray-visible-track ${hiddenIcons().length ? 'has-overflow' : ''}`}>
-          <For each={visibleIcons()}>
-            {(trayIcon: any) => (
-              <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
-            )}
-          </For>
-          <Show when={teaserIcon()}>
-            <div class="tray-overflow-tease" aria-hidden="true">
-              <img
-                class="tray-icon"
-                src={teaserIcon()!.iconUrl}
-                alt=""
-              />
-            </div>
-          </Show>
-        </div>
-        <Show when={hiddenIcons().length}>
+      <div class="chip chip-systray" ref={rootRef}>
           <button
             class="tray-overflow-button"
             type="button"
-            title={`Show ${hiddenIcons().length} more tray icons`}
-            aria-label={`Show ${hiddenIcons().length} more tray icons`}
+            title={`Show ${allIcons().length} tray icons`}
+            aria-label={`Show ${allIcons().length} tray icons`}
             onClick={() => setIsOpen(open => !open)}
           >
-            {`+${hiddenIcons().length}`}
+            {icon('custom-tray')}
+            <span class="tray-overflow-count">{`+${allIcons().length}`}</span>
           </button>
-          <Show when={isOpen()}>
-            <div class="tray-popover">
-              <For each={hiddenIcons()}>
-                {(trayIcon: any) => (
-                  <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
-                )}
-              </For>
-            </div>
-          </Show>
+        <Show when={isOpen()}>
+          <div class="tray-popover">
+            <For each={allIcons()}>
+              {(trayIcon: any) => (
+                <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
+              )}
+            </For>
+          </div>
         </Show>
       </div>
     </Show>
