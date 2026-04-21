@@ -1,0 +1,23 @@
+{
+  "name": "zebar-rose-pine-dawn",
+  "version": "0.1.0",
+  "description": "Rose Pine Dawn top bar pack for Zebar",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "typecheck": "tsc --noEmit",
+    "validate:pack": "node ./tools/validate-zpack.mjs"
+  },
+  "dependencies": {
+    "solid-js": "1.9.12",
+    "zebar": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "typescript": "5.3.3",
+    "vite": "5.0.11",
+    "vite-plugin-solid": "2.8.2"
+  }
+}

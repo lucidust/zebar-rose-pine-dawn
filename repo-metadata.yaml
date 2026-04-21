@@ -1,0 +1,14 @@
+repo_mode: greenfield
+standards_baseline_ref: .agent/standards-baseline.md
+mode_definition_ref: .agent/standards-baseline.md#repo-mode
+profile: service
+profile_definition_ref: .agent/standards-baseline.md#profile
+rule_precedence:
+  - local_exceptions
+  - profile_rules
+  - global_rules
+commit_style_source: central_rules
+central_rules_mode: required
+canonical_artifacts:
+  - zpack.json
+local_exceptions: []
