@@ -114,6 +114,33 @@ function iconNode(name: string): JSX.Element {
           <path d="M16 6v2" />
         </>
       );
+    case 'custom-resize-mode':
+      return (
+        <>
+          <path d="M8 4.5H4.5V8" />
+          <path d="m4.5 4.5 5 5" />
+          <path d="M16 4.5h3.5V8" />
+          <path d="m19.5 4.5-5 5" />
+          <path d="M8 19.5H4.5V16" />
+          <path d="m4.5 19.5 5-5" />
+          <path d="M16 19.5h3.5V16" />
+          <path d="m19.5 19.5-5-5" />
+        </>
+      );
+    case 'custom-split-horizontal':
+      return (
+        <>
+          <rect x="4.5" y="6" width="15" height="12" rx="2.5" />
+          <path d="M12 6v12" />
+        </>
+      );
+    case 'custom-split-vertical':
+      return (
+        <>
+          <rect x="4.5" y="6" width="15" height="12" rx="2.5" />
+          <path d="M4.5 12h15" />
+        </>
+      );
     case 'nf-md-application_outline':
       return (
         <>

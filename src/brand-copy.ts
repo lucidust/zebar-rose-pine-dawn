@@ -78,6 +78,23 @@ export function resolveBrandCopy(
   };
 }
 
+export function pickRandomBrandCopy(
+  variant: Variant,
+  currentEntryId?: string,
+  config: BrandCopyConfig = brandCopyConfig,
+): BrandCopySelection {
+  const allowed = getAllowedEntries(config);
+  const pool = allowed.filter(entry => entry.id !== currentEntryId);
+  const entries = pool.length ? pool : allowed;
+  const entry = entries[Math.floor(Math.random() * entries.length)];
+
+  return {
+    entry,
+    sentence: renderSentence(entry, config.language),
+    detail: renderBottomLine(entry, variant, config),
+  };
+}
+
 function getAllowedEntries(config: BrandCopyConfig) {
   if (!config.allowedCategories.length) {
     return allBrandCopyEntries;

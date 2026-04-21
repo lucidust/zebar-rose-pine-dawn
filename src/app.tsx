@@ -1,17 +1,26 @@
-import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js';
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+} from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { resolveBrandCopy } from './brand-copy';
+import { pickRandomBrandCopy, resolveBrandCopy } from './brand-copy';
 import { batteryIcon, icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
   batteryDetail,
   batteryStatusText,
   clamp,
+  compactNetworkLabel,
   compactTitle,
+  formatDataAmount,
+  formatDataRate,
   glazeFocusedDetail,
   glazeFocusedLabel,
   komorebiWorkspaceDetail,
-  networkLabel,
   percent,
   weatherLabel,
   workspaceLabel,
@@ -63,12 +72,7 @@ export function App(props: AppProps) {
       );
     }
 
-    return (
-      <>
-        <BrandChip variant="vanilla" accent="rose" />
-        <WeatherChip weather={weather()} />
-      </>
-    );
+    return <BrandChip variant="vanilla" accent="rose" />;
   }
 
   function renderCenterZone() {
@@ -120,10 +124,10 @@ export function App(props: AppProps) {
           <Show when={props.variant === 'with-glazewm' && glaze()}>
             <GlazeControls glazewm={glaze()} />
           </Show>
+          <TrafficChip network={output.network} />
           <MemoryChip memory={output.memory} />
           <CpuChip cpu={output.cpu} />
           <BatteryChip battery={output.battery} />
-          <KeyboardChip keyboard={output.keyboard} />
           <NetworkChip network={output.network} />
           <WeatherChip weather={weather()} />
           <AudioChip audio={audio()} audioProvider={output.audio} />
@@ -140,6 +144,9 @@ function BrandChip(props: {
   accent: 'iris' | 'foam' | 'rose';
 }) {
   const [now, setNow] = createSignal(new Date());
+  const [manualCopy, setManualCopy] = createSignal<ReturnType<
+    typeof resolveBrandCopy
+  > | null>(null);
   let refreshTimer: number | undefined;
 
   const scheduleRefresh = () => {
@@ -149,6 +156,7 @@ function BrandChip(props: {
 
     refreshTimer = window.setTimeout(() => {
       setNow(new Date());
+      setManualCopy(null);
       scheduleRefresh();
     }, Math.max(1_000, next.getTime() - current.getTime()));
   };
@@ -160,13 +168,22 @@ function BrandChip(props: {
     }
   });
 
-  const copy = createMemo(() => resolveBrandCopy(props.variant, now()));
+  const resolvedCopy = createMemo(() => resolveBrandCopy(props.variant, now()));
+  const copy = createMemo(() => manualCopy() ?? resolvedCopy());
 
   return (
     <div class={`chip chip-brand chip-accent-${props.accent}`}>
-      <div class="brand-mark">
+      <button
+        class="brand-mark brand-refresh"
+        type="button"
+        title="Refresh quote"
+        aria-label="Refresh quote"
+        onClick={() =>
+          setManualCopy(pickRandomBrandCopy(props.variant, copy().entry.id))
+        }
+      >
         <IconBadge node={icon('custom-tulip')} tone="rose" />
-      </div>
+      </button>
       <div class="stacked">
         <span class="chip-label brand-sentence">{copy().sentence}</span>
         <span class="chip-detail brand-category">{copy().detail}</span>
@@ -270,36 +287,47 @@ function GlazeControls(props: { glazewm: any }) {
     <>
       <Show when={props.glazewm?.isPaused}>
         <button
-          class="chip chip-button chip-warning responsive-hide-md"
+          class="chip chip-button chip-warning chip-icon responsive-hide-md"
           onClick={() => props.glazewm.runCommand('wm-toggle-pause')}
+          title="GlazeWM paused"
+          aria-label="GlazeWM paused"
         >
           {icon('nf-md-pause_circle')}
-          <span>Paused</span>
         </button>
       </Show>
       <For each={props.glazewm?.bindingModes ?? []}>
         {(mode: any) => (
           <button
-            class="chip chip-button chip-accent-foam responsive-hide-lg"
+            class="chip chip-button chip-accent-foam chip-icon responsive-hide-lg"
             onClick={() =>
               props.glazewm.runCommand(
                 `wm-disable-binding-mode --name ${mode.name}`,
               )
             }
+            title={`${mode.displayName ?? mode.name} mode`}
+            aria-label={`${mode.displayName ?? mode.name} mode`}
           >
-            {icon('nf-md-key_variant')}
-            <span>{mode.displayName ?? mode.name}</span>
+            {bindingModeIcon(mode)}
           </button>
         )}
       </For>
       <button
         class="chip chip-button chip-icon"
         onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
-        title="Tiling direction"
+        title={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? 'Horizontal tiling'
+            : 'Vertical tiling'
+        }
+        aria-label={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? 'Horizontal tiling'
+            : 'Vertical tiling'
+        }
       >
         {props.glazewm?.tilingDirection === 'horizontal'
-          ? icon('nf-md-swap_horizontal')
-          : icon('nf-md-swap_vertical')}
+          ? icon('custom-split-horizontal')
+          : icon('custom-split-vertical')}
       </button>
     </>
   );
@@ -391,23 +419,146 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
 function NetworkChip(props: { network: any }) {
   return (
     <Show when={props.network}>
-      <div class="chip responsive-hide-md">
+      <div
+        class="chip chip-network responsive-hide-md"
+        title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
+      >
         <IconBadge node={networkIcon(props.network)} tone="pine" />
-        <div class="stacked">
-          <span class="chip-label">Network</span>
-          <span class="chip-detail">{compactTitle(networkLabel(props.network), 'Offline')}</span>
-        </div>
+        <span class="network-value">
+          {props.network?.defaultInterface
+            ? compactNetworkLabel(props.network)
+            : 'Offline'}
+        </span>
       </div>
     </Show>
   );
 }
 
-function KeyboardChip(props: { keyboard: any }) {
+function TrafficChip(props: { network: any }) {
+  const [downBps, setDownBps] = createSignal<number | null>(null);
+  const [upBps, setUpBps] = createSignal<number | null>(null);
+  const [todayDown, setTodayDown] = createSignal(0);
+  const [todayUp, setTodayUp] = createSignal(0);
+
+  let prevReceived: number | null = null;
+  let prevTransmitted: number | null = null;
+  let prevTimestamp: number | null = null;
+  let baselineDayKey = '';
+  let baselineReceived = 0;
+  let baselineTransmitted = 0;
+
+  const currentDayKey = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const baselineStorageKey = (dayKey: string) =>
+    `zebar-rpd-traffic-baseline:${dayKey}`;
+
+  const ensureBaseline = (
+    dayKey: string,
+    totalReceived: number,
+    totalTransmitted: number,
+  ) => {
+    if (baselineDayKey === dayKey) {
+      if (
+        totalReceived < baselineReceived ||
+        totalTransmitted < baselineTransmitted
+      ) {
+        baselineReceived = totalReceived;
+        baselineTransmitted = totalTransmitted;
+        persistBaseline(dayKey);
+      }
+
+      return;
+    }
+
+    baselineDayKey = dayKey;
+
+    try {
+      const stored = window.localStorage.getItem(baselineStorageKey(dayKey));
+      if (stored) {
+        const parsed = JSON.parse(stored) as {
+          received?: number;
+          transmitted?: number;
+        };
+        baselineReceived = Math.max(0, parsed.received ?? totalReceived);
+        baselineTransmitted = Math.max(0, parsed.transmitted ?? totalTransmitted);
+      } else {
+        baselineReceived = totalReceived;
+        baselineTransmitted = totalTransmitted;
+        persistBaseline(dayKey);
+      }
+    } catch {
+      baselineReceived = totalReceived;
+      baselineTransmitted = totalTransmitted;
+    }
+  };
+
+  const persistBaseline = (dayKey: string) => {
+    try {
+      window.localStorage.setItem(
+        baselineStorageKey(dayKey),
+        JSON.stringify({
+          received: baselineReceived,
+          transmitted: baselineTransmitted,
+        }),
+      );
+    } catch {
+      // Ignore storage failures and keep the runtime baseline only.
+    }
+  };
+
+  createEffect(() => {
+    const traffic = props.network?.traffic;
+    if (!traffic?.totalReceived || !traffic?.totalTransmitted) {
+      return;
+    }
+
+    const totalReceived = Math.max(0, traffic.totalReceived.bytes ?? 0);
+    const totalTransmitted = Math.max(0, traffic.totalTransmitted.bytes ?? 0);
+    const timestamp = Date.now();
+    const dayKey = currentDayKey();
+
+    ensureBaseline(dayKey, totalReceived, totalTransmitted);
+
+    if (
+      prevTimestamp != null &&
+      prevReceived != null &&
+      prevTransmitted != null &&
+      timestamp > prevTimestamp &&
+      totalReceived >= prevReceived &&
+      totalTransmitted >= prevTransmitted
+    ) {
+      const elapsedSeconds = (timestamp - prevTimestamp) / 1_000;
+      setDownBps((totalReceived - prevReceived) / elapsedSeconds);
+      setUpBps((totalTransmitted - prevTransmitted) / elapsedSeconds);
+    }
+
+    prevReceived = totalReceived;
+    prevTransmitted = totalTransmitted;
+    prevTimestamp = timestamp;
+
+    setTodayDown(Math.max(0, totalReceived - baselineReceived));
+    setTodayUp(Math.max(0, totalTransmitted - baselineTransmitted));
+  });
+
   return (
-    <Show when={props.keyboard != null}>
-      <div class="chip chip-mini responsive-hide-lg">
-        <IconBadge node={icon('nf-md-keyboard')} tone="iris" />
-        <span>{props.keyboard?.layout ?? 'Input'}</span>
+    <Show when={props.network?.traffic}>
+      <div class="chip chip-traffic responsive-hide-xl">
+        <IconBadge node={networkIcon(props.network)} tone="foam" />
+        <div class="stacked">
+          <span class="chip-label traffic-primary">
+            {`↓ ${formatDataRate(downBps())}  ↑ ${formatDataRate(upBps())}`}
+          </span>
+          <span class="chip-detail traffic-secondary">
+            {`Today ${formatDataAmount(todayDown())} · ${formatDataAmount(todayUp())}`}
+          </span>
+        </div>
       </div>
     </Show>
   );
@@ -454,32 +605,111 @@ function BatteryChip(props: { battery: any }) {
 }
 
 function SystrayStrip(props: { systray: any }) {
+  const [isOpen, setIsOpen] = createSignal(false);
+  let rootRef: HTMLDivElement | undefined;
+
+  const visibleIcons = createMemo(() => props.systray?.icons?.slice(0, 5) ?? []);
+  const hiddenIcons = createMemo(() => props.systray?.icons?.slice(5) ?? []);
+  const teaserIcon = createMemo(() => hiddenIcons()[0] ?? null);
+
+  const closeOnOutsidePointer = (event: PointerEvent) => {
+    if (!isOpen() || !rootRef) {
+      return;
+    }
+
+    if (!rootRef.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
+  document.addEventListener('pointerdown', closeOnOutsidePointer);
+  onCleanup(() => document.removeEventListener('pointerdown', closeOnOutsidePointer));
+
   return (
     <Show when={props.systray?.icons?.length}>
-      <div class="chip chip-systray">
-        <For each={props.systray.icons}>
-          {(trayIcon: any) => (
-            <button
-              class="tray-button"
-              title={trayIcon.tooltip}
-              onClick={event => {
-                event.preventDefault();
-                props.systray.onLeftClick(trayIcon.id);
-              }}
-              onContextMenu={event => {
-                event.preventDefault();
-                props.systray.onRightClick(trayIcon.id);
-              }}
-            >
-              <img class="tray-icon" src={trayIcon.iconUrl} alt={trayIcon.tooltip} />
-            </button>
-          )}
-        </For>
+        <div class="chip chip-systray" ref={rootRef}>
+        <div class={`tray-visible-track ${hiddenIcons().length ? 'has-overflow' : ''}`}>
+          <For each={visibleIcons()}>
+            {(trayIcon: any) => (
+              <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
+            )}
+          </For>
+          <Show when={teaserIcon()}>
+            <div class="tray-overflow-tease" aria-hidden="true">
+              <img
+                class="tray-icon"
+                src={teaserIcon()!.iconUrl}
+                alt=""
+              />
+            </div>
+          </Show>
+        </div>
+        <Show when={hiddenIcons().length}>
+          <button
+            class="tray-overflow-button"
+            type="button"
+            title={`Show ${hiddenIcons().length} more tray icons`}
+            aria-label={`Show ${hiddenIcons().length} more tray icons`}
+            onClick={() => setIsOpen(open => !open)}
+          >
+            {`+${hiddenIcons().length}`}
+          </button>
+          <Show when={isOpen()}>
+            <div class="tray-popover">
+              <For each={hiddenIcons()}>
+                {(trayIcon: any) => (
+                  <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
+                )}
+              </For>
+            </div>
+          </Show>
+        </Show>
       </div>
     </Show>
   );
 }
 
+function TrayIconButton(props: { systray: any; trayIcon: any }) {
+  return (
+    <button
+      class="tray-button"
+      type="button"
+      title={props.trayIcon.tooltip}
+      onClick={event => {
+        event.preventDefault();
+        props.systray.onLeftClick(props.trayIcon.id);
+      }}
+      onContextMenu={event => {
+        event.preventDefault();
+        props.systray.onRightClick(props.trayIcon.id);
+      }}
+    >
+      <img class="tray-icon" src={props.trayIcon.iconUrl} alt={props.trayIcon.tooltip} />
+    </button>
+  );
+}
+
 function IconBadge(props: { node: any; tone: Tone }) {
   return <span class={`icon-badge tone-${props.tone}`}>{props.node}</span>;
+}
+
+function bindingModeIcon(mode: any) {
+  const value = String(mode?.displayName ?? mode?.name ?? '').toLowerCase();
+
+  if (value.includes('resize')) {
+    return icon('custom-resize-mode');
+  }
+
+  return icon('nf-md-key_variant');
+}
+
+function networkTitle(network: any) {
+  const interfaceName =
+    network?.defaultGateway?.ssid ||
+    network?.defaultInterface?.friendlyName ||
+    network?.defaultInterface?.name ||
+    'Offline';
+  const interfaceType = network?.defaultInterface?.type ?? 'unknown';
+
+  return `${interfaceName} (${interfaceType})`;
 }
