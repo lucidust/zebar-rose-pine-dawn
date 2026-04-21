@@ -287,49 +287,50 @@ function GlazeControls(props: { glazewm: any }) {
   return (
     <>
       <Show when={props.glazewm?.isPaused}>
-        <button
-          class="chip chip-button chip-warning chip-icon responsive-hide-md"
-          onClick={() => props.glazewm.runCommand('wm-toggle-pause')}
+        <ChipActionControl
+          class="responsive-hide-md"
+          tone="gold"
           title="GlazeWM paused"
-          aria-label="GlazeWM paused"
-        >
-          {icon('nf-md-pause_circle')}
-        </button>
+          ariaLabel="GlazeWM paused"
+          onClick={() => props.glazewm.runCommand('wm-toggle-pause')}
+          iconNode={icon('nf-md-pause_circle')}
+        />
       </Show>
       <For each={props.glazewm?.bindingModes ?? []}>
         {(mode: any) => (
-          <button
-            class="chip chip-button chip-accent-foam chip-icon responsive-hide-lg"
+          <ChipActionControl
+            class="responsive-hide-lg"
+            tone="foam"
+            title={`${mode.displayName ?? mode.name} mode`}
+            ariaLabel={`${mode.displayName ?? mode.name} mode`}
             onClick={() =>
               props.glazewm.runCommand(
                 `wm-disable-binding-mode --name ${mode.name}`,
               )
             }
-            title={`${mode.displayName ?? mode.name} mode`}
-            aria-label={`${mode.displayName ?? mode.name} mode`}
-          >
-            {bindingModeIcon(mode)}
-          </button>
+            iconNode={bindingModeIcon(mode)}
+          />
         )}
       </For>
-      <button
-        class="chip chip-button chip-icon"
-        onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
+      <ChipActionControl
+        tone="iris"
         title={
           props.glazewm?.tilingDirection === 'horizontal'
             ? 'Horizontal tiling'
             : 'Vertical tiling'
         }
-        aria-label={
+        ariaLabel={
           props.glazewm?.tilingDirection === 'horizontal'
             ? 'Horizontal tiling'
             : 'Vertical tiling'
         }
-      >
-        {props.glazewm?.tilingDirection === 'horizontal'
-          ? icon('custom-split-horizontal')
-          : icon('custom-split-vertical')}
-      </button>
+        onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
+        iconNode={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? icon('custom-split-horizontal')
+            : icon('custom-split-vertical')
+        }
+      />
     </>
   );
 }
@@ -393,14 +394,60 @@ function MediaChip(props: { media: any; mediaProvider: any }) {
 
 function AudioChip(props: { audio: any; audioProvider: any }) {
   const volume = () => clamp(props.audio?.volume ?? 0, 0, 100);
+  const isMuted = () => Boolean(props.audio?.isMuted) || volume() <= 0;
+  const [lastActiveVolume, setLastActiveVolume] = createSignal(35);
+
+  createEffect(() => {
+    if (!isMuted() && volume() > 0) {
+      setLastActiveVolume(volume());
+    }
+  });
+
+  const toggleMute = async () => {
+    if (isMuted()) {
+      const restoredVolume = Math.max(1, lastActiveVolume());
+      await props.audioProvider?.setMute(false);
+      await props.audioProvider?.setVolume(restoredVolume);
+      return;
+    }
+
+    if (volume() > 0) {
+      setLastActiveVolume(volume());
+    }
+
+    await props.audioProvider?.setVolume(0);
+    await props.audioProvider?.setMute(true);
+  };
+
+  const onSliderInput = async (nextVolume: number) => {
+    if (nextVolume > 0) {
+      setLastActiveVolume(nextVolume);
+    }
+
+    await props.audioProvider?.setVolume(nextVolume);
+
+    if (nextVolume > 0 && props.audio?.isMuted) {
+      await props.audioProvider?.setMute(false);
+    } else if (nextVolume <= 0 && !props.audio?.isMuted) {
+      await props.audioProvider?.setMute(true);
+    }
+  };
 
   return (
     <Show when={props.audio}>
       <div class="chip chip-audio responsive-hide-lg">
-        <IconBadge
-          node={icon(volume() <= 0 ? 'nf-md-volume_off' : 'nf-md-volume_high')}
-          tone={volume() <= 0 ? 'muted' : 'foam'}
-        />
+        <button
+          class="chip-action"
+          type="button"
+          title={isMuted() ? 'Unmute audio' : 'Mute audio'}
+          aria-label={isMuted() ? 'Unmute audio' : 'Mute audio'}
+          onClick={() => void toggleMute()}
+        >
+          <IconBadge
+            node={icon(isMuted() ? 'nf-md-volume_off' : 'nf-md-volume_high')}
+            tone={isMuted() ? 'muted' : 'foam'}
+          />
+        </button>
         <input
           class="volume-slider"
           type="range"
@@ -408,9 +455,7 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
           max="100"
           step="1"
           value={volume()}
-          onInput={event =>
-            props.audioProvider?.setVolume(event.currentTarget.valueAsNumber)
-          }
+          onInput={event => void onSliderInput(event.currentTarget.valueAsNumber)}
         />
       </div>
     </Show>
@@ -653,6 +698,29 @@ function TrayIconButton(props: { systray: any; trayIcon: any }) {
     >
       <img class="tray-icon" src={props.trayIcon.iconUrl} alt={props.trayIcon.tooltip} />
     </button>
+  );
+}
+
+function ChipActionControl(props: {
+  tone: Tone;
+  title: string;
+  ariaLabel: string;
+  iconNode: any;
+  onClick: () => void;
+  class?: string;
+}) {
+  return (
+    <div class={`chip chip-control ${props.class ?? ''}`.trim()}>
+      <button
+        class="chip-action"
+        type="button"
+        title={props.title}
+        aria-label={props.ariaLabel}
+        onClick={props.onClick}
+      >
+        <IconBadge node={props.iconNode} tone={props.tone} />
+      </button>
+    </div>
   );
 }
 

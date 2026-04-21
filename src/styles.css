@@ -87,7 +87,7 @@ button {
 
 .bar-grid {
   display: grid;
-  grid-template-columns: minmax(var(--brand-width), 1.08fr) minmax(0, auto) minmax(0, 1.47fr);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: start;
   gap: 8px;
   height: 100%;
@@ -118,8 +118,7 @@ button {
 
 .chip,
 .workspace-strip,
-.icon-button,
-.tray-button {
+.icon-button {
   border: 1px solid var(--panel-border);
   background: var(--panel-bg);
   box-shadow: var(--panel-shadow);
@@ -193,6 +192,10 @@ button {
 .chip-icon .icon {
   width: 16px;
   height: 16px;
+}
+
+.chip-control {
+  padding: 0 4px;
 }
 
 .chip-icon {
@@ -360,6 +363,21 @@ button {
   height: 17px;
 }
 
+.chip-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: inherit;
+  flex: 0 0 auto;
+}
+
 .tone-love {
   color: var(--love);
 }
@@ -518,7 +536,7 @@ button {
   border: 1px solid var(--panel-border);
   border-radius: 999px;
   background: color-mix(in srgb, var(--base) 85%, white);
-  color: var(--subtle);
+  color: var(--foam);
   flex: 0 0 auto;
 }
 
@@ -531,6 +549,7 @@ button {
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 700;
+  color: var(--text);
 }
 
 .tray-popover {
@@ -557,6 +576,17 @@ button {
     inset 0 1px 0 rgb(255 255 255 / 38%);
   backdrop-filter: blur(18px);
   z-index: 8;
+}
+
+.tray-button {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.tray-button:hover {
+  background: color-mix(in srgb, var(--foam) 12%, transparent);
 }
 
 .icon-button[disabled] {
@@ -604,11 +634,16 @@ button {
   transform: translateY(-1px);
 }
 
+.chip-action:hover {
+  transform: translateY(-1px);
+}
+
 .chip-button,
 .icon-button,
 .tray-button,
 .tray-overflow-button,
 .brand-refresh,
+.chip-action,
 .workspace-pill {
   transition:
     transform 120ms ease,
@@ -652,10 +687,6 @@ button {
 @media (max-width: 1220px) {
   :root {
     --brand-width: 238px;
-  }
-
-  .bar-grid {
-    grid-template-columns: minmax(var(--brand-width), 1fr) minmax(0, auto) minmax(0, 1.2fr);
   }
 
   .responsive-hide-md {
