@@ -183,6 +183,14 @@ function iconNode(name: string): JSX.Element {
           <path d="M18.6 6.75a8 8 0 0 1 0 10.5" />
         </>
       );
+    case 'nf-md-volume_off':
+      return (
+        <>
+          <path d="M5 10h3l4-4v12l-4-4H5Z" />
+          <path d="m16.25 9.25 4.5 5.5" />
+          <path d="m20.75 9.25-4.5 5.5" />
+        </>
+      );
     case 'nf-md-keyboard':
       return (
         <>

@@ -22,7 +22,7 @@ type AppProps = {
   variant: Variant;
 };
 
-type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris';
+type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris' | 'muted';
 
 function workspaceAccentVar(index: number) {
   return `var(--ws-${(index % 6) + 1})`;
@@ -165,7 +165,7 @@ function BrandChip(props: {
   return (
     <div class={`chip chip-brand chip-accent-${props.accent}`}>
       <div class="brand-mark">
-        <IconBadge node={icon('custom-tulip')} tone={props.accent} />
+        <IconBadge node={icon('custom-tulip')} tone="rose" />
       </div>
       <div class="stacked">
         <span class="chip-label brand-sentence">{copy().sentence}</span>
@@ -204,12 +204,9 @@ function DateTimeChip(props: { value: string }) {
 function WeatherChip(props: { weather: any }) {
   return (
     <Show when={props.weather}>
-      <div class="chip responsive-hide-md">
+      <div class="chip chip-weather responsive-hide-md">
         <IconBadge node={weatherIcon(props.weather)} tone="gold" />
-        <div class="stacked">
-          <span class="chip-label">Weather</span>
-          <span class="chip-detail">{weatherLabel(props.weather)}</span>
-        </div>
+        <span class="weather-value">{weatherLabel(props.weather)}</span>
       </div>
     </Show>
   );
@@ -366,23 +363,22 @@ function MediaChip(props: { media: any; mediaProvider: any }) {
 }
 
 function AudioChip(props: { audio: any; audioProvider: any }) {
+  const volume = () => clamp(props.audio?.volume ?? 0, 0, 100);
+
   return (
     <Show when={props.audio}>
       <div class="chip chip-audio responsive-hide-lg">
-        <IconBadge node={icon('nf-md-volume_high')} tone="foam" />
-        <div class="stacked">
-          <span class="chip-label">
-            {compactTitle(props.audio?.name, 'Audio')}
-          </span>
-          <span class="chip-detail">{percent(props.audio?.volume)}</span>
-        </div>
+        <IconBadge
+          node={icon(volume() <= 0 ? 'nf-md-volume_off' : 'nf-md-volume_high')}
+          tone={volume() <= 0 ? 'muted' : 'foam'}
+        />
         <input
           class="volume-slider"
           type="range"
           min="0"
           max="100"
           step="1"
-          value={clamp(props.audio?.volume ?? 0, 0, 100)}
+          value={volume()}
           onInput={event =>
             props.audioProvider?.setVolume(event.currentTarget.valueAsNumber)
           }

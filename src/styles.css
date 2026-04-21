@@ -13,6 +13,7 @@
   --pine: #286983;
   --foam: #56949f;
   --iris: #907aa9;
+  --muted-accent: #6e6a86;
   --highlight-low: #f4ede8;
   --highlight-med: #dfdad9;
   --highlight-high: #cecacd;
@@ -29,7 +30,7 @@
     monospace;
   --brand-width: 280px;
   --bar-height: 50px;
-  --pill-height: 40px;
+  --pill-height: 34px;
   --pill-radius: 999px;
   --radius-md: 12px;
   --shell-padding-x: 10px;
@@ -74,30 +75,27 @@ button {
 }
 
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
 }
 
 .bar-shell {
   height: 100%;
   padding: var(--shell-padding-y) var(--shell-padding-x);
-  background:
-    radial-gradient(circle at top left, rgb(180 99 122 / 12%), transparent 32%),
-    radial-gradient(circle at top right, rgb(86 148 159 / 10%), transparent 28%);
 }
 
 .bar-grid {
   display: grid;
   grid-template-columns: minmax(var(--brand-width), 1.08fr) minmax(0, auto) minmax(0, 1.47fr);
-  align-items: center;
+  align-items: start;
   gap: 8px;
   height: 100%;
 }
 
 .zone {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   min-width: 0;
   gap: 6px;
 }
@@ -131,11 +129,11 @@ button {
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   min-width: 0;
   max-width: 100%;
   height: var(--pill-height);
-  padding: 0 10px;
+  padding: 0 9px;
   border-radius: var(--pill-radius);
   white-space: nowrap;
 }
@@ -191,7 +189,7 @@ button {
 }
 
 .chip-icon {
-  width: 40px;
+  width: 34px;
   padding: 0;
   justify-content: center;
 }
@@ -199,6 +197,11 @@ button {
 .chip-time {
   min-width: 176px;
   justify-content: center;
+}
+
+.chip-weather {
+  min-width: 78px;
+  gap: 5px;
 }
 
 .time-text {
@@ -216,7 +219,7 @@ button {
 }
 
 .chip-audio {
-  min-width: 176px;
+  min-width: 112px;
 }
 
 .chip-summary {
@@ -297,6 +300,13 @@ button {
   font-size: 9.5px;
 }
 
+.weather-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .media-copy {
   flex: 1;
 }
@@ -305,15 +315,15 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
   border-radius: 999px;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 .icon-badge .icon {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .tone-love {
@@ -338,6 +348,10 @@ button {
 
 .tone-iris {
   color: var(--iris);
+}
+
+.tone-muted {
+  color: var(--muted-accent);
 }
 
 .workspace-strip {
@@ -407,7 +421,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 30px;
+  height: 26px;
   min-width: 52px;
   padding: 0 7px;
   border-radius: 999px;
@@ -449,8 +463,8 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border-radius: 999px;
   color: var(--text);
@@ -462,8 +476,28 @@ button {
 }
 
 .volume-slider {
-  width: 58px;
+  width: 72px;
   accent-color: var(--iris);
+}
+
+.chip-audio .icon-badge {
+  width: 24px;
+  height: 24px;
+}
+
+.chip-audio .icon-badge .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.chip-brand .icon-badge {
+  width: 27px;
+  height: 27px;
+}
+
+.chip-brand .icon-badge .icon {
+  width: 19px;
+  height: 19px;
 }
 
 .tray-icon {
