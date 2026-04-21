@@ -32,6 +32,7 @@
   --bar-height: 50px;
   --pill-height: 34px;
   --pill-radius: 999px;
+  --cluster-inner-radius: 11px;
   --radius-md: 12px;
   --shell-padding-x: 10px;
   --shell-padding-y: 0px;
@@ -276,6 +277,156 @@ button {
   flex: 0 0 auto;
 }
 
+.chip-right-cluster {
+  gap: 4px;
+  padding: 3px 4px;
+  padding-right: 5px;
+}
+
+.chip-right-cluster > .chip {
+  height: 28px;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  background: transparent;
+}
+
+.chip-right-cluster .chip-metric-combo,
+.chip-right-cluster .chip-systray {
+  position: relative;
+  background: transparent;
+}
+
+.chip-right-cluster .chip-metric-combo:hover,
+.chip-right-cluster .chip-systray:hover {
+  background: transparent;
+}
+
+.chip-right-cluster .chip-time {
+  min-width: 168px;
+  padding-left: 11px;
+}
+
+.chip-right-cluster .chip-weather {
+  min-width: 72px;
+  padding-left: 11px;
+}
+
+.chip-right-cluster .chip-network {
+  position: relative;
+  min-width: 168px;
+  max-width: 168px;
+  padding-right: 11px;
+  padding-left: 11px;
+}
+
+.chip-right-cluster .chip-audio {
+  position: relative;
+  min-width: 106px;
+  padding-right: 8px;
+  padding-left: 4px;
+  gap: 5px;
+  background: transparent;
+}
+
+.chip-right-cluster .chip-metric-combo::before,
+.chip-right-cluster .chip-systray::before,
+.chip-right-cluster .chip-network::before,
+.chip-right-cluster .chip-audio::before {
+  content: '';
+  position: absolute;
+  inset: 2px 4px;
+  border-radius: var(--cluster-inner-radius);
+  z-index: 0;
+}
+
+.chip-right-cluster .chip-metric-combo::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--rose) 17%, transparent) 0%,
+    color-mix(in srgb, var(--iris) 13%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-metric-combo:hover::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--rose) 20%, transparent) 0%,
+    color-mix(in srgb, var(--iris) 15%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-systray::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--foam) 18%, transparent) 0%,
+    color-mix(in srgb, var(--iris) 10%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-systray:hover::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--foam) 21%, transparent) 0%,
+    color-mix(in srgb, var(--iris) 12%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-network::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--pine) 19%, transparent) 0%,
+    color-mix(in srgb, var(--foam) 12%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-network:hover::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--pine) 22%, transparent) 0%,
+    color-mix(in srgb, var(--foam) 14%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-audio::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--foam) 18%, transparent) 0%,
+    color-mix(in srgb, var(--foam) 14%, transparent) 28%,
+    color-mix(in srgb, var(--foam) 9%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-audio:hover::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--foam) 21%, transparent) 0%,
+    color-mix(in srgb, var(--foam) 16%, transparent) 28%,
+    color-mix(in srgb, var(--foam) 11%, transparent) 100%
+  );
+}
+
+.chip-right-cluster .chip-systray {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.chip-right-cluster .chip-weather,
+.chip-right-cluster .chip-time {
+  position: relative;
+}
+
+.chip-right-cluster .chip-weather::before,
+.chip-right-cluster .chip-time::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 6px;
+  width: 1px;
+  height: 16px;
+  background: color-mix(in srgb, var(--text) 18%, transparent);
+}
+
 .chip-systray {
   position: relative;
   gap: 6px;
@@ -513,8 +664,15 @@ button {
   min-width: 0;
   height: 24px;
   padding: 0 7px;
-  border-radius: 999px;
-  background: color-mix(in srgb, currentColor 11%, transparent);
+  border-radius: calc(var(--cluster-inner-radius) - 2px);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.metric-pair + .metric-pair {
+  border-left: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+  padding-left: 8px;
 }
 
 .metric-pair .icon {
@@ -539,6 +697,8 @@ button {
   border: none;
   background: transparent;
   color: inherit;
+  position: relative;
+  z-index: 1;
 }
 
 .battery-icon.good {
@@ -588,6 +748,29 @@ button {
   background: color-mix(in srgb, var(--base) 85%, white);
   color: var(--foam);
   flex: 0 0 auto;
+}
+
+.chip-right-cluster .tray-overflow-button {
+  border: none;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.chip-right-cluster .chip-network .stacked,
+.chip-right-cluster .chip-network .icon-badge,
+.chip-right-cluster .chip-network .chip-label,
+.chip-right-cluster .chip-network .chip-detail,
+.chip-right-cluster .chip-systray .tray-overflow-button,
+.chip-right-cluster .chip-systray .tray-overflow-count {
+  position: relative;
+  z-index: 1;
+}
+
+.chip-right-cluster .chip-network .icon-badge,
+.chip-right-cluster .chip-systray .icon-badge,
+.chip-right-cluster .chip-metric-combo .icon-badge {
+  background: transparent;
 }
 
 .tray-overflow-button .icon {
@@ -648,6 +831,30 @@ button {
   width: 64px;
   min-width: 64px;
   accent-color: var(--iris);
+}
+
+.chip-right-cluster .volume-slider {
+  width: 58px;
+  min-width: 58px;
+}
+
+.chip-right-cluster .chip-audio .chip-action {
+  position: relative;
+  z-index: 1;
+  width: auto;
+  min-width: auto;
+  padding-right: 2px;
+}
+
+.chip-right-cluster .chip-audio .icon-badge {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.chip-right-cluster .chip-audio .volume-slider {
+  position: relative;
+  z-index: 1;
 }
 
 .chip-audio .icon-badge {

@@ -105,14 +105,14 @@ export function App(props: AppProps) {
 
   function renderRightZone() {
     return (
-      <>
+      <div class="chip chip-right-cluster">
         <CpuMemoryChip cpu={output.cpu} memory={output.memory} />
         <NetworkChip network={output.network} />
         <SystrayStrip systray={output.systray} />
         <AudioChip audio={audio()} audioProvider={output.audio} />
         <WeatherChip weather={weather()} />
         <DateTimeChip value={date()} />
-      </>
+      </div>
     );
   }
 

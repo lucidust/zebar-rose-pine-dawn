@@ -54,6 +54,15 @@ Use the Rosé Pine Dawn values from the official palette references above as the
 - Restrict variant-specific differences to workspace-aware content and WM controls; do not reorder shared system widgets per variant without updating all shipped variants together.
 - Treat `vanilla`, `with-glazewm`, and `with-komorebi` as one layout family for future maintenance.
 
+## Right Cluster Rules
+
+- Keep right-side widgets implemented as feature-specific chips for maintenance, even when they are presented as one visual cluster.
+- Use one outer pill for the right-side system cluster to reduce visual noise.
+- Prefer background-backed sub-chips for interactive controls such as tray, audio, and clickable metrics.
+- Prefer separators or spacing for text-heavy informational chips such as network, weather, and date/time.
+- Use both backgrounds and separators only when they serve different roles, and keep both subtle.
+- Treat these as guidelines rather than fixed rules; adjust per widget density and interaction cost.
+
 ## Features
 
 - Rose Pine Dawn palette-driven theme
