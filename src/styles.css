@@ -289,15 +289,14 @@ button {
   box-shadow: none;
   backdrop-filter: none;
   background: transparent;
+  position: relative;
 }
 
-.chip-right-cluster .chip-metric-combo,
 .chip-right-cluster .chip-systray {
   position: relative;
   background: transparent;
 }
 
-.chip-right-cluster .chip-metric-combo:hover,
 .chip-right-cluster .chip-systray:hover {
   background: transparent;
 }
@@ -329,31 +328,12 @@ button {
   background: transparent;
 }
 
-.chip-right-cluster .chip-metric-combo::before,
-.chip-right-cluster .chip-systray::before,
-.chip-right-cluster .chip-network::before,
-.chip-right-cluster .chip-audio::before {
+.chip-right-cluster .chip-systray::before {
   content: '';
   position: absolute;
   inset: 2px 4px;
   border-radius: var(--cluster-inner-radius);
   z-index: 0;
-}
-
-.chip-right-cluster .chip-metric-combo::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--rose) 17%, transparent) 0%,
-    color-mix(in srgb, var(--iris) 13%, transparent) 100%
-  );
-}
-
-.chip-right-cluster .chip-metric-combo:hover::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--rose) 20%, transparent) 0%,
-    color-mix(in srgb, var(--iris) 15%, transparent) 100%
-  );
 }
 
 .chip-right-cluster .chip-systray::before {
@@ -372,52 +352,12 @@ button {
   );
 }
 
-.chip-right-cluster .chip-network::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--pine) 19%, transparent) 0%,
-    color-mix(in srgb, var(--foam) 12%, transparent) 100%
-  );
-}
-
-.chip-right-cluster .chip-network:hover::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--pine) 22%, transparent) 0%,
-    color-mix(in srgb, var(--foam) 14%, transparent) 100%
-  );
-}
-
-.chip-right-cluster .chip-audio::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--foam) 18%, transparent) 0%,
-    color-mix(in srgb, var(--foam) 14%, transparent) 28%,
-    color-mix(in srgb, var(--foam) 9%, transparent) 100%
-  );
-}
-
-.chip-right-cluster .chip-audio:hover::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--foam) 21%, transparent) 0%,
-    color-mix(in srgb, var(--foam) 16%, transparent) 28%,
-    color-mix(in srgb, var(--foam) 11%, transparent) 100%
-  );
-}
-
 .chip-right-cluster .chip-systray {
   padding-right: 5px;
   padding-left: 5px;
 }
 
-.chip-right-cluster .chip-weather,
-.chip-right-cluster .chip-time {
-  position: relative;
-}
-
-.chip-right-cluster .chip-weather::before,
-.chip-right-cluster .chip-time::before {
+.chip-right-cluster > .chip + .chip::after {
   content: '';
   position: absolute;
   left: -2px;
@@ -663,7 +603,7 @@ button {
   gap: 4px;
   min-width: 0;
   height: 24px;
-  padding: 0 7px;
+  padding: 0 3px;
   border-radius: calc(var(--cluster-inner-radius) - 2px);
   background: transparent;
   position: relative;
@@ -671,8 +611,7 @@ button {
 }
 
 .metric-pair + .metric-pair {
-  border-left: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
-  padding-left: 8px;
+  padding-left: 2px;
 }
 
 .metric-pair .icon {
@@ -681,7 +620,7 @@ button {
 }
 
 .metric-value {
-  min-width: 36px;
+  min-width: 25px;
   text-align: center;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -691,7 +630,7 @@ button {
 .metric-combo-action {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   width: 100%;
   padding: 0;
   border: none;
@@ -758,18 +697,13 @@ button {
 }
 
 .chip-right-cluster .chip-network .stacked,
-.chip-right-cluster .chip-network .icon-badge,
-.chip-right-cluster .chip-network .chip-label,
-.chip-right-cluster .chip-network .chip-detail,
 .chip-right-cluster .chip-systray .tray-overflow-button,
 .chip-right-cluster .chip-systray .tray-overflow-count {
   position: relative;
   z-index: 1;
 }
 
-.chip-right-cluster .chip-network .icon-badge,
-.chip-right-cluster .chip-systray .icon-badge,
-.chip-right-cluster .chip-metric-combo .icon-badge {
+.chip-right-cluster .chip-systray .icon-badge {
   background: transparent;
 }
 
@@ -836,6 +770,43 @@ button {
 .chip-right-cluster .volume-slider {
   width: 58px;
   min-width: 58px;
+  accent-color: var(--muted);
+}
+
+.chip-right-cluster .volume-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--highlight-high) 78%, var(--overlay));
+}
+
+.chip-right-cluster .volume-slider::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -3px;
+  border: 1px solid color-mix(in srgb, var(--foam) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foam) 72%, white);
+  -webkit-appearance: none;
+}
+
+.chip-right-cluster .volume-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--highlight-high) 78%, var(--overlay));
+}
+
+.chip-right-cluster .volume-slider::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foam) 48%, var(--highlight-med));
+}
+
+.chip-right-cluster .volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 1px solid color-mix(in srgb, var(--foam) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foam) 72%, white);
 }
 
 .chip-right-cluster .chip-audio .chip-action {
@@ -849,7 +820,7 @@ button {
 .chip-right-cluster .chip-audio .icon-badge {
   position: relative;
   z-index: 1;
-  background: transparent;
+  background: color-mix(in srgb, var(--foam) 12%, transparent);
 }
 
 .chip-right-cluster .chip-audio .volume-slider {
