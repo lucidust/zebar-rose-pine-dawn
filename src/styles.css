@@ -218,9 +218,11 @@ button {
 }
 
 .chip-network {
-  min-width: 162px;
-  max-width: 162px;
+  min-width: 172px;
+  max-width: 172px;
   gap: 5px;
+  padding-right: 12px;
+  padding-left: 8px;
 }
 
 .time-text {
@@ -262,9 +264,9 @@ button {
 }
 
 .chip-metric-combo {
-  gap: 10px;
-  padding: 0 10px;
-  min-width: 126px;
+  gap: 0;
+  padding: 0 8px;
+  min-width: 0;
   border: 1px solid var(--panel-border);
   background: var(--panel-bg);
   color: var(--text);
@@ -342,9 +344,10 @@ button {
   text-overflow: ellipsis;
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   min-height: 12px;
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 10.25px;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
@@ -506,8 +509,12 @@ button {
 .metric-pair {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 11%, transparent);
 }
 
 .metric-pair .icon {
@@ -515,10 +522,23 @@ button {
   height: 15px;
 }
 
-.metric-pair span {
+.metric-value {
+  min-width: 36px;
+  text-align: center;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
+}
+
+.metric-combo-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
 }
 
 .battery-icon.good {
@@ -668,12 +688,17 @@ button {
   transform: translateY(-1px);
 }
 
+.metric-combo-action:hover {
+  transform: translateY(-1px);
+}
+
 .chip-button,
 .icon-button,
 .tray-button,
 .tray-overflow-button,
 .brand-refresh,
 .chip-action,
+.metric-combo-action,
 .workspace-pill {
   transition:
     transform 120ms ease,

@@ -58,6 +58,9 @@ export function App(props: AppProps) {
       return (
         <>
           <BrandChip variant="with-glazewm" accent="iris" />
+          <Show when={glaze()}>
+            <TilingDirectionControl glazewm={glaze()} />
+          </Show>
           <GlazeWorkspaceStrip glazewm={glaze()} />
           <Show when={glaze()}>
             <SummaryChip
@@ -297,26 +300,31 @@ function GlazeControls(props: { glazewm: any }) {
           />
         )}
       </For>
-      <ChipActionControl
-        tone="iris"
-        title={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? 'Horizontal tiling'
-            : 'Vertical tiling'
-        }
-        ariaLabel={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? 'Horizontal tiling'
-            : 'Vertical tiling'
-        }
-        onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
-        iconNode={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? icon('custom-split-horizontal')
-            : icon('custom-split-vertical')
-        }
-      />
     </>
+  );
+}
+
+function TilingDirectionControl(props: { glazewm: any }) {
+  return (
+    <ChipActionControl
+      tone="iris"
+      title={
+        props.glazewm?.tilingDirection === 'horizontal'
+          ? 'Horizontal tiling'
+          : 'Vertical tiling'
+      }
+      ariaLabel={
+        props.glazewm?.tilingDirection === 'horizontal'
+          ? 'Horizontal tiling'
+          : 'Vertical tiling'
+      }
+      onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
+      iconNode={
+        props.glazewm?.tilingDirection === 'horizontal'
+          ? icon('custom-split-horizontal')
+          : icon('custom-split-vertical')
+      }
+    />
   );
 }
 
@@ -594,29 +602,31 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
 
   return (
     <Show when={hasCpu() || hasMemory()}>
-      <button
-        class="chip chip-metric-combo chip-priority"
-        type="button"
-        title="Open Task Manager"
-        aria-label="Open Task Manager"
-        onClick={() => void openTaskManager()}
-      >
-        <Show when={hasCpu()}>
-          <span class="metric-pair tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
-            {icon('nf-oct-cpu')}
-            <span>{percent(props.cpu?.usage)}</span>
-          </span>
-        </Show>
-        <Show when={hasMemory()}>
-          <span
-            class="metric-pair tone-iris"
-            title={`Memory ${percent(props.memory?.usage)}`}
-          >
-            {icon('custom-memory')}
-            <span>{percent(props.memory?.usage)}</span>
-          </span>
-        </Show>
-      </button>
+      <div class="chip chip-metric-combo chip-priority">
+        <button
+          class="metric-combo-action"
+          type="button"
+          title="Open Task Manager"
+          aria-label="Open Task Manager"
+          onClick={() => void openTaskManager()}
+        >
+          <Show when={hasCpu()}>
+            <span class="metric-pair tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
+              {icon('nf-oct-cpu')}
+              <span class="metric-value">{percent(props.cpu?.usage)}</span>
+            </span>
+          </Show>
+          <Show when={hasMemory()}>
+            <span
+              class="metric-pair tone-iris"
+              title={`Memory ${percent(props.memory?.usage)}`}
+            >
+              {icon('custom-memory')}
+              <span class="metric-value">{percent(props.memory?.usage)}</span>
+            </span>
+          </Show>
+        </button>
+      </div>
     </Show>
   );
 }
