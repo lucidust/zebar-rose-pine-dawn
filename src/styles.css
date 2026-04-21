@@ -1,4 +1,4 @@
-@import 'https://www.nerdfonts.com/assets/css/webfont.css';
+/* Rosé Pine Dawn palette values follow the official references linked in README.md and README.ko.md. */
 
 :root {
   --base: #faf4ed;
@@ -16,11 +16,33 @@
   --highlight-low: #f4ede8;
   --highlight-med: #dfdad9;
   --highlight-high: #cecacd;
-  --shadow: 0 10px 30px rgb(87 82 121 / 10%);
-  --bar-height: 48px;
-  --radius-xl: 18px;
-  --radius-lg: 14px;
-  --radius-md: 10px;
+  --font-sans:
+    'Segoe UI Variable Text',
+    'Aptos',
+    'Noto Sans KR',
+    sans-serif;
+  --font-mono:
+    'Cascadia Mono',
+    'Aptos Mono',
+    'Consolas',
+    'SFMono-Regular',
+    monospace;
+  --brand-width: 280px;
+  --bar-height: 50px;
+  --pill-height: 40px;
+  --pill-radius: 999px;
+  --radius-md: 12px;
+  --shell-padding-x: 10px;
+  --shell-padding-y: 0px;
+  --panel-bg: linear-gradient(
+    180deg,
+    rgb(255 250 243 / 95%),
+    rgb(244 237 232 / 92%)
+  );
+  --panel-border: rgb(87 82 121 / 15%);
+  --panel-shadow:
+    0 10px 24px rgb(87 82 121 / 10%),
+    inset 0 1px 0 rgb(255 255 255 / 55%);
 }
 
 * {
@@ -37,11 +59,7 @@ body {
   margin: 0;
   overflow: hidden;
   color: var(--text);
-  font-family:
-    'Segoe UI Variable Text',
-    'Aptos',
-    'Noto Sans KR',
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   text-rendering: optimizeLegibility;
 }
@@ -55,24 +73,25 @@ button {
   cursor: pointer;
 }
 
-i {
-  color: inherit;
-  font-size: 14px;
+.icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
 }
 
 .bar-shell {
   height: 100%;
-  padding: 4px 10px 2px;
+  padding: var(--shell-padding-y) var(--shell-padding-x);
   background:
-    radial-gradient(circle at top left, rgb(215 130 126 / 12%), transparent 34%),
-    radial-gradient(circle at top right, rgb(40 105 131 / 9%), transparent 28%);
+    radial-gradient(circle at top left, rgb(180 99 122 / 12%), transparent 32%),
+    radial-gradient(circle at top right, rgb(86 148 159 / 10%), transparent 28%);
 }
 
 .bar-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, auto) minmax(0, 1.5fr);
+  grid-template-columns: minmax(var(--brand-width), 1.08fr) minmax(0, auto) minmax(0, 1.47fr);
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   height: 100%;
 }
 
@@ -80,7 +99,7 @@ i {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 8px;
+  gap: 6px;
 }
 
 .zone-left {
@@ -90,82 +109,67 @@ i {
 
 .zone-center {
   justify-content: center;
+  overflow: hidden;
 }
 
 .zone-right {
   justify-content: flex-end;
   overflow: hidden;
+  gap: 5px;
 }
 
 .chip,
-.workspace-pill,
+.workspace-strip,
 .icon-button,
 .tray-button {
-  border: 1px solid rgb(206 202 205 / 70%);
-  background: linear-gradient(
-    180deg,
-    rgb(255 250 243 / 94%),
-    rgb(242 233 225 / 90%)
-  );
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(16px);
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   min-width: 0;
   max-width: 100%;
-  height: 38px;
-  padding: 0 12px;
-  border-radius: var(--radius-lg);
+  height: var(--pill-height);
+  padding: 0 10px;
+  border-radius: var(--pill-radius);
   white-space: nowrap;
 }
 
 .chip-brand {
-  padding-left: 8px;
-  min-width: 182px;
+  width: var(--brand-width);
+  min-width: var(--brand-width);
+  max-width: var(--brand-width);
+  padding-left: 6px;
+  flex: 0 0 auto;
 }
 
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--surface);
 }
 
-.chip-accent-iris .brand-mark,
 .chip-accent-iris {
   color: var(--iris);
 }
 
-.chip-accent-foam .brand-mark,
 .chip-accent-foam {
   color: var(--foam);
 }
 
-.chip-accent-rose .brand-mark,
 .chip-accent-rose {
   color: var(--rose);
 }
 
-.chip-accent-iris .brand-mark {
-  background: linear-gradient(135deg, var(--iris), var(--pine));
-}
-
-.chip-accent-foam .brand-mark {
-  background: linear-gradient(135deg, var(--foam), var(--pine));
-}
-
-.chip-accent-rose .brand-mark {
-  background: linear-gradient(135deg, var(--rose), var(--love));
+.chip-accent-iris .chip-label,
+.chip-accent-foam .chip-label,
+.chip-accent-rose .chip-label {
+  color: var(--text);
 }
 
 .chip-warning {
@@ -175,40 +179,49 @@ i {
 .chip-button {
   background: linear-gradient(
     180deg,
-    rgb(255 250 243 / 98%),
-    rgb(244 237 232 / 96%)
+    rgb(255 250 243 / 97%),
+    rgb(244 237 232 / 95%)
   );
 }
 
+.chip-button .icon,
+.chip-icon .icon {
+  width: 16px;
+  height: 16px;
+}
+
 .chip-icon {
-  width: 38px;
+  width: 40px;
   padding: 0;
   justify-content: center;
 }
 
 .chip-time {
-  min-width: 228px;
+  min-width: 176px;
   justify-content: center;
-  font-weight: 600;
 }
 
 .time-text {
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .chip-media {
-  min-width: 240px;
-  max-width: 340px;
+  min-width: 182px;
+  max-width: 240px;
 }
 
 .chip-audio {
-  min-width: 215px;
+  min-width: 176px;
 }
 
 .chip-summary {
-  min-width: 200px;
-  max-width: 320px;
+  min-width: 152px;
+  max-width: 220px;
 }
 
 .chip-mini {
@@ -216,14 +229,18 @@ i {
 }
 
 .chip-system {
-  min-width: 132px;
+  gap: 6px;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
-.chip-summary .chip-label,
-.chip-summary .chip-detail,
-.chip-media .chip-label,
-.chip-media .chip-detail {
-  max-width: 100%;
+.chip-metric {
+  padding: 0 4px;
+  min-width: 64px;
+}
+
+.chip-priority {
+  flex: 0 0 auto;
 }
 
 .chip-systray {
@@ -236,14 +253,14 @@ i {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  line-height: 1.05;
+  line-height: 1.08;
 }
 
 .chip-label,
 .chip-detail,
 .time-text,
 .workspace-pill,
-.inline-metrics span {
+.metric-pill span {
   font-variant-numeric: tabular-nums;
 }
 
@@ -264,15 +281,72 @@ i {
   color: var(--subtle);
 }
 
+.brand-sentence,
+.brand-category {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.brand-sentence {
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+}
+
+.brand-category {
+  font-size: 9.5px;
+}
+
 .media-copy {
   flex: 1;
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.icon-badge .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tone-love {
+  color: var(--love);
+}
+
+.tone-gold {
+  color: var(--gold);
+}
+
+.tone-rose {
+  color: var(--rose);
+}
+
+.tone-pine {
+  color: var(--pine);
+}
+
+.tone-foam {
+  color: var(--foam);
+}
+
+.tone-iris {
+  color: var(--iris);
 }
 
 .workspace-strip {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 6px;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: var(--pill-radius);
   overflow: hidden;
 }
 
@@ -280,45 +354,94 @@ i {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
-  min-width: 34px;
-  padding: 0 12px;
-  border-radius: var(--radius-md);
-  color: var(--subtle);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--workspace-accent, var(--iris));
   flex: 0 0 auto;
-}
-
-.workspace-pill.focused {
-  background: linear-gradient(180deg, rgb(144 122 169 / 18%), rgb(215 130 126 / 16%));
-  border-color: rgb(144 122 169 / 45%);
-  color: var(--iris);
-}
-
-.workspace-pill.displayed:not(.focused) {
-  border-color: rgb(86 148 159 / 42%);
-  color: var(--foam);
+  transition:
+    transform 120ms ease,
+    color 120ms ease,
+    opacity 120ms ease;
 }
 
 .workspace-pill-passive {
   cursor: default;
 }
 
-.workspace-pill:hover {
-  border-color: rgb(144 122 169 / 50%);
-  color: var(--text);
+.workspace-dot {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.48;
+  box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 11%, transparent);
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease,
+    box-shadow 120ms ease;
 }
 
-.inline-actions,
-.inline-metrics {
+.workspace-pill.displayed .workspace-dot {
+  opacity: 0.82;
+}
+
+.workspace-pill.focused .workspace-dot {
+  opacity: 1;
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, currentColor 14%, transparent),
+    0 0 0 1.5px rgb(255 255 255 / 50%) inset;
+}
+
+.workspace-pill:hover .workspace-dot {
+  opacity: 1;
+}
+
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  min-width: 52px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 11%, transparent);
+}
+
+.metric-pill .icon {
+  width: 15px;
+  height: 15px;
+}
+
+.metric-pill span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.battery-icon.good {
+  color: var(--foam);
+}
+
+.battery-icon.mid {
+  color: var(--gold);
+}
+
+.battery-icon.low,
+.battery-icon.charging {
+  color: var(--love);
+}
+
+.inline-actions {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-}
-
-.inline-metrics {
-  gap: 8px;
-  color: var(--subtle);
-  font-weight: 700;
 }
 
 .icon-button,
@@ -339,7 +462,7 @@ i {
 }
 
 .volume-slider {
-  width: 74px;
+  width: 58px;
   accent-color: var(--iris);
 }
 
@@ -380,13 +503,17 @@ i {
 }
 
 @media (max-width: 1460px) {
+  :root {
+    --brand-width: 260px;
+  }
+
   .chip-time {
-    min-width: 188px;
+    min-width: 164px;
   }
 
   .chip-media {
-    min-width: 200px;
-    max-width: 250px;
+    min-width: 168px;
+    max-width: 220px;
   }
 
   .responsive-hide-lg {
@@ -395,8 +522,12 @@ i {
 }
 
 @media (max-width: 1220px) {
+  :root {
+    --brand-width: 238px;
+  }
+
   .bar-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, auto) minmax(0, 1.15fr);
+    grid-template-columns: minmax(var(--brand-width), 1fr) minmax(0, auto) minmax(0, 1.2fr);
   }
 
   .responsive-hide-md {
@@ -406,7 +537,7 @@ i {
 
 @media (max-width: 960px) {
   .bar-shell {
-    padding-inline: 6px;
+    padding-inline: 8px;
   }
 
   .bar-grid {

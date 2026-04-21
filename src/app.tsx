@@ -1,5 +1,6 @@
-import { For, Show } from 'solid-js';
+import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
+import { resolveBrandCopy } from './brand-copy';
 import { batteryIcon, icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
@@ -21,6 +22,12 @@ type AppProps = {
   variant: Variant;
 };
 
+type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris';
+
+function workspaceAccentVar(index: number) {
+  return `var(--ws-${(index % 6) + 1})`;
+}
+
 export function App(props: AppProps) {
   const [output, setOutput] = createStore<Record<string, any>>(
     props.providers.outputMap as Record<string, any>,
@@ -41,7 +48,7 @@ export function App(props: AppProps) {
     if (props.variant === 'with-glazewm') {
       return (
         <>
-          <BrandChip label="RPD" detail="GlazeWM" accent="iris" />
+          <BrandChip variant="with-glazewm" accent="iris" />
           <GlazeWorkspaceStrip glazewm={glaze()} />
         </>
       );
@@ -50,7 +57,7 @@ export function App(props: AppProps) {
     if (props.variant === 'with-komorebi') {
       return (
         <>
-          <BrandChip label="RPD" detail="Komorebi" accent="foam" />
+          <BrandChip variant="with-komorebi" accent="foam" />
           <KomorebiWorkspaceStrip komorebi={komorebi()} />
         </>
       );
@@ -58,7 +65,7 @@ export function App(props: AppProps) {
 
     return (
       <>
-        <BrandChip label="RPD" detail="Vanilla" accent="rose" />
+        <BrandChip variant="vanilla" accent="rose" />
         <WeatherChip weather={weather()} />
       </>
     );
@@ -73,6 +80,7 @@ export function App(props: AppProps) {
               iconNode={icon('nf-md-application_outline')}
               label={glazeFocusedLabel(glaze())}
               detail={glazeFocusedDetail(glaze())}
+              tone="iris"
             />
           </Show>
           <DateTimeChip value={date()} />
@@ -88,6 +96,7 @@ export function App(props: AppProps) {
               iconNode={icon('nf-md-view_dashboard')}
               label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
               detail={komorebiWorkspaceDetail(komorebi())}
+              tone="foam"
             />
           </Show>
           <DateTimeChip value={date()} />
@@ -111,13 +120,14 @@ export function App(props: AppProps) {
           <Show when={props.variant === 'with-glazewm' && glaze()}>
             <GlazeControls glazewm={glaze()} />
           </Show>
-          <MediaChip media={media()} mediaProvider={output.media} />
-          <AudioChip audio={audio()} audioProvider={output.audio} />
+          <MemoryChip memory={output.memory} />
+          <CpuChip cpu={output.cpu} />
+          <BatteryChip battery={output.battery} />
+          <KeyboardChip keyboard={output.keyboard} />
           <NetworkChip network={output.network} />
           <WeatherChip weather={weather()} />
-          <KeyboardChip keyboard={output.keyboard} />
-          <SystemChip cpu={output.cpu} memory={output.memory} />
-          <BatteryChip battery={output.battery} />
+          <AudioChip audio={audio()} audioProvider={output.audio} />
+          <MediaChip media={media()} mediaProvider={output.media} />
           <SystrayStrip systray={output.systray} />
         </div>
       </div>
@@ -126,16 +136,40 @@ export function App(props: AppProps) {
 }
 
 function BrandChip(props: {
-  label: string;
-  detail: string;
+  variant: Variant;
   accent: 'iris' | 'foam' | 'rose';
 }) {
+  const [now, setNow] = createSignal(new Date());
+  let refreshTimer: number | undefined;
+
+  const scheduleRefresh = () => {
+    const current = new Date();
+    const next = new Date(current);
+    next.setHours(24, 0, 2, 0);
+
+    refreshTimer = window.setTimeout(() => {
+      setNow(new Date());
+      scheduleRefresh();
+    }, Math.max(1_000, next.getTime() - current.getTime()));
+  };
+
+  scheduleRefresh();
+  onCleanup(() => {
+    if (refreshTimer != null) {
+      window.clearTimeout(refreshTimer);
+    }
+  });
+
+  const copy = createMemo(() => resolveBrandCopy(props.variant, now()));
+
   return (
     <div class={`chip chip-brand chip-accent-${props.accent}`}>
-      <div class="brand-mark">{props.label}</div>
+      <div class="brand-mark">
+        <IconBadge node={icon('custom-tulip')} tone={props.accent} />
+      </div>
       <div class="stacked">
-        <span class="chip-label">Zebar Rose Pine Dawn</span>
-        <span class="chip-detail">{props.detail}</span>
+        <span class="chip-label brand-sentence">{copy().sentence}</span>
+        <span class="chip-detail brand-category">{copy().detail}</span>
       </div>
     </div>
   );
@@ -145,10 +179,11 @@ function SummaryChip(props: {
   iconNode: any;
   label: string;
   detail: string;
+  tone: Tone;
 }) {
   return (
     <div class="chip chip-summary responsive-hide-sm">
-      {props.iconNode}
+      <IconBadge node={props.iconNode} tone={props.tone} />
       <div class="stacked">
         <span class="chip-label">{props.label}</span>
         <span class="chip-detail">{props.detail}</span>
@@ -160,7 +195,7 @@ function SummaryChip(props: {
 function DateTimeChip(props: { value: string }) {
   return (
     <div class="chip chip-time">
-      {icon('nf-md-calendar_clock')}
+      <IconBadge node={icon('nf-md-calendar_clock')} tone="gold" />
       <span class="time-text">{props.value}</span>
     </div>
   );
@@ -170,7 +205,7 @@ function WeatherChip(props: { weather: any }) {
   return (
     <Show when={props.weather}>
       <div class="chip responsive-hide-md">
-        {weatherIcon(props.weather)}
+        <IconBadge node={weatherIcon(props.weather)} tone="gold" />
         <div class="stacked">
           <span class="chip-label">Weather</span>
           <span class="chip-detail">{weatherLabel(props.weather)}</span>
@@ -185,15 +220,17 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
     <Show when={props.glazewm?.currentWorkspaces?.length}>
       <div class="workspace-strip">
         <For each={props.glazewm.currentWorkspaces}>
-          {(workspace: any) => (
+          {(workspace: any, index) => (
             <button
               class={`workspace-pill ${workspace.hasFocus ? 'focused' : ''} ${workspace.isDisplayed ? 'displayed' : ''}`}
+              style={{ '--workspace-accent': workspaceAccentVar(index()) }}
               onClick={() =>
                 props.glazewm.runCommand(`focus --workspace ${workspace.name}`)
               }
               title={`${workspaceLabel(workspace)} workspace`}
+              aria-label={`${workspaceLabel(workspace)} workspace`}
             >
-              {workspaceLabel(workspace)}
+              <span class="workspace-dot" />
             </button>
           )}
         </For>
@@ -207,7 +244,7 @@ function KomorebiWorkspaceStrip(props: { komorebi: any }) {
     <Show when={props.komorebi?.currentWorkspaces?.length}>
       <div class="workspace-strip">
         <For each={props.komorebi.currentWorkspaces}>
-          {(workspace: any) => (
+          {(workspace: any, index) => (
             <div
               class={`workspace-pill workspace-pill-passive ${
                 workspace.name === props.komorebi?.focusedWorkspace?.name
@@ -218,9 +255,11 @@ function KomorebiWorkspaceStrip(props: { komorebi: any }) {
                   ? 'displayed'
                   : ''
               }`}
+              style={{ '--workspace-accent': workspaceAccentVar(index()) }}
               title={`${workspace.name} workspace`}
+              aria-label={`${workspace.name} workspace`}
             >
-              {workspace.name}
+              <span class="workspace-dot" />
             </div>
           )}
         </For>
@@ -273,7 +312,7 @@ function MediaChip(props: { media: any; mediaProvider: any }) {
   return (
     <Show when={props.media}>
       <div class="chip chip-media responsive-hide-sm">
-        {icon('nf-md-music_note')}
+        <IconBadge node={icon('nf-md-music_note')} tone="rose" />
         <div class="stacked media-copy">
           <span class="chip-label">
             {compactTitle(props.media?.title, 'No media')}
@@ -330,7 +369,7 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
   return (
     <Show when={props.audio}>
       <div class="chip chip-audio responsive-hide-lg">
-        {icon('nf-md-volume_high')}
+        <IconBadge node={icon('nf-md-volume_high')} tone="foam" />
         <div class="stacked">
           <span class="chip-label">
             {compactTitle(props.audio?.name, 'Audio')}
@@ -357,7 +396,7 @@ function NetworkChip(props: { network: any }) {
   return (
     <Show when={props.network}>
       <div class="chip responsive-hide-md">
-        {networkIcon(props.network)}
+        <IconBadge node={networkIcon(props.network)} tone="pine" />
         <div class="stacked">
           <span class="chip-label">Network</span>
           <span class="chip-detail">{compactTitle(networkLabel(props.network), 'Offline')}</span>
@@ -369,23 +408,35 @@ function NetworkChip(props: { network: any }) {
 
 function KeyboardChip(props: { keyboard: any }) {
   return (
-    <Show when={props.keyboard}>
-      <div class="chip chip-mini">
-        {icon('nf-md-keyboard')}
+    <Show when={props.keyboard != null}>
+      <div class="chip chip-mini responsive-hide-lg">
+        <IconBadge node={icon('nf-md-keyboard')} tone="iris" />
         <span>{props.keyboard?.layout ?? 'Input'}</span>
       </div>
     </Show>
   );
 }
 
-function SystemChip(props: { cpu: any; memory: any }) {
+function MemoryChip(props: { memory: any }) {
   return (
-    <Show when={props.cpu || props.memory}>
-      <div class="chip chip-system responsive-hide-xl">
-        {icon('nf-oct-cpu')}
-        <div class="inline-metrics">
-          <span>CPU {percent(props.cpu?.usage)}</span>
-          <span>MEM {percent(props.memory?.usage)}</span>
+    <Show when={props.memory != null}>
+      <div class="chip chip-metric chip-priority">
+        <div class="metric-pill tone-iris" title={`Memory ${percent(props.memory?.usage)}`}>
+          {icon('custom-memory')}
+          <span>{percent(props.memory?.usage)}</span>
+        </div>
+      </div>
+    </Show>
+  );
+}
+
+function CpuChip(props: { cpu: any }) {
+  return (
+    <Show when={props.cpu != null}>
+      <div class="chip chip-metric chip-priority responsive-hide-md">
+        <div class="metric-pill tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
+          {icon('nf-oct-cpu')}
+          <span>{percent(props.cpu?.usage)}</span>
         </div>
       </div>
     </Show>
@@ -394,9 +445,9 @@ function SystemChip(props: { cpu: any; memory: any }) {
 
 function BatteryChip(props: { battery: any }) {
   return (
-    <Show when={props.battery}>
-      <div class="chip chip-mini">
-        {batteryIcon(props.battery)}
+    <Show when={props.battery != null}>
+      <div class="chip chip-mini chip-priority">
+        <IconBadge node={batteryIcon(props.battery)} tone="foam" />
         <div class="stacked">
           <span class="chip-label">{batteryStatusText(props.battery)}</span>
           <span class="chip-detail">{batteryDetail(props.battery)}</span>
@@ -431,4 +482,8 @@ function SystrayStrip(props: { systray: any }) {
       </div>
     </Show>
   );
+}
+
+function IconBadge(props: { node: any; tone: Tone }) {
+  return <span class={`icon-badge tone-${props.tone}`}>{props.node}</span>;
 }

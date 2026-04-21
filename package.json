@@ -7,6 +7,7 @@
     "build": "vite build",
     "dev": "vite build --watch",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "check:brand-copy": "node ./tools/check-brand-copy-fit.mjs",
     "typecheck": "tsc --noEmit",
     "validate:pack": "node ./tools/validate-zpack.mjs"
   },

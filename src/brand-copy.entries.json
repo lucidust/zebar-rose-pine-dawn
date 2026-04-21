@@ -1,0 +1,329 @@
+[
+  {
+    "id": "ten-years-a-lifes-change",
+    "sentence": "Ten years, a life's change.",
+    "sentenceKo": "고작 10년이 삶을 바꿨다.",
+    "categoryId": "time-and-patience",
+    "category": "Time & Patience",
+    "categoryKo": "시간을 대하는 태도"
+  },
+  {
+    "id": "just-a-moment-but-forever",
+    "sentence": "Just a moment, but forever.",
+    "sentenceKo": "찰나였으나, 영원이 되었다.",
+    "categoryId": "time-and-patience",
+    "category": "Time & Patience",
+    "categoryKo": "시간을 대하는 태도"
+  },
+  {
+    "id": "waste-years-find-flowers",
+    "sentence": "Waste years, find flowers.",
+    "sentenceKo": "꽃을 찾기 위해 세월을 낭비하라.",
+    "categoryId": "time-and-patience",
+    "category": "Time & Patience",
+    "categoryKo": "시간을 대하는 태도"
+  },
+  {
+    "id": "slow-magic-deep-roots",
+    "sentence": "Slow magic, deep roots.",
+    "sentenceKo": "느린 마법이 깊은 뿌리를 내린다.",
+    "categoryId": "time-and-patience",
+    "category": "Time & Patience",
+    "categoryKo": "시간을 대하는 태도"
+  },
+  {
+    "id": "endless-time-finite-love",
+    "sentence": "Endless time, finite love.",
+    "sentenceKo": "무한한 시간 속, 유한한 사랑.",
+    "categoryId": "time-and-patience",
+    "category": "Time & Patience",
+    "categoryKo": "시간을 대하는 태도"
+  },
+
+  {
+    "id": "trifles-made-us-us",
+    "sentence": "Trifles made us us.",
+    "sentenceKo": "시시한 일들이 우리를 우리로 만들었다.",
+    "categoryId": "himmels-legacy",
+    "category": "Himmel's Legacy",
+    "categoryKo": "힘멜의 유산"
+  },
+  {
+    "id": "statues-fade-hearts-remain",
+    "sentence": "Statues fade, hearts remain.",
+    "sentenceKo": "동상은 바래도, 마음은 남는다.",
+    "categoryId": "himmels-legacy",
+    "category": "Himmel's Legacy",
+    "categoryKo": "힘멜의 유산"
+  },
+  {
+    "id": "fairy-tales-are-real-now",
+    "sentence": "Fairy tales are real now.",
+    "sentenceKo": "동화는 이제 현실이 된다.",
+    "categoryId": "himmels-legacy",
+    "category": "Himmel's Legacy",
+    "categoryKo": "힘멜의 유산"
+  },
+  {
+    "id": "live-so-she-wont-be-alone",
+    "sentence": "Live so she won't be alone.",
+    "sentenceKo": "그녀가 혼자 남지 않도록 살아라.",
+    "categoryId": "himmels-legacy",
+    "category": "Himmel's Legacy",
+    "categoryKo": "힘멜의 유산"
+  },
+  {
+    "id": "a-smile-worth-a-century",
+    "sentence": "A smile worth a century.",
+    "sentenceKo": "백 년의 가치가 있는 미소.",
+    "categoryId": "himmels-legacy",
+    "category": "Himmel's Legacy",
+    "categoryKo": "힘멜의 유산"
+  },
+
+  {
+    "id": "the-detour-is-the-journey",
+    "sentence": "The detour is the journey.",
+    "sentenceKo": "되돌아가는 길이 곧 여정이다.",
+    "categoryId": "journey-and-destination",
+    "category": "Journey & Destination",
+    "categoryKo": "여정과 목적지"
+  },
+  {
+    "id": "to-know-him-i-walk",
+    "sentence": "To know him, I walk.",
+    "sentenceKo": "그를 알기 위해, 나는 걷는다.",
+    "categoryId": "journey-and-destination",
+    "category": "Journey & Destination",
+    "categoryKo": "여정과 목적지"
+  },
+  {
+    "id": "backtrack-to-move-forward",
+    "sentence": "Backtrack to move forward.",
+    "sentenceKo": "앞으로 가기 위해 뒤를 돌아본다.",
+    "categoryId": "journey-and-destination",
+    "category": "Journey & Destination",
+    "categoryKo": "여정과 목적지"
+  },
+  {
+    "id": "search-for-the-useless-spells",
+    "sentence": "Search for the useless spells.",
+    "sentenceKo": "쓸모없는 마법들을 찾아 헤매라.",
+    "categoryId": "journey-and-destination",
+    "category": "Journey & Destination",
+    "categoryKo": "여정과 목적지"
+  },
+  {
+    "id": "sunrise-is-better-together",
+    "sentence": "Sunrise is better together.",
+    "sentenceKo": "일출은 함께 볼 때 더 아름답다.",
+    "categoryId": "journey-and-destination",
+    "category": "Journey & Destination",
+    "categoryKo": "여정과 목적지"
+  },
+
+  {
+    "id": "human-lives-blink-of-an-eye",
+    "sentence": "Human lives, blink of an eye.",
+    "sentenceKo": "인간의 삶은 눈 깜빡임일 뿐.",
+    "categoryId": "frierens-perspective",
+    "category": "Frieren's Perspective",
+    "categoryKo": "프리렌의 감각"
+  },
+  {
+    "id": "tearful-goodbye-hopeful-hello",
+    "sentence": "Tearful goodbye, hopeful hello.",
+    "sentenceKo": "눈물 어린 작별, 희망찬 인사.",
+    "categoryId": "frierens-perspective",
+    "category": "Frieren's Perspective",
+    "categoryKo": "프리렌의 감각"
+  },
+  {
+    "id": "small-steps-grand-memories",
+    "sentence": "Small steps, grand memories.",
+    "sentenceKo": "작은 발걸음, 거대한 기억.",
+    "categoryId": "frierens-perspective",
+    "category": "Frieren's Perspective",
+    "categoryKo": "프리렌의 감각"
+  },
+  {
+    "id": "magic-is-imagination",
+    "sentence": "Magic is imagination.",
+    "sentenceKo": "마법은 곧 상상력이다.",
+    "categoryId": "frierens-perspective",
+    "category": "Frieren's Perspective",
+    "categoryKo": "프리렌의 감각"
+  },
+  {
+    "id": "wait-for-the-melt",
+    "sentence": "Wait for the melt.",
+    "sentenceKo": "눈이 녹기를 기다려라.",
+    "categoryId": "frierens-perspective",
+    "category": "Frieren's Perspective",
+    "categoryKo": "프리렌의 감각"
+  },
+
+  {
+    "id": "cold-metal-warm-memories",
+    "sentence": "Cold metal, warm memories.",
+    "sentenceKo": "차가운 금속, 따뜻한 기억.",
+    "categoryId": "the-warmth-left-behind",
+    "category": "The Warmth Left Behind",
+    "categoryKo": "남겨진 온기"
+  },
+  {
+    "id": "himmels-path-frierens-pace",
+    "sentence": "Himmel's path, Frieren's pace.",
+    "sentenceKo": "힘멜의 길을 프리렌의 걸음으로.",
+    "categoryId": "the-warmth-left-behind",
+    "category": "The Warmth Left Behind",
+    "categoryKo": "남겨진 온기"
+  },
+  {
+    "id": "old-scars-new-blossoms",
+    "sentence": "Old scars, new blossoms.",
+    "sentenceKo": "오래된 흉터 위에 피어난 새 꽃.",
+    "categoryId": "the-warmth-left-behind",
+    "category": "The Warmth Left Behind",
+    "categoryKo": "남겨진 온기"
+  },
+  {
+    "id": "love-learned-too-late",
+    "sentence": "Love learned too late.",
+    "sentenceKo": "너무 늦게 배워버린 사랑.",
+    "categoryId": "the-warmth-left-behind",
+    "category": "The Warmth Left Behind",
+    "categoryKo": "남겨진 온기"
+  },
+  {
+    "id": "brief-lives-eternal-marks",
+    "sentence": "Brief lives, eternal marks.",
+    "sentenceKo": "짧은 생애, 영원한 흔적.",
+    "categoryId": "the-warmth-left-behind",
+    "category": "The Warmth Left Behind",
+    "categoryKo": "남겨진 온기"
+  },
+
+  {
+    "id": "sweet-grapes-sour-days",
+    "sentence": "Sweet grapes, sour days.",
+    "sentenceKo": "시큼한 날들 속의 달콤한 포도.",
+    "categoryId": "the-power-of-trifles",
+    "category": "The Power of Trifles",
+    "categoryKo": "사소함의 위대함"
+  },
+  {
+    "id": "ice-melt-heart-felt",
+    "sentence": "Ice melt, heart felt.",
+    "sentenceKo": "얼음이 녹고, 마음이 닿다.",
+    "categoryId": "the-power-of-trifles",
+    "category": "The Power of Trifles",
+    "categoryKo": "사소함의 위대함"
+  },
+  {
+    "id": "a-spell-for-a-smile",
+    "sentence": "A spell for a smile.",
+    "sentenceKo": "미소를 위한 마법 한 줄.",
+    "categoryId": "the-power-of-trifles",
+    "category": "The Power of Trifles",
+    "categoryKo": "사소함의 위대함"
+  },
+  {
+    "id": "ordinary-days-extraordinary-us",
+    "sentence": "Ordinary days, extraordinary us.",
+    "sentenceKo": "평범한 날들, 특별했던 우리.",
+    "categoryId": "the-power-of-trifles",
+    "category": "The Power of Trifles",
+    "categoryKo": "사소함의 위대함"
+  },
+  {
+    "id": "meaning-in-the-meaningless",
+    "sentence": "Meaning in the meaningless.",
+    "sentenceKo": "의미 없는 것들 속의 의미.",
+    "categoryId": "the-power-of-trifles",
+    "category": "The Power of Trifles",
+    "categoryKo": "사소함의 위대함"
+  },
+
+  {
+    "id": "fifty-years-a-mere-wink",
+    "sentence": "Fifty years, a mere wink.",
+    "sentenceKo": "50년, 그저 한 번의 깜빡임.",
+    "categoryId": "waiting-and-meeting",
+    "category": "Waiting & Meeting",
+    "categoryKo": "긴 기다림과 짧은 만남"
+  },
+  {
+    "id": "wait-for-the-starlight",
+    "sentence": "Wait for the starlight.",
+    "sentenceKo": "별빛이 닿기를 기다려라.",
+    "categoryId": "waiting-and-meeting",
+    "category": "Waiting & Meeting",
+    "categoryKo": "긴 기다림과 짧은 만남"
+  },
+  {
+    "id": "echoes-of-a-hero",
+    "sentence": "Echoes of a hero.",
+    "sentenceKo": "용사가 남긴 메아리.",
+    "categoryId": "waiting-and-meeting",
+    "category": "Waiting & Meeting",
+    "categoryKo": "긴 기다림과 짧은 만남"
+  },
+  {
+    "id": "walk-slow-talk-long",
+    "sentence": "Walk slow, talk long.",
+    "sentenceKo": "천천히 걷고, 길게 대화하라.",
+    "categoryId": "waiting-and-meeting",
+    "category": "Waiting & Meeting",
+    "categoryKo": "긴 기다림과 짧은 만남"
+  },
+  {
+    "id": "parting-is-a-new-start",
+    "sentence": "Parting is a new start.",
+    "sentenceKo": "작별은 새로운 시작일 뿐.",
+    "categoryId": "waiting-and-meeting",
+    "category": "Waiting & Meeting",
+    "categoryKo": "긴 기다림과 짧은 만남"
+  },
+
+  {
+    "id": "beyond-magic-towards-you",
+    "sentence": "Beyond magic, towards you.",
+    "sentenceKo": "마법을 넘어, 당신에게로.",
+    "categoryId": "magic-and-heart",
+    "category": "Magic & Heart",
+    "categoryKo": "마법과 마음"
+  },
+  {
+    "id": "imagine-the-impossible-joy",
+    "sentence": "Imagine the impossible joy.",
+    "sentenceKo": "불가능한 기쁨을 상상하라.",
+    "categoryId": "magic-and-heart",
+    "category": "Magic & Heart",
+    "categoryKo": "마법과 마음"
+  },
+  {
+    "id": "a-journey-to-say-hello",
+    "sentence": "A journey to say hello.",
+    "sentenceKo": "안녕이라 말하기 위한 여정.",
+    "categoryId": "magic-and-heart",
+    "category": "Magic & Heart",
+    "categoryKo": "마법과 마음"
+  },
+  {
+    "id": "time-flows-love-stays",
+    "sentence": "Time flows, love stays.",
+    "sentenceKo": "시간은 흐르고, 사랑은 머문다.",
+    "categoryId": "magic-and-heart",
+    "category": "Magic & Heart",
+    "categoryKo": "마법과 마음"
+  },
+  {
+    "id": "end-of-quest-start-of-life",
+    "sentence": "End of quest, start of life.",
+    "sentenceKo": "퀘스트의 끝, 삶의 시작.",
+    "categoryId": "magic-and-heart",
+    "category": "Magic & Heart",
+    "categoryKo": "마법과 마음"
+  }
+]
