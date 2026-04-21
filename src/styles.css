@@ -103,11 +103,13 @@ button {
 .zone-left {
   justify-content: flex-start;
   overflow: hidden;
+  gap: 5px;
 }
 
 .zone-center {
   justify-content: center;
   overflow: hidden;
+  padding-inline: 8px;
 }
 
 .zone-right {
@@ -212,6 +214,7 @@ button {
 .chip-weather {
   min-width: 78px;
   gap: 5px;
+  flex: 0 0 auto;
 }
 
 .chip-network {
@@ -256,6 +259,15 @@ button {
 .chip-metric {
   padding: 0 4px;
   min-width: 64px;
+}
+
+.chip-metric-combo {
+  gap: 10px;
+  padding: 0 10px;
+  min-width: 126px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  color: var(--text);
 }
 
 .chip-priority {
@@ -486,6 +498,24 @@ button {
 }
 
 .metric-pill span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.metric-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.metric-pair .icon {
+  width: 15px;
+  height: 15px;
+}
+
+.metric-pair span {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;

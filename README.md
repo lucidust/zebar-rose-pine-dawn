@@ -50,13 +50,13 @@ Use the Rosé Pine Dawn values from the official palette references above as the
 
 ## Layout Guidelines
 
-- Keep the shipped variants aligned to the same zone order: left for brand plus workspace strip when available, center for context summary plus date/time, right for weather and system widgets.
+- Keep the shipped variants aligned to the same zone order: left for brand, workspace-aware context, and WM controls when available; center for media; right for shared system widgets ending with weather and date/time.
 - Restrict variant-specific differences to workspace-aware content and WM controls; do not reorder shared system widgets per variant without updating all shipped variants together.
 - Treat `vanilla`, `with-glazewm`, and `with-komorebi` as one layout family for future maintenance.
 
 ## Features
 
 - Rose Pine Dawn palette-driven theme
-- System tray overflow popover, media controls, audio, network, traffic, weather, battery, and CPU/memory indicators
+- System tray overflow popover, centered media controls, audio, network traffic, weather, and a combined CPU/memory indicator
 - Workspace switching and WM controls in `with-glazewm`
 - Responsive top bar layout that collapses lower-priority content on narrower widths

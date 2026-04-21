@@ -50,13 +50,13 @@ pnpm build
 
 ## 레이아웃 가이드
 
-- shipped variant는 같은 zone 순서를 유지합니다: 왼쪽은 브랜드와 가능한 경우 workspace strip, 중앙은 context summary와 날짜/시간, 오른쪽은 날씨와 시스템 위젯입니다.
+- shipped variant는 같은 zone 순서를 유지합니다: 왼쪽은 브랜드, workspace 인식 컨텍스트, WM 제어이고, 중앙은 미디어, 오른쪽은 공용 시스템 위젯과 마지막의 날씨/날짜·시간입니다.
 - variant별 차이는 workspace 인식 요소와 WM 제어에 한정하고, 공용 시스템 위젯의 순서는 한 variant만 따로 바꾸지 않습니다.
 - 앞으로도 `vanilla`, `with-glazewm`, `with-komorebi`를 하나의 레이아웃 계열로 보고 함께 유지보수합니다.
 
 ## 특징
 
 - Rose Pine Dawn 공식 팔레트 기반 테마
-- 시스템 트레이 overflow popover, 미디어 제어, 오디오, 네트워크, traffic, 날씨, 배터리, CPU/메모리 표시
+- 시스템 트레이 overflow popover, 중앙 미디어 제어, 오디오, 네트워크 traffic, 날씨, 통합 CPU/메모리 표시
 - `with-glazewm`에서 workspace 클릭, pause 상태, binding mode, tiling direction 제어
 - 좁은 폭에서 낮은 우선순위 텍스트가 자연스럽게 축약되는 반응형 상단 바

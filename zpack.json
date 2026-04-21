@@ -21,7 +21,12 @@
         "rules": []
       },
       "privileges": {
-        "shellCommands": []
+        "shellCommands": [
+          {
+            "program": "Taskmgr.exe",
+            "argsRegex": ".*"
+          }
+        ]
       },
       "presets": [
         {
@@ -56,7 +61,12 @@
         "rules": []
       },
       "privileges": {
-        "shellCommands": []
+        "shellCommands": [
+          {
+            "program": "Taskmgr.exe",
+            "argsRegex": ".*"
+          }
+        ]
       },
       "presets": [
         {
@@ -91,7 +101,12 @@
         "rules": []
       },
       "privileges": {
-        "shellCommands": []
+        "shellCommands": [
+          {
+            "program": "Taskmgr.exe",
+            "argsRegex": ".*"
+          }
+        ]
       },
       "presets": [
         {

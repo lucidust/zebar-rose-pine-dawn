@@ -1,3 +1,4 @@
+import * as zebar from 'zebar';
 import {
   For,
   Show,
@@ -14,7 +15,6 @@ import {
   batteryDetail,
   batteryStatusText,
   clamp,
-  compactNetworkLabel,
   compactTitle,
   formatDataAmount,
   formatDataRate,
@@ -59,6 +59,18 @@ export function App(props: AppProps) {
         <>
           <BrandChip variant="with-glazewm" accent="iris" />
           <GlazeWorkspaceStrip glazewm={glaze()} />
+          <Show when={glaze()}>
+            <SummaryChip
+              class="responsive-hide-sm"
+              iconNode={icon('nf-md-application_outline')}
+              label={glazeFocusedLabel(glaze())}
+              detail={glazeFocusedDetail(glaze())}
+              tone="iris"
+            />
+          </Show>
+          <Show when={glaze()}>
+            <GlazeControls glazewm={glaze()} />
+          </Show>
         </>
       );
     }
@@ -68,6 +80,15 @@ export function App(props: AppProps) {
         <>
           <BrandChip variant="with-komorebi" accent="foam" />
           <KomorebiWorkspaceStrip komorebi={komorebi()} />
+          <Show when={komorebi()}>
+            <SummaryChip
+              class="responsive-hide-sm"
+              iconNode={icon('nf-md-view_dashboard')}
+              label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
+              detail={komorebiWorkspaceDetail(komorebi())}
+              tone="foam"
+            />
+          </Show>
         </>
       );
     }
@@ -76,44 +97,18 @@ export function App(props: AppProps) {
   }
 
   function renderCenterZone() {
-    if (props.variant === 'with-glazewm') {
-      return (
-        <>
-          <Show when={glaze()}>
-            <SummaryChip
-              iconNode={icon('nf-md-application_outline')}
-              label={glazeFocusedLabel(glaze())}
-              detail={glazeFocusedDetail(glaze())}
-              tone="iris"
-            />
-          </Show>
-          <DateTimeChip value={date()} />
-          <WeatherChip weather={weather()} />
-        </>
-      );
-    }
+    return <MediaChip media={media()} mediaProvider={output.media} />;
+  }
 
-    if (props.variant === 'with-komorebi') {
-      return (
-        <>
-          <Show when={komorebi()}>
-            <SummaryChip
-              iconNode={icon('nf-md-view_dashboard')}
-              label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
-              detail={komorebiWorkspaceDetail(komorebi())}
-              tone="foam"
-            />
-          </Show>
-          <DateTimeChip value={date()} />
-          <WeatherChip weather={weather()} />
-        </>
-      );
-    }
-
+  function renderRightZone() {
     return (
       <>
-        <DateTimeChip value={date()} />
+        <CpuMemoryChip cpu={output.cpu} memory={output.memory} />
+        <NetworkChip network={output.network} />
+        <SystrayStrip systray={output.systray} />
+        <AudioChip audio={audio()} audioProvider={output.audio} />
         <WeatherChip weather={weather()} />
+        <DateTimeChip value={date()} />
       </>
     );
   }
@@ -123,18 +118,7 @@ export function App(props: AppProps) {
       <div class="bar-grid">
         <div class="zone zone-left">{renderLeftZone()}</div>
         <div class="zone zone-center">{renderCenterZone()}</div>
-        <div class="zone zone-right">
-          <Show when={props.variant === 'with-glazewm' && glaze()}>
-            <GlazeControls glazewm={glaze()} />
-          </Show>
-          <MemoryChip memory={output.memory} />
-          <CpuChip cpu={output.cpu} />
-          <BatteryChip battery={output.battery} />
-          <NetworkChip network={output.network} />
-          <AudioChip audio={audio()} audioProvider={output.audio} />
-          <MediaChip media={media()} mediaProvider={output.media} />
-          <SystrayStrip systray={output.systray} />
-        </div>
+        <div class="zone zone-right">{renderRightZone()}</div>
       </div>
     </div>
   );
@@ -194,13 +178,14 @@ function BrandChip(props: {
 }
 
 function SummaryChip(props: {
+  class?: string;
   iconNode: any;
   label: string;
   detail: string;
   tone: Tone;
 }) {
   return (
-    <div class="chip chip-summary responsive-hide-sm">
+    <div class={`chip chip-summary ${props.class ?? ''}`.trim()}>
       <IconBadge node={props.iconNode} tone={props.tone} />
       <div class="stacked">
         <span class="chip-label">{props.label}</span>
@@ -222,7 +207,7 @@ function DateTimeChip(props: { value: string }) {
 function WeatherChip(props: { weather: any }) {
   return (
     <Show when={props.weather}>
-      <div class="chip chip-weather responsive-hide-md">
+      <div class="chip chip-weather">
         <IconBadge node={weatherIcon(props.weather)} tone="gold" />
         <span class="weather-value">{weatherLabel(props.weather)}</span>
       </div>
@@ -390,6 +375,14 @@ function MediaChip(props: { media: any; mediaProvider: any }) {
       </div>
     </Show>
   );
+}
+
+async function openTaskManager() {
+  try {
+    await zebar.shellSpawn('Taskmgr.exe');
+  } catch (error) {
+    console.error('Failed to launch Taskmgr.exe', error);
+  }
 }
 
 function AudioChip(props: { audio: any; audioProvider: any }) {
@@ -595,28 +588,35 @@ function NetworkChip(props: { network: any }) {
   );
 }
 
-function MemoryChip(props: { memory: any }) {
-  return (
-    <Show when={props.memory != null}>
-      <div class="chip chip-metric chip-priority">
-        <div class="metric-pill tone-iris" title={`Memory ${percent(props.memory?.usage)}`}>
-          {icon('custom-memory')}
-          <span>{percent(props.memory?.usage)}</span>
-        </div>
-      </div>
-    </Show>
-  );
-}
+function CpuMemoryChip(props: { cpu: any; memory: any }) {
+  const hasCpu = () => props.cpu != null;
+  const hasMemory = () => props.memory != null;
 
-function CpuChip(props: { cpu: any }) {
   return (
-    <Show when={props.cpu != null}>
-      <div class="chip chip-metric chip-priority responsive-hide-md">
-        <div class="metric-pill tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
-          {icon('nf-oct-cpu')}
-          <span>{percent(props.cpu?.usage)}</span>
-        </div>
-      </div>
+    <Show when={hasCpu() || hasMemory()}>
+      <button
+        class="chip chip-metric-combo chip-priority"
+        type="button"
+        title="Open Task Manager"
+        aria-label="Open Task Manager"
+        onClick={() => void openTaskManager()}
+      >
+        <Show when={hasCpu()}>
+          <span class="metric-pair tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
+            {icon('nf-oct-cpu')}
+            <span>{percent(props.cpu?.usage)}</span>
+          </span>
+        </Show>
+        <Show when={hasMemory()}>
+          <span
+            class="metric-pair tone-iris"
+            title={`Memory ${percent(props.memory?.usage)}`}
+          >
+            {icon('custom-memory')}
+            <span>{percent(props.memory?.usage)}</span>
+          </span>
+        </Show>
+      </button>
     </Show>
   );
 }
