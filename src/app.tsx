@@ -526,7 +526,7 @@ function NetworkChip(props: { network: any }) {
 
   createEffect(() => {
     const traffic = props.network?.traffic;
-    if (!traffic?.totalReceived || !traffic?.totalTransmitted) {
+    if (traffic?.totalReceived == null || traffic?.totalTransmitted == null) {
       return;
     }
 
