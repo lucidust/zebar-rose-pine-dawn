@@ -43,7 +43,7 @@ Use the Rosé Pine Dawn values from the official palette references above as the
 ## Customization
 
 - Font stacks are configured in [src/styles.css](./src/styles.css) through the `--font-sans` and `--font-mono` root variables.
-- Shipped icons are local inline SVGs in [src/icons.tsx](./src/icons.tsx), so the pack does not depend on remote icon fonts for runtime rendering.
+- Shipped icons are bundled local SVG components sourced through [src/icons.tsx](./src/icons.tsx), so the pack does not depend on remote icon fonts for runtime rendering.
 - The left brand trigger is icon-only by default and remains a dedicated click target for future actions.
 
 ## Recommended Setup

@@ -43,7 +43,7 @@ pnpm build
 ## 커스터마이징
 
 - 글꼴 스택은 [src/styles.css](./src/styles.css)의 `--font-sans`, `--font-mono` 루트 변수에서 바로 수정할 수 있습니다.
-- shipped icon은 [src/icons.tsx](./src/icons.tsx)의 로컬 inline SVG로 렌더링되므로, 런타임에서 원격 아이콘 폰트에 의존하지 않습니다.
+- shipped icon은 [src/icons.tsx](./src/icons.tsx)를 통해 번들된 로컬 SVG 컴포넌트로 렌더링되므로, 런타임에서 원격 아이콘 폰트에 의존하지 않습니다.
 - 왼쪽 브랜드 트리거는 기본적으로 아이콘만 표시하며, 이후 동작을 추가할 수 있도록 클릭 타깃을 유지합니다.
 
 ## 권장 셋업

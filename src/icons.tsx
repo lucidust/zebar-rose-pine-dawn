@@ -1,388 +1,249 @@
 import type { JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
-type SvgIconProps = {
-  children: JSX.Element;
-  class?: string;
-  viewBox?: string;
-};
+type SvgNode = Array<[string, Record<string, string>]>;
 
-function SvgIcon(props: SvgIconProps): JSX.Element {
+// Tabler Icons 3.41.1 path data is vendored locally so chip icons stay legible
+// without changing layout size or adding a runtime icon-library dependency.
+const APP_WINDOW: SvgNode = [
+  ['path', { d: 'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10' }],
+  ['path', { d: 'M6 8h.01' }],
+  ['path', { d: 'M9 8h.01' }],
+];
+
+const APPS: SvgNode = [
+  ['path', { d: 'M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4' }],
+  ['path', { d: 'M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4' }],
+  ['path', { d: 'M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4' }],
+  ['path', { d: 'M14 7l6 0' }],
+  ['path', { d: 'M17 4l0 6' }],
+];
+
+const ARROWS_DIAGONAL_MINIMIZE_2: SvgNode = [
+  ['path', { d: 'M18 10h-4v-4' }],
+  ['path', { d: 'M20 4l-6 6' }],
+  ['path', { d: 'M6 14h4v4' }],
+  ['path', { d: 'M10 14l-6 6' }],
+];
+
+const CALENDAR_CLOCK: SvgNode = [
+  ['path', { d: 'M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3' }],
+  ['path', { d: 'M16 3v4' }],
+  ['path', { d: 'M8 3v4' }],
+  ['path', { d: 'M4 11h10' }],
+  ['path', { d: 'M14 18a4 4 0 1 0 8 0a4 4 0 1 0 -8 0' }],
+  ['path', { d: 'M18 16.5v1.5l.5 .5' }],
+];
+
+const CLOUD: SvgNode = [
+  ['path', { d: 'M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878' }],
+];
+
+const CLOUD_RAIN: SvgNode = [
+  ['path', { d: 'M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7' }],
+  ['path', { d: 'M11 13v2m0 3v2m4 -5v2m0 3v2' }],
+];
+
+const CLOUD_SNOW: SvgNode = [
+  ['path', { d: 'M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7' }],
+  ['path', { d: 'M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01' }],
+];
+
+const CLOUD_STORM: SvgNode = [
+  ['path', { d: 'M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1' }],
+  ['path', { d: 'M13 14l-2 4l3 0l-2 4' }],
+];
+
+const COLUMNS_2: SvgNode = [
+  ['path', { d: 'M3 4a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-16' }],
+  ['path', { d: 'M12 3v18' }],
+];
+
+const KEY: SvgNode = [
+  ['path', { d: 'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0' }],
+  ['path', { d: 'M15 9h.01' }],
+];
+
+const LAYOUT_DASHBOARD: SvgNode = [
+  ['path', { d: 'M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1' }],
+  ['path', { d: 'M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1' }],
+  ['path', { d: 'M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1' }],
+  ['path', { d: 'M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1' }],
+];
+
+const LAYOUT_ROWS: SvgNode = [
+  ['path', { d: 'M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12' }],
+  ['path', { d: 'M4 12l16 0' }],
+];
+
+const MOON: SvgNode = [
+  ['path', { d: 'M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008' }],
+];
+
+const PLUG_CONNECTED: SvgNode = [
+  ['path', { d: 'M7 12l5 5l-1.5 1.5a3.536 3.536 0 1 1 -5 -5l1.5 -1.5' }],
+  ['path', { d: 'M17 12l-5 -5l1.5 -1.5a3.536 3.536 0 1 1 5 5l-1.5 1.5' }],
+  ['path', { d: 'M3 21l2.5 -2.5' }],
+  ['path', { d: 'M18.5 5.5l2.5 -2.5' }],
+  ['path', { d: 'M10 11l-2 2' }],
+  ['path', { d: 'M13 14l-2 2' }],
+];
+
+const PLAYER_PAUSE: SvgNode = [
+  ['path', { d: 'M6 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12' }],
+  ['path', { d: 'M14 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12' }],
+];
+
+const SHIELD_LOCK: SvgNode = [
+  ['path', { d: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3' }],
+  ['path', { d: 'M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0' }],
+  ['path', { d: 'M12 12l0 2.5' }],
+];
+
+const SUN: SvgNode = [
+  ['path', { d: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0' }],
+  ['path', { d: 'M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7' }],
+];
+
+const SUN_MOON: SvgNode = [
+  ['path', { d: 'M9.173 14.83a4 4 0 1 1 5.657 -5.657' }],
+  ['path', { d: 'M11.294 12.707l.174 .247a7.5 7.5 0 0 0 8.845 2.492a9 9 0 0 1 -14.671 2.914' }],
+  ['path', { d: 'M3 12h1' }],
+  ['path', { d: 'M12 3v1' }],
+  ['path', { d: 'M5.6 5.6l.7 .7' }],
+  ['path', { d: 'M3 21l18 -18' }],
+];
+
+const VOLUME_3: SvgNode = [
+  ['path', { d: 'M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5' }],
+  ['path', { d: 'M16 10l4 4m0 -4l-4 4' }],
+];
+
+const VOLUME_OFF: SvgNode = [
+  ['path', { d: 'M15 8a5 5 0 0 1 1.912 4.934m-1.377 2.602a5 5 0 0 1 -.535 .464' }],
+  ['path', { d: 'M17.7 5a9 9 0 0 1 2.362 11.086m-1.676 2.299a9 9 0 0 1 -.686 .615' }],
+  ['path', { d: 'M9.069 5.054l.431 -.554a.8 .8 0 0 1 1.5 .5v2m0 4v8a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l1.294 -1.664' }],
+  ['path', { d: 'M3 3l18 18' }],
+];
+
+const WIFI: SvgNode = [
+  ['path', { d: 'M12 18l.01 0' }],
+  ['path', { d: 'M9.172 15.172a4 4 0 0 1 5.656 0' }],
+  ['path', { d: 'M6.343 12.343a8 8 0 0 1 11.314 0' }],
+  ['path', { d: 'M3.515 9.515c4.686 -4.687 12.284 -4.687 17 0' }],
+];
+
+const WIFI_0: SvgNode = [['path', { d: 'M12 18l.01 0' }]];
+
+const WIFI_1: SvgNode = [
+  ['path', { d: 'M12 18l.01 0' }],
+  ['path', { d: 'M9.172 15.172a4 4 0 0 1 5.656 0' }],
+];
+
+const WIFI_2: SvgNode = [
+  ['path', { d: 'M12 18l.01 0' }],
+  ['path', { d: 'M9.172 15.172a4 4 0 0 1 5.656 0' }],
+  ['path', { d: 'M6.343 12.343a8 8 0 0 1 11.314 0' }],
+];
+
+const WIFI_OFF: SvgNode = [
+  ['path', { d: 'M12 18l.01 0' }],
+  ['path', { d: 'M9.172 15.172a4 4 0 0 1 5.656 0' }],
+  ['path', { d: 'M6.343 12.343a7.963 7.963 0 0 1 3.864 -2.14m4.163 .155a7.965 7.965 0 0 1 3.287 2' }],
+  ['path', { d: 'M3.515 9.515a12 12 0 0 1 3.544 -2.455m3.101 -.92a12 12 0 0 1 10.325 3.374' }],
+  ['path', { d: 'M3 3l18 18' }],
+];
+
+function SvgIcon(props: { nodes: SvgNode; class?: string }): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox={props.viewBox ?? '0 0 24 24'}
+      viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.8"
+      stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
       class={`icon ${props.class ?? ''}`.trim()}
       aria-hidden="true"
     >
-      {props.children}
+      {props.nodes.map(([tag, attrs]) => (
+        <Dynamic component={tag as keyof JSX.IntrinsicElements} {...attrs} />
+      ))}
     </svg>
   );
 }
 
-function CloudShape() {
-  return <path d="M7 18h9.5a3.5 3.5 0 0 0 .3-7 5 5 0 0 0-9.6-1.2A3.8 3.8 0 0 0 7 18Z" />;
+function renderIcon(nodes: SvgNode, extraClass = ''): JSX.Element {
+  return <SvgIcon nodes={nodes} class={extraClass} />;
 }
 
-function SunShape() {
-  return (
-    <>
-      <circle cx="12" cy="12" r="3.25" />
-      <path d="M12 3.5v2.25" />
-      <path d="M12 18.25v2.25" />
-      <path d="M3.5 12h2.25" />
-      <path d="M18.25 12h2.25" />
-      <path d="m5.9 5.9 1.6 1.6" />
-      <path d="m16.5 16.5 1.6 1.6" />
-      <path d="m18.1 5.9-1.6 1.6" />
-      <path d="m7.5 16.5-1.6 1.6" />
-    </>
-  );
-}
-
-function MoonShape() {
-  return <path d="M15.8 4.8a7.5 7.5 0 1 0 3.4 11.3 7 7 0 0 1-3.4-11.3Z" />;
-}
-
-function RainShape() {
-  return (
-    <>
-      <path d="m9 18.75-.8 1.5" />
-      <path d="m13 18.75-.8 1.5" />
-      <path d="m17 18.75-.8 1.5" />
-    </>
-  );
-}
-
-function SnowShape() {
-  return (
-    <>
-      <path d="m9 18.25 0 3" />
-      <path d="m7.7 19.1 2.6 1.3" />
-      <path d="m7.7 20.4 2.6-1.3" />
-      <path d="m15 18.25 0 3" />
-      <path d="m13.7 19.1 2.6 1.3" />
-      <path d="m13.7 20.4 2.6-1.3" />
-    </>
-  );
-}
-
-function LightningShape() {
-  return <path d="m13 13-2 4.5h2.5L11 22l6-7h-2.6l1.4-5Z" />;
-}
-
-function WifiShape(props: { level: 0 | 1 | 2 | 3 | 4 }) {
-  return (
-    <>
-      <path d="M4.5 9.75a11 11 0 0 1 15 0" opacity={props.level >= 1 ? 1 : 0.3} />
-      <path d="M7.4 12.7a7 7 0 0 1 9.2 0" opacity={props.level >= 2 ? 1 : 0.3} />
-      <path d="M10.25 15.65a3 3 0 0 1 3.5 0" opacity={props.level >= 3 ? 1 : 0.3} />
-      <circle cx="12" cy="18.4" r="1.2" fill="currentColor" stroke="none" opacity={props.level >= 4 ? 1 : 0.3} />
-    </>
-  );
-}
-
-function iconNode(name: string): JSX.Element {
+export function icon(name: string, extraClass = ''): JSX.Element {
   switch (name) {
-    case 'custom-memory':
-      return (
-        <>
-          <rect x="4.5" y="8" width="15" height="8" rx="2.5" />
-          <path d="M8 11v2" />
-          <path d="M11 11v2" />
-          <path d="M14 11v2" />
-          <path d="M17 11v2" />
-          <path d="M7 16v2" />
-          <path d="M10 16v2" />
-          <path d="M13 16v2" />
-          <path d="M16 16v2" />
-          <path d="M7 6v2" />
-          <path d="M10 6v2" />
-          <path d="M13 6v2" />
-          <path d="M16 6v2" />
-        </>
-      );
     case 'custom-resize-mode':
-      return (
-        <>
-          <path d="M8 4.5H4.5V8" />
-          <path d="m4.5 4.5 5 5" />
-          <path d="M16 4.5h3.5V8" />
-          <path d="m19.5 4.5-5 5" />
-          <path d="M8 19.5H4.5V16" />
-          <path d="m4.5 19.5 5-5" />
-          <path d="M16 19.5h3.5V16" />
-          <path d="m19.5 19.5-5-5" />
-        </>
-      );
+      return renderIcon(ARROWS_DIAGONAL_MINIMIZE_2, extraClass);
     case 'custom-split-horizontal':
-      return (
-        <>
-          <rect x="4.5" y="6" width="15" height="12" rx="2.5" />
-          <path d="M12 6v12" />
-        </>
-      );
+      return renderIcon(COLUMNS_2, extraClass);
     case 'custom-split-vertical':
-      return (
-        <>
-          <rect x="4.5" y="6" width="15" height="12" rx="2.5" />
-          <path d="M4.5 12h15" />
-        </>
-      );
+      return renderIcon(LAYOUT_ROWS, extraClass);
     case 'custom-tray':
-      return (
-        <>
-          <path d="M5 7.5h14" />
-          <path d="M6.5 7.5v7.25a2.25 2.25 0 0 0 2.25 2.25h6.5a2.25 2.25 0 0 0 2.25-2.25V7.5" />
-          <rect x="8.25" y="10" width="2.5" height="2.5" rx="0.8" />
-          <rect x="13.25" y="10" width="2.5" height="2.5" rx="0.8" />
-          <path d="M9 17.25v1.75" />
-          <path d="M15 17.25v1.75" />
-        </>
-      );
+      return renderIcon(APPS, extraClass);
     case 'nf-md-application_outline':
-      return (
-        <>
-          <rect x="4.5" y="5" width="15" height="14" rx="2.5" />
-          <path d="M4.5 9h15" />
-          <path d="M8 7.1h.01" />
-          <path d="M11 7.1h.01" />
-        </>
-      );
+      return renderIcon(APP_WINDOW, extraClass);
     case 'nf-md-view_dashboard':
-      return (
-        <>
-          <rect x="4.5" y="4.5" width="6.5" height="6.5" rx="1.5" />
-          <rect x="13" y="4.5" width="6.5" height="9" rx="1.5" />
-          <rect x="4.5" y="13" width="9" height="6.5" rx="1.5" />
-          <rect x="15.5" y="16" width="4" height="3.5" rx="1.25" />
-        </>
-      );
+      return renderIcon(LAYOUT_DASHBOARD, extraClass);
     case 'nf-md-calendar_clock':
-      return (
-        <>
-          <rect x="4.5" y="5.5" width="11" height="13" rx="2.5" />
-          <path d="M8 3.75v3.5" />
-          <path d="M12 3.75v3.5" />
-          <path d="M4.5 9h11" />
-          <circle cx="18" cy="15.5" r="3.5" />
-          <path d="M18 13.8v1.9l1.35.95" />
-        </>
-      );
-    case 'nf-md-music_note':
-      return (
-        <>
-          <path d="M14.5 5.5v9.5" />
-          <path d="m14.5 6 4-1v8.5" />
-          <circle cx="10" cy="17" r="2.5" />
-          <circle cx="18.5" cy="15.5" r="2" />
-        </>
-      );
-    case 'nf-md-skip_previous':
-      return (
-        <>
-          <path d="M7 6v12" />
-          <path d="m18 7-7 5 7 5V7Z" />
-        </>
-      );
-    case 'nf-md-pause':
-      return (
-        <>
-          <rect x="7.5" y="6.5" width="3" height="11" rx="1.25" />
-          <rect x="13.5" y="6.5" width="3" height="11" rx="1.25" />
-        </>
-      );
-    case 'nf-md-play':
-      return <path d="m9 7 8 5-8 5V7Z" />;
-    case 'nf-md-skip_next':
-      return (
-        <>
-          <path d="M17 6v12" />
-          <path d="m6 7 7 5-7 5V7Z" />
-        </>
-      );
+      return renderIcon(CALENDAR_CLOCK, extraClass);
     case 'nf-md-volume_high':
-      return (
-        <>
-          <path d="M5 10h3l4-4v12l-4-4H5Z" />
-          <path d="M16 9.25a4.5 4.5 0 0 1 0 5.5" />
-          <path d="M18.6 6.75a8 8 0 0 1 0 10.5" />
-        </>
-      );
+      return renderIcon(VOLUME_3, extraClass);
     case 'nf-md-volume_off':
-      return (
-        <>
-          <path d="M5 10h3l4-4v12l-4-4H5Z" />
-          <path d="m16.25 9.25 4.5 5.5" />
-          <path d="m20.75 9.25-4.5 5.5" />
-        </>
-      );
-    case 'nf-md-keyboard':
-      return (
-        <>
-          <rect x="3.5" y="6.5" width="17" height="11" rx="2.5" />
-          <path d="M6.75 10.25h.01" />
-          <path d="M9.75 10.25h.01" />
-          <path d="M12.75 10.25h.01" />
-          <path d="M15.75 10.25h.01" />
-          <path d="M6.75 13.25h8.5" />
-          <path d="M17.75 13.25h.01" />
-        </>
-      );
-    case 'nf-oct-cpu':
-      return (
-        <>
-          <rect x="7" y="7" width="10" height="10" rx="2.5" />
-          <rect x="10" y="10" width="4" height="4" rx="1" />
-          <path d="M9 2.75v2.5" />
-          <path d="M15 2.75v2.5" />
-          <path d="M9 18.75v2.5" />
-          <path d="M15 18.75v2.5" />
-          <path d="M2.75 9h2.5" />
-          <path d="M2.75 15h2.5" />
-          <path d="M18.75 9h2.5" />
-          <path d="M18.75 15h2.5" />
-        </>
-      );
+      return renderIcon(VOLUME_OFF, extraClass);
     case 'nf-md-pause_circle':
-      return (
-        <>
-          <circle cx="12" cy="12" r="8.5" />
-          <rect x="9" y="8.5" width="2" height="7" rx="1" />
-          <rect x="13" y="8.5" width="2" height="7" rx="1" />
-        </>
-      );
+      return renderIcon(PLAYER_PAUSE, extraClass);
     case 'nf-md-key_variant':
-      return (
-        <>
-          <circle cx="8.5" cy="11.5" r="3.5" />
-          <path d="M12 11.5h7" />
-          <path d="M16 11.5v2.5" />
-          <path d="M18.5 11.5v1.5" />
-        </>
-      );
+      return renderIcon(KEY, extraClass);
     case 'nf-md-swap_horizontal':
-      return (
-        <>
-          <path d="M4 8h13" />
-          <path d="m14 5 3 3-3 3" />
-          <path d="M20 16H7" />
-          <path d="m10 13-3 3 3 3" />
-        </>
-      );
+      return renderIcon(COLUMNS_2, extraClass);
     case 'nf-md-swap_vertical':
-      return (
-        <>
-          <path d="M8 4v13" />
-          <path d="m5 14 3 3 3-3" />
-          <path d="M16 20V7" />
-          <path d="m13 10 3-3 3 3" />
-        </>
-      );
+      return renderIcon(LAYOUT_ROWS, extraClass);
     case 'nf-md-ethernet_cable':
-      return (
-        <>
-          <path d="M8 6h8v5H8Z" />
-          <path d="M10 11v3" />
-          <path d="M14 11v3" />
-          <path d="M6 14h12" />
-          <path d="M12 14v4" />
-        </>
-      );
+      return renderIcon(PLUG_CONNECTED, extraClass);
     case 'nf-md-shield_lock_outline':
-      return (
-        <>
-          <path d="M12 4.5 6.5 6.6v4.7c0 3.4 2.1 6.4 5.5 8.2 3.4-1.8 5.5-4.8 5.5-8.2V6.6L12 4.5Z" />
-          <rect x="10" y="10.25" width="4" height="4" rx="1" />
-          <path d="M11 10.25V9.2a1 1 0 1 1 2 0v1.05" />
-        </>
-      );
+      return renderIcon(SHIELD_LOCK, extraClass);
     case 'nf-md-wifi_strength_4':
-      return <WifiShape level={4} />;
+      return renderIcon(WIFI, extraClass);
     case 'nf-md-wifi_strength_3':
-      return <WifiShape level={3} />;
+      return renderIcon(WIFI_2, extraClass);
     case 'nf-md-wifi_strength_2':
-      return <WifiShape level={2} />;
+      return renderIcon(WIFI_1, extraClass);
     case 'nf-md-wifi_strength_1':
-      return <WifiShape level={1} />;
     case 'nf-md-wifi_strength_outline':
-      return <WifiShape level={0} />;
+      return renderIcon(WIFI_0, extraClass);
     case 'nf-md-wifi_strength_off_outline':
-      return (
-        <>
-          <WifiShape level={0} />
-          <path d="m5 5 14 14" />
-        </>
-      );
+      return renderIcon(WIFI_OFF, extraClass);
     case 'nf-weather-day_sunny':
-      return <SunShape />;
+      return renderIcon(SUN, extraClass);
     case 'nf-weather-night_clear':
-      return <MoonShape />;
+      return renderIcon(MOON, extraClass);
     case 'nf-weather-day_cloudy':
-      return (
-        <>
-          <path d="M16.5 8.5a3.5 3.5 0 1 0-6.5-1.8" />
-          <path d="M17.6 10.8a3.8 3.8 0 0 0-3.4-2.3 4.2 4.2 0 0 0-4 2.8" />
-          <CloudShape />
-        </>
-      );
     case 'nf-weather-night_alt_cloudy':
-      return (
-        <>
-          <path d="M17.8 7.2a5.2 5.2 0 0 1-3.4 4.4" />
-          <MoonShape />
-          <CloudShape />
-        </>
-      );
+      return renderIcon(CLOUD, extraClass);
     case 'nf-weather-day_sprinkle':
     case 'nf-weather-night_alt_sprinkle':
     case 'nf-weather-day_rain':
     case 'nf-weather-night_alt_rain':
-      return (
-        <>
-          <CloudShape />
-          <RainShape />
-        </>
-      );
+      return renderIcon(CLOUD_RAIN, extraClass);
     case 'nf-weather-day_snow':
     case 'nf-weather-night_alt_snow':
-      return (
-        <>
-          <CloudShape />
-          <SnowShape />
-        </>
-      );
+      return renderIcon(CLOUD_SNOW, extraClass);
     case 'nf-weather-day_lightning':
     case 'nf-weather-night_alt_lightning':
-      return (
-        <>
-          <CloudShape />
-          <LightningShape />
-        </>
-      );
+      return renderIcon(CLOUD_STORM, extraClass);
     case 'nf-md-weather_partly_cloudy':
-      return (
-        <>
-          <SunShape />
-          <CloudShape />
-        </>
-      );
+      return renderIcon(SUN_MOON, extraClass);
     default:
-      return (
-        <>
-          <circle cx="12" cy="12" r="8.5" />
-          <path d="M12 8v4l2.5 2.5" />
-        </>
-      );
+      return renderIcon(APPS, extraClass);
   }
-}
-
-export function icon(name: string, extraClass = ''): JSX.Element {
-  return <SvgIcon class={extraClass}>{iconNode(name)}</SvgIcon>;
 }
 
 export function networkIcon(network: any) {
