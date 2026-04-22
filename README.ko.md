@@ -48,6 +48,42 @@ pnpm build
 - 런타임에서 사용하는 문구 데이터와 로테이션 규칙은 [src/brand-copy.entries.json](./src/brand-copy.entries.json), [src/brand-copy.ts](./src/brand-copy.ts)에 있습니다.
 - 현재 브랜드 칩 폭에서 모든 후보 문구가 들어가는지 확인하려면 `pnpm check:brand-copy`를 실행하면 됩니다.
 
+## 권장 셋업
+
+현재 이 팩은 가로 배치된 4K primary 모니터 기준으로 맞춰져 있습니다.
+
+- 검증 기준: 가로 배치된 4K primary 모니터 1대
+- 보조 모니터 상태: 현재 작업 환경에는 세로 배치된 4K secondary 모니터도 있지만, shipped spacing/배치 값은 아직 그 모니터에 맞춰 튜닝하지 않았습니다
+- 현재 widget 범위: 기본 `zpack.json` preset은 primary monitor만 대상으로 합니다
+
+### GlazeWM gap 값
+
+현재 이 팩과 함께 쓰는 권장 GlazeWM gap 값은 아래와 같습니다.
+
+```yaml
+gaps:
+  scale_with_dpi: true
+  inner_gap: '8px'
+  outer_gap:
+    top: '50px'
+    right: '8px'
+    bottom: '8px'
+    left: '8px'
+```
+
+### Zebar spacing 값
+
+위 GlazeWM 프로파일과 맞출 때 Zebar 쪽은 아래 값을 유지합니다.
+
+- `zpack.json`: `offsetY: 0px`, `height: 50px`, primary monitor preset only
+- `src/styles.css`: `--shell-padding-x: 8px`
+- `src/styles.css`: `--pill-height: 36px`
+- `src/styles.css`: `--right-cluster-item-height: 30px`
+- `src/styles.css`: `--pill-radius: 14px`
+- `src/styles.css`: `--cluster-inner-radius: 9px`
+
+이 값들은 bar를 화면 상단에 바로 붙여 두고, bar와 타일링 창 사이의 실제 breathing room은 GlazeWM의 `outer_gap.top`이 담당하도록 의도한 셋업입니다.
+
 ## 레이아웃 가이드
 
 - shipped variant는 같은 zone 순서를 유지합니다: 왼쪽은 브랜드, workspace 인식 컨텍스트, WM 제어이고, 중앙은 미디어, 오른쪽은 공용 시스템 위젯과 마지막의 날씨/날짜·시간입니다.

@@ -48,6 +48,42 @@ Use the Rosé Pine Dawn values from the official palette references above as the
 - Runtime brand-copy data and rotation rules live in [src/brand-copy.entries.json](./src/brand-copy.entries.json) and [src/brand-copy.ts](./src/brand-copy.ts).
 - To verify that all candidate lines still fit in the current brand-chip width budget, run `pnpm check:brand-copy`.
 
+## Recommended Setup
+
+This pack is currently tuned around a horizontal 4K primary monitor.
+
+- Tested target: one horizontal 4K primary monitor
+- Secondary monitor status: a portrait 4K secondary monitor exists in the current workstation, but the shipped spacing and placement are not tuned for it yet
+- Current widget scope: the default `zpack.json` preset targets the primary monitor only
+
+### GlazeWM gaps
+
+Use the following GlazeWM gap values as the current recommended set for this pack:
+
+```yaml
+gaps:
+  scale_with_dpi: true
+  inner_gap: '8px'
+  outer_gap:
+    top: '50px'
+    right: '8px'
+    bottom: '8px'
+    left: '8px'
+```
+
+### Zebar spacing
+
+Keep the Zebar side aligned with the following values when matching the GlazeWM profile above:
+
+- `zpack.json`: `offsetY: 0px`, `height: 50px`, primary monitor preset only
+- `src/styles.css`: `--shell-padding-x: 8px`
+- `src/styles.css`: `--pill-height: 36px`
+- `src/styles.css`: `--right-cluster-item-height: 30px`
+- `src/styles.css`: `--pill-radius: 14px`
+- `src/styles.css`: `--cluster-inner-radius: 9px`
+
+These values intentionally keep the bar docked to the top edge while leaving the visible breathing room between the bar and tiled windows to GlazeWM's `outer_gap.top`.
+
 ## Layout Guidelines
 
 - Keep the shipped variants aligned to the same zone order: left for brand, workspace-aware context, and WM controls when available; center for media; right for shared system widgets ending with weather and date/time.
