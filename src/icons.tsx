@@ -11,6 +11,11 @@ const APP_WINDOW: SvgNode = [
   ['path', { d: 'M9 8h.01' }],
 ];
 
+const BOX_MULTIPLE: SvgNode = [
+  ['path', { d: 'M7 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -10' }],
+  ['path', { d: 'M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2' }],
+];
+
 const APPS: SvgNode = [
   ['path', { d: 'M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4' }],
   ['path', { d: 'M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4' }],
@@ -57,6 +62,17 @@ const CLOUD_STORM: SvgNode = [
 const COLUMNS_2: SvgNode = [
   ['path', { d: 'M3 4a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-16' }],
   ['path', { d: 'M12 3v18' }],
+];
+
+const DEVICE_DESKTOP_ANALYTICS: SvgNode = [
+  ['path', { d: 'M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10' }],
+  ['path', { d: 'M7 20h10' }],
+  ['path', { d: 'M9 16v4' }],
+  ['path', { d: 'M15 16v4' }],
+  ['path', { d: 'M9 12v-4' }],
+  ['path', { d: 'M12 12v-1' }],
+  ['path', { d: 'M15 12v-2' }],
+  ['path', { d: 'M12 12v-1' }],
 ];
 
 const KEY: SvgNode = [
@@ -114,9 +130,10 @@ const SUN_MOON: SvgNode = [
   ['path', { d: 'M3 21l18 -18' }],
 ];
 
-const VOLUME_3: SvgNode = [
+const VOLUME_HIGH: SvgNode = [
+  ['path', { d: 'M15 8a5 5 0 0 1 0 8' }],
+  ['path', { d: 'M17.7 5a9 9 0 0 1 0 14' }],
   ['path', { d: 'M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5' }],
-  ['path', { d: 'M16 10l4 4m0 -4l-4 4' }],
 ];
 
 const VOLUME_OFF: SvgNode = [
@@ -180,6 +197,8 @@ function renderIcon(nodes: SvgNode, extraClass = ''): JSX.Element {
 
 export function icon(name: string, extraClass = ''): JSX.Element {
   switch (name) {
+    case 'custom-metrics':
+      return renderIcon(DEVICE_DESKTOP_ANALYTICS, extraClass);
     case 'custom-resize-mode':
       return renderIcon(ARROWS_DIAGONAL_MINIMIZE_2, extraClass);
     case 'custom-split-horizontal':
@@ -187,7 +206,7 @@ export function icon(name: string, extraClass = ''): JSX.Element {
     case 'custom-split-vertical':
       return renderIcon(LAYOUT_ROWS, extraClass);
     case 'custom-tray':
-      return renderIcon(APPS, extraClass);
+      return renderIcon(BOX_MULTIPLE, extraClass);
     case 'nf-md-application_outline':
       return renderIcon(APP_WINDOW, extraClass);
     case 'nf-md-view_dashboard':
@@ -195,7 +214,7 @@ export function icon(name: string, extraClass = ''): JSX.Element {
     case 'nf-md-calendar_clock':
       return renderIcon(CALENDAR_CLOCK, extraClass);
     case 'nf-md-volume_high':
-      return renderIcon(VOLUME_3, extraClass);
+      return renderIcon(VOLUME_HIGH, extraClass);
     case 'nf-md-volume_off':
       return renderIcon(VOLUME_OFF, extraClass);
     case 'nf-md-pause_circle':

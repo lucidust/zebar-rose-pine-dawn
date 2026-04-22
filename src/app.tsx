@@ -601,7 +601,7 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
           onClick={() => void openTaskManager()}
         >
           <IconBadge
-            node={icon('nf-md-application_outline')}
+            node={icon('custom-metrics')}
             tone="love"
             class="metric-chip-badge"
           />
