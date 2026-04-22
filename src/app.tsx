@@ -653,24 +653,46 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
           aria-label="Open Task Manager"
           onClick={() => void openTaskManager()}
         >
-          <Show when={hasCpu()}>
-            <span class="metric-pair tone-rose" title={`CPU ${percent(props.cpu?.usage)}`}>
-              {icon('nf-oct-cpu')}
-              <span class="metric-value">{percent(props.cpu?.usage)}</span>
-            </span>
-          </Show>
-          <Show when={hasMemory()}>
-            <span
-              class="metric-pair tone-iris"
-              title={`Memory ${percent(props.memory?.usage)}`}
-            >
-              {icon('custom-memory')}
-              <span class="metric-value">{percent(props.memory?.usage)}</span>
-            </span>
-          </Show>
+          <div class="stacked metric-stack">
+            <Show when={hasCpu()}>
+              <MetricStackLine
+                iconNode={icon('nf-oct-cpu')}
+                tone="rose"
+                value={percent(props.cpu?.usage)}
+                title={`CPU ${percent(props.cpu?.usage)}`}
+              />
+            </Show>
+            <Show when={hasMemory()}>
+              <MetricStackLine
+                iconNode={icon('custom-memory')}
+                tone="iris"
+                value={percent(props.memory?.usage)}
+                title={`Memory ${percent(props.memory?.usage)}`}
+                secondary
+              />
+            </Show>
+          </div>
         </button>
       </div>
     </Show>
+  );
+}
+
+function MetricStackLine(props: {
+  iconNode: any;
+  tone: Tone;
+  value: string;
+  title: string;
+  secondary?: boolean;
+}) {
+  return (
+    <span
+      class={`metric-line ${props.secondary ? 'metric-line-secondary' : ''}`.trim()}
+      title={props.title}
+    >
+      <IconBadge node={props.iconNode} tone={props.tone} class="metric-line-badge" />
+      <span class="metric-stack-value">{props.value}</span>
+    </span>
   );
 }
 
@@ -779,8 +801,12 @@ function ChipActionControl(props: {
   );
 }
 
-function IconBadge(props: { node: any; tone: Tone }) {
-  return <span class={`icon-badge tone-${props.tone}`}>{props.node}</span>;
+function IconBadge(props: { node: any; tone: Tone; class?: string }) {
+  return (
+    <span class={`icon-badge tone-${props.tone} ${props.class ?? ''}`.trim()}>
+      {props.node}
+    </span>
+  );
 }
 
 function bindingModeIcon(mode: any) {
