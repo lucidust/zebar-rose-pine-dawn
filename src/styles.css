@@ -30,9 +30,9 @@
     monospace;
   --brand-width: 280px;
   --bar-height: 50px;
-  --pill-height: 34px;
-  --pill-radius: 999px;
-  --cluster-inner-radius: 11px;
+  --pill-height: 36px;
+  --pill-radius: 14px;
+  --cluster-inner-radius: 9px;
   --cluster-edge-gap: 9px;
   --cluster-divider-gap: 9px;
   --cluster-divider-height: 16px;
@@ -41,14 +41,14 @@
   --right-cluster-edge-gap: 11px;
   --right-cluster-divider-gap: 11px;
   --right-cluster-chip-gap: 5px;
-  --right-cluster-item-height: 28px;
+  --right-cluster-item-height: 30px;
   --metric-stack-gap: 1px;
   --metric-line-gap: 5px;
   --metric-label-width: 1ch;
   --metric-value-width: 4ch;
   --tray-overflow-gap: 6px;
-  --radius-md: 12px;
-  --shell-padding-x: 10px;
+  --radius-md: 10px;
+  --shell-padding-x: 8px;
   --shell-padding-y: 0px;
   --panel-bg: linear-gradient(
     180deg,
@@ -97,7 +97,7 @@ button {
 
 .bar-shell {
   height: 100%;
-  padding: 2px var(--shell-padding-x) 0;
+  padding: 0 var(--shell-padding-x);
 }
 
 .bar-grid {
