@@ -279,10 +279,10 @@ button {
 }
 
 .chip-context-summary {
-  width: 188px;
-  min-width: 188px;
-  max-width: 188px;
-  flex: 0 0 188px;
+  width: 216px;
+  min-width: 216px;
+  max-width: 216px;
+  flex: 0 0 216px;
 }
 
 .chip-mini {
