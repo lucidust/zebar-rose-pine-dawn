@@ -61,20 +61,17 @@ export function App(props: AppProps) {
         <>
           <BrandChip variant="with-glazewm" accent="iris" />
           <Show when={glaze()}>
-            <TilingDirectionControl glazewm={glaze()} />
-          </Show>
-          <GlazeWorkspaceStrip glazewm={glaze()} />
-          <Show when={glaze()}>
-            <SummaryChip
-              class="responsive-hide-sm"
-              iconNode={icon('nf-md-application_outline')}
-              label={glazeFocusedLabel(glaze())}
-              detail={glazeFocusedDetail(glaze())}
-              tone="iris"
-            />
-          </Show>
-          <Show when={glaze()}>
-            <GlazeControls glazewm={glaze()} />
+            <div class="chip chip-left-context segmented-cluster">
+              <GlazeWorkspaceStrip glazewm={glaze()} />
+              <SummaryChip
+                class="responsive-hide-sm chip-context-summary"
+                iconNode={icon('nf-md-application_outline')}
+                label={glazeFocusedLabel(glaze())}
+                detail={glazeFocusedDetail(glaze())}
+                tone="iris"
+              />
+              <WmControlStrip glazewm={glaze()} />
+            </div>
           </Show>
         </>
       );
@@ -84,15 +81,17 @@ export function App(props: AppProps) {
       return (
         <>
           <BrandChip variant="with-komorebi" accent="foam" />
-          <KomorebiWorkspaceStrip komorebi={komorebi()} />
           <Show when={komorebi()}>
-            <SummaryChip
-              class="responsive-hide-sm"
-              iconNode={icon('nf-md-view_dashboard')}
-              label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
-              detail={komorebiWorkspaceDetail(komorebi())}
-              tone="foam"
-            />
+            <div class="chip chip-left-context segmented-cluster">
+              <KomorebiWorkspaceStrip komorebi={komorebi()} />
+              <SummaryChip
+                class="responsive-hide-sm chip-context-summary"
+                iconNode={icon('nf-md-view_dashboard')}
+                label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
+                detail={komorebiWorkspaceDetail(komorebi())}
+                tone="foam"
+              />
+            </div>
           </Show>
         </>
       );
@@ -281,11 +280,30 @@ function KomorebiWorkspaceStrip(props: { komorebi: any }) {
   );
 }
 
-function GlazeControls(props: { glazewm: any }) {
+function WmControlStrip(props: { glazewm: any }) {
   return (
-    <>
+    <div class="chip chip-left-controls">
+      <ControlActionButton
+        tone="iris"
+        title={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? 'Horizontal tiling'
+            : 'Vertical tiling'
+        }
+        ariaLabel={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? 'Horizontal tiling'
+            : 'Vertical tiling'
+        }
+        onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
+        iconNode={
+          props.glazewm?.tilingDirection === 'horizontal'
+            ? icon('custom-split-horizontal')
+            : icon('custom-split-vertical')
+        }
+      />
       <Show when={props.glazewm?.isPaused}>
-        <ChipActionControl
+        <ControlActionButton
           class="responsive-hide-md"
           tone="gold"
           title="GlazeWM paused"
@@ -296,7 +314,7 @@ function GlazeControls(props: { glazewm: any }) {
       </Show>
       <For each={props.glazewm?.bindingModes ?? []}>
         {(mode: any) => (
-          <ChipActionControl
+          <ControlActionButton
             class="responsive-hide-lg"
             tone="foam"
             title={`${mode.displayName ?? mode.name} mode`}
@@ -310,38 +328,14 @@ function GlazeControls(props: { glazewm: any }) {
           />
         )}
       </For>
-    </>
-  );
-}
-
-function TilingDirectionControl(props: { glazewm: any }) {
-  return (
-    <ChipActionControl
-      tone="iris"
-      title={
-        props.glazewm?.tilingDirection === 'horizontal'
-          ? 'Horizontal tiling'
-          : 'Vertical tiling'
-      }
-      ariaLabel={
-        props.glazewm?.tilingDirection === 'horizontal'
-          ? 'Horizontal tiling'
-          : 'Vertical tiling'
-      }
-      onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
-      iconNode={
-        props.glazewm?.tilingDirection === 'horizontal'
-          ? icon('custom-split-horizontal')
-          : icon('custom-split-vertical')
-      }
-    />
+    </div>
   );
 }
 
 function MediaChip(props: { media: any; mediaProvider: any }) {
   return (
     <Show when={props.media}>
-      <div class="chip chip-media responsive-hide-sm">
+      <div class="chip chip-media chip-center-media responsive-hide-sm">
         <div class="chip-body chip-body-fill chip-body-between">
           <div class="chip-body-main">
             <IconBadge node={icon('nf-md-music_note')} tone="rose" />
@@ -789,7 +783,7 @@ function TrayIconButton(props: { systray: any; trayIcon: any }) {
   );
 }
 
-function ChipActionControl(props: {
+function ControlActionButton(props: {
   tone: Tone;
   title: string;
   ariaLabel: string;
@@ -798,17 +792,15 @@ function ChipActionControl(props: {
   class?: string;
 }) {
   return (
-    <div class={`chip chip-control ${props.class ?? ''}`.trim()}>
-      <button
-        class="chip-action"
-        type="button"
-        title={props.title}
-        aria-label={props.ariaLabel}
-        onClick={props.onClick}
-      >
-        <IconBadge node={props.iconNode} tone={props.tone} />
-      </button>
-    </div>
+    <button
+      class={`chip-action ${props.class ?? ''}`.trim()}
+      type="button"
+      title={props.title}
+      aria-label={props.ariaLabel}
+      onClick={props.onClick}
+    >
+      <IconBadge node={props.iconNode} tone={props.tone} />
+    </button>
   );
 }
 
