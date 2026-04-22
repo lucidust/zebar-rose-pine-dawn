@@ -62,6 +62,7 @@ export function App(props: AppProps) {
           <Show when={glaze()}>
             <div class="chip chip-left-context segmented-cluster">
               <GlazeWorkspaceStrip glazewm={glaze()} />
+              <WmControlStrip glazewm={glaze()} />
               <SummaryChip
                 class="responsive-hide-sm chip-context-summary"
                 iconNode={icon('nf-md-application_outline')}
@@ -69,7 +70,6 @@ export function App(props: AppProps) {
                 detail={glazeFocusedDetail(glaze())}
                 tone="iris"
               />
-              <WmControlStrip glazewm={glaze()} />
             </div>
           </Show>
         </>
