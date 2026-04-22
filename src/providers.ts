@@ -5,7 +5,6 @@ export type Variant = 'vanilla' | 'with-glazewm' | 'with-komorebi';
 export function createProviders(variant: Variant) {
   const commonProviders = {
     audio: { type: 'audio' as const },
-    media: { type: 'media' as const },
     systray: { type: 'systray' as const },
     network: { type: 'network' as const, refreshInterval: 3_000 },
     battery: { type: 'battery' as const, refreshInterval: 5_000 },

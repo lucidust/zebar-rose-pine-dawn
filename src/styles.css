@@ -28,9 +28,9 @@
     'Consolas',
     'SFMono-Regular',
     monospace;
-  --brand-width: 280px;
   --bar-height: 50px;
   --pill-height: 36px;
+  --bar-radius: 11px;
   --pill-radius: 14px;
   --cluster-inner-radius: 9px;
   --cluster-edge-gap: 9px;
@@ -52,7 +52,7 @@
   --tray-overflow-gap: 6px;
   --radius-md: 10px;
   --shell-padding-x: 8px;
-  --shell-padding-y: 0px;
+  --shell-padding-y: 6px;
   --panel-bg: linear-gradient(
     180deg,
     rgb(255 250 243 / 95%),
@@ -99,40 +99,50 @@ button {
 }
 
 .bar-shell {
-  height: 100%;
-  padding: 0 var(--shell-padding-x);
+  position: relative;
+  height: var(--pill-height);
+  margin: var(--shell-padding-y) var(--shell-padding-x) 0;
+}
+
+.bar-rail {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--bar-radius);
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(16px);
+  pointer-events: none;
 }
 
 .bar-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: start;
-  gap: 8px;
-  height: 100%;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 12px;
+  height: var(--pill-height);
 }
 
 .zone {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   min-width: 0;
+  height: 100%;
   gap: var(--cluster-gap, 6px);
 }
 
 .zone-left {
   --cluster-gap: 5px;
+  flex: 1 1 auto;
   justify-content: flex-start;
   overflow: hidden;
 }
 
-.zone-center {
-  --cluster-gap: 6px;
-  justify-content: center;
-  overflow: hidden;
-  padding-inline: 8px;
-}
-
 .zone-right {
   --cluster-gap: 5px;
+  flex: 0 0 auto;
   justify-content: flex-end;
   overflow: visible;
 }
@@ -153,31 +163,23 @@ button {
   --cluster-item-pad-end: var(--cluster-divider-gap);
 }
 
-.chip,
-.workspace-strip,
-.icon-button {
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  box-shadow: var(--panel-shadow);
-  backdrop-filter: blur(16px);
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
   max-width: 100%;
-  height: var(--pill-height);
-  padding: 0 9px;
-  border-radius: var(--pill-radius);
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
   white-space: nowrap;
 }
 
 .chip-brand {
-  width: var(--brand-width);
-  min-width: var(--brand-width);
-  max-width: var(--brand-width);
   padding: 0;
   flex: 0 0 auto;
 }
@@ -188,7 +190,7 @@ button {
   justify-content: center;
 }
 
-.brand-refresh {
+.brand-trigger {
   padding: 0;
   border: none;
   background: transparent;
@@ -264,12 +266,6 @@ button {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
-}
-
-.chip-media {
-  min-width: 182px;
-  max-width: 240px;
-  padding: 0;
 }
 
 .chip-audio {
@@ -481,11 +477,6 @@ button {
   text-align: left;
 }
 
-.chip-body-brand {
-  --chip-body-pad-current: 6px;
-  padding-left: 6px;
-}
-
 .chip-body-right {
   --chip-body-gap-current: var(--right-cluster-chip-gap);
 }
@@ -524,22 +515,6 @@ button {
   text-overflow: ellipsis;
   font-size: 10px;
   color: var(--subtle);
-}
-
-.brand-sentence,
-.brand-category {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-.brand-sentence {
-  font-size: 10.5px;
-  letter-spacing: 0.01em;
-}
-
-.brand-category {
-  font-size: 9.5px;
 }
 
 .chip-context-summary .chip-label {
@@ -616,35 +591,6 @@ button {
 
 .network-stat-amount .network-stat-unit {
   width: 2ch;
-}
-
-.media-copy {
-  flex: 1;
-}
-
-.chip-center-media .chip-body-main {
-  gap: 7px;
-}
-
-.chip-center-media .chip-label {
-  letter-spacing: 0.01em;
-}
-
-.chip-center-media .chip-detail {
-  font-size: 9.5px;
-}
-
-.chip-center-media .inline-actions {
-  gap: 3px;
-  margin-left: 8px;
-  padding-left: 8px;
-  border-left: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
-}
-
-.chip-center-media .icon-button {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
 }
 
 .icon-badge {
@@ -1076,7 +1022,7 @@ button {
 .icon-button:hover,
 .tray-button:hover,
 .tray-overflow-button:hover,
-.brand-refresh:hover,
+.brand-trigger:hover,
 .chip-button:hover,
 .workspace-pill:hover {
   transform: translateY(-1px);
@@ -1094,7 +1040,7 @@ button {
 .icon-button,
 .tray-button,
 .tray-overflow-button,
-.brand-refresh,
+.brand-trigger,
 .chip-action,
 .metric-combo-action,
 .workspace-pill {
@@ -1119,17 +1065,8 @@ button {
 }
 
 @media (max-width: 1460px) {
-  :root {
-    --brand-width: 260px;
-  }
-
   .chip-time {
     min-width: 164px;
-  }
-
-  .chip-media {
-    min-width: 168px;
-    max-width: 220px;
   }
 
   .responsive-hide-lg {
@@ -1138,10 +1075,6 @@ button {
 }
 
 @media (max-width: 1220px) {
-  :root {
-    --brand-width: 238px;
-  }
-
   .responsive-hide-md {
     display: none;
   }
@@ -1149,15 +1082,7 @@ button {
 
 @media (max-width: 960px) {
   .bar-shell {
-    padding-inline: 8px;
-  }
-
-  .bar-grid {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .zone-center {
-    justify-content: flex-end;
+    margin-inline: 8px;
   }
 
   .responsive-hide-sm {

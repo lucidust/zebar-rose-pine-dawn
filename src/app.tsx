@@ -8,17 +8,13 @@ import {
   onCleanup,
 } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { pickRandomBrandCopy, resolveBrandCopy } from './brand-copy';
 import { batteryIcon, icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
   batteryDetail,
   batteryStatusText,
   clamp,
-  compactTitle,
-  formatDataAmount,
   formatDataAmountParts,
-  formatDataRate,
   formatDataRateParts,
   glazeFocusedDetail,
   glazeFocusedLabel,
@@ -50,7 +46,6 @@ export function App(props: AppProps) {
 
   const glaze = () => output.glazewm;
   const komorebi = () => output.komorebi;
-  const media = () => output.media?.currentSession;
   const audio = () => output.audio?.defaultPlaybackDevice;
   const weather = () => output.weather;
   const date = () => output.date?.formatted ?? '';
@@ -59,11 +54,7 @@ export function App(props: AppProps) {
     if (props.variant === 'with-glazewm') {
       return (
         <>
-          <BrandChip
-            variant="with-glazewm"
-            accent="iris"
-            class="responsive-hide-md"
-          />
+          <BrandChip accent="iris" class="responsive-hide-md" />
           <Show when={glaze()}>
             <div class="chip chip-left-context segmented-cluster">
               <GlazeWorkspaceStrip glazewm={glaze()} />
@@ -84,11 +75,7 @@ export function App(props: AppProps) {
     if (props.variant === 'with-komorebi') {
       return (
         <>
-          <BrandChip
-            variant="with-komorebi"
-            accent="foam"
-            class="responsive-hide-md"
-          />
+          <BrandChip accent="foam" class="responsive-hide-md" />
           <Show when={komorebi()}>
             <div class="chip chip-left-context segmented-cluster">
               <KomorebiWorkspaceStrip komorebi={komorebi()} />
@@ -105,11 +92,7 @@ export function App(props: AppProps) {
       );
     }
 
-    return <BrandChip variant="vanilla" accent="rose" class="responsive-hide-md" />;
-  }
-
-  function renderCenterZone() {
-    return <MediaChip media={media()} mediaProvider={output.media} />;
+    return <BrandChip accent="rose" class="responsive-hide-md" />;
   }
 
   function renderRightZone() {
@@ -127,9 +110,9 @@ export function App(props: AppProps) {
 
   return (
     <div class="bar-shell">
+      <div class="bar-rail" aria-hidden="true" />
       <div class="bar-grid">
         <div class="zone zone-left cluster-host">{renderLeftZone()}</div>
-        <div class="zone zone-center cluster-host">{renderCenterZone()}</div>
         <div class="zone zone-right cluster-host">{renderRightZone()}</div>
       </div>
     </div>
@@ -137,56 +120,21 @@ export function App(props: AppProps) {
 }
 
 function BrandChip(props: {
-  variant: Variant;
   accent: 'iris' | 'foam' | 'rose';
   class?: string;
 }) {
-  const [now, setNow] = createSignal(new Date());
-  const [manualCopy, setManualCopy] = createSignal<ReturnType<
-    typeof resolveBrandCopy
-  > | null>(null);
-  let refreshTimer: number | undefined;
-
-  const scheduleRefresh = () => {
-    const current = new Date();
-    const next = new Date(current);
-    next.setHours(24, 0, 2, 0);
-
-    refreshTimer = window.setTimeout(() => {
-      setNow(new Date());
-      setManualCopy(null);
-      scheduleRefresh();
-    }, Math.max(1_000, next.getTime() - current.getTime()));
-  };
-
-  scheduleRefresh();
-  onCleanup(() => {
-    if (refreshTimer != null) {
-      window.clearTimeout(refreshTimer);
-    }
-  });
-
-  const resolvedCopy = createMemo(() => resolveBrandCopy(props.variant, now()));
-  const copy = createMemo(() => manualCopy() ?? resolvedCopy());
-
   return (
     <div class={`chip chip-brand chip-accent-${props.accent} ${props.class ?? ''}`.trim()}>
-      <div class="chip-body chip-body-fill chip-body-brand">
+      <div class="chip-body chip-body-brand">
         <button
-          class="brand-mark brand-refresh"
+          class="brand-mark brand-trigger"
           type="button"
-          title="Refresh quote"
-          aria-label="Refresh quote"
-          onClick={() =>
-            setManualCopy(pickRandomBrandCopy(props.variant, copy().entry.id))
-          }
+          title="Brand action"
+          aria-label="Brand action"
+          onClick={() => undefined}
         >
           <IconBadge node={icon('custom-tulip')} tone="rose" />
         </button>
-        <div class="stacked">
-          <span class="chip-label brand-sentence">{copy().sentence}</span>
-          <span class="chip-detail brand-category">{copy().detail}</span>
-        </div>
       </div>
     </div>
   );
@@ -340,70 +288,6 @@ function WmControlStrip(props: { glazewm: any }) {
         )}
       </For>
     </>
-  );
-}
-
-function MediaChip(props: { media: any; mediaProvider: any }) {
-  return (
-    <Show when={props.media}>
-      <div class="chip chip-media chip-center-media responsive-hide-md">
-        <div class="chip-body chip-body-fill chip-body-between">
-          <div class="chip-body-main">
-            <IconBadge node={icon('nf-md-music_note')} tone="rose" />
-            <div class="stacked media-copy">
-              <span class="chip-label">
-                {compactTitle(props.media?.title, 'No media')}
-              </span>
-              <span class="chip-detail">
-                {compactTitle(
-                  props.media?.artist,
-                  props.media?.isPlaying ? 'Playing' : 'Idle',
-                )}
-              </span>
-            </div>
-          </div>
-          <div class="inline-actions">
-            <button
-              class="icon-button"
-              disabled={!props.media?.isPreviousEnabled}
-              onClick={() =>
-                props.mediaProvider?.previous({
-                  sessionId: props.media?.sessionId,
-                })
-              }
-              title="Previous"
-            >
-              {icon('nf-md-skip_previous')}
-            </button>
-            <button
-              class="icon-button"
-              onClick={() =>
-                props.mediaProvider?.togglePlayPause({
-                  sessionId: props.media?.sessionId,
-                })
-              }
-              title="Play/Pause"
-            >
-              {props.media?.isPlaying
-                ? icon('nf-md-pause')
-                : icon('nf-md-play')}
-            </button>
-            <button
-              class="icon-button"
-              disabled={!props.media?.isNextEnabled}
-              onClick={() =>
-                props.mediaProvider?.next({
-                  sessionId: props.media?.sessionId,
-                })
-              }
-              title="Next"
-            >
-              {icon('nf-md-skip_next')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Show>
   );
 }
 

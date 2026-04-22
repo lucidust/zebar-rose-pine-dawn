@@ -44,9 +44,7 @@ Use the Rosé Pine Dawn values from the official palette references above as the
 
 - Font stacks are configured in [src/styles.css](./src/styles.css) through the `--font-sans` and `--font-mono` root variables.
 - Shipped icons are local inline SVGs in [src/icons.tsx](./src/icons.tsx), so the pack does not depend on remote icon fonts for runtime rendering.
-- Candidate brand copy for the left chip is stored in [docs/brand-copy.md](./docs/brand-copy.md), with a Korean companion in [docs/brand-copy.ko.md](./docs/brand-copy.ko.md).
-- Runtime brand-copy data and rotation rules live in [src/brand-copy.entries.json](./src/brand-copy.entries.json) and [src/brand-copy.ts](./src/brand-copy.ts).
-- To verify that all candidate lines still fit in the current brand-chip width budget, run `pnpm check:brand-copy`.
+- The left brand trigger is icon-only by default and remains a dedicated click target for future actions.
 
 ## Recommended Setup
 
@@ -77,23 +75,25 @@ Keep the Zebar side aligned with the following values when matching the GlazeWM 
 
 - `zpack.json`: `offsetY: 0px`, `height: 50px`, primary monitor preset only
 - `src/styles.css`: `--shell-padding-x: 8px`
+- `src/styles.css`: `--shell-padding-y: 6px`
 - `src/styles.css`: `--pill-height: 36px`
+- `src/styles.css`: `--bar-radius: 11px`
 - `src/styles.css`: `--right-cluster-item-height: 30px`
-- `src/styles.css`: `--pill-radius: 14px`
 - `src/styles.css`: `--cluster-inner-radius: 9px`
 
-These values intentionally keep the bar docked to the top edge while leaving the visible breathing room between the bar and tiled windows to GlazeWM's `outer_gap.top`.
+These values keep the widget within a 50px Zebar region while adding a 6px internal top gap and matching the horizontal spacing to GlazeWM's `8px` outer gaps.
 
 ## Layout Guidelines
 
-- Keep the shipped variants aligned to the same zone order: left for brand, workspace-aware context, and WM controls when available; center for media; right for shared system widgets ending with weather and date/time.
+- Keep the shipped variants aligned to the same zone order: left for brand, workspace-aware context, and WM controls when available; right for shared system widgets ending with weather and date/time.
 - Restrict variant-specific differences to workspace-aware content and WM controls; do not reorder shared system widgets per variant without updating all shipped variants together.
 - Treat `vanilla`, `with-glazewm`, and `with-komorebi` as one layout family for future maintenance.
+- Treat the full-width rail as the shared bar chrome, with feature chips remaining modular content units on top of it.
 
 ## Right Cluster Rules
 
 - Keep right-side widgets implemented as feature-specific chips for maintenance, even when they are presented as one visual cluster.
-- Use one outer pill for the right-side system cluster to reduce visual noise.
+- Use the full-width bar rail as the shared chrome instead of wrapping the right-side system cluster in its own pill.
 - Prefer background-backed sub-chips for interactive controls such as tray, audio, and clickable metrics.
 - Prefer separators or spacing for text-heavy informational chips such as network, weather, and date/time.
 - Use both backgrounds and separators only when they serve different roles, and keep both subtle.
@@ -102,6 +102,7 @@ These values intentionally keep the bar docked to the top edge while leaving the
 ## Features
 
 - Rose Pine Dawn palette-driven theme
-- System tray overflow popover, centered media controls, audio, network traffic, weather, and a combined CPU/memory indicator
+- Full-width top bar rail with modular workspace and system chips
+- System tray overflow popover, audio, network traffic, weather, and a combined CPU/memory indicator
 - Workspace switching and WM controls in `with-glazewm`
 - Responsive top bar layout that collapses lower-priority content on narrower widths
