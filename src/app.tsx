@@ -57,46 +57,40 @@ export function App(props: AppProps) {
   function renderLeftZone() {
     if (props.variant === 'with-glazewm') {
       return (
-        <>
-          <BrandChip accent="iris" class="responsive-hide-md" />
-          <Show when={glaze()}>
-            <div class="chip chip-left-context segmented-cluster">
-              <GlazeWorkspaceStrip glazewm={glaze()} />
-              <WmControlStrip glazewm={glaze()} />
-              <SummaryChip
-                class="responsive-hide-sm chip-context-summary"
-                iconNode={icon('nf-md-application_outline')}
-                label={glazeFocusedLabel(glaze())}
-                detail={glazeFocusedDetail(glaze())}
-                tone="iris"
-              />
-            </div>
-          </Show>
-        </>
+        <Show when={glaze()}>
+          <div class="chip chip-left-context segmented-cluster">
+            <GlazeWorkspaceStrip glazewm={glaze()} />
+            <WmControlStrip glazewm={glaze()} />
+            <SummaryChip
+              class="responsive-hide-sm chip-context-summary"
+              iconNode={icon('nf-md-application_outline')}
+              label={glazeFocusedLabel(glaze())}
+              detail={glazeFocusedDetail(glaze())}
+              tone="iris"
+            />
+          </div>
+        </Show>
       );
     }
 
     if (props.variant === 'with-komorebi') {
       return (
-        <>
-          <BrandChip accent="foam" class="responsive-hide-md" />
-          <Show when={komorebi()}>
-            <div class="chip chip-left-context segmented-cluster">
-              <KomorebiWorkspaceStrip komorebi={komorebi()} />
-              <SummaryChip
-                class="responsive-hide-sm chip-context-summary"
-                iconNode={icon('nf-md-view_dashboard')}
-                label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
-                detail={komorebiWorkspaceDetail(komorebi())}
-                tone="foam"
-              />
-            </div>
-          </Show>
-        </>
+        <Show when={komorebi()}>
+          <div class="chip chip-left-context segmented-cluster">
+            <KomorebiWorkspaceStrip komorebi={komorebi()} />
+            <SummaryChip
+              class="responsive-hide-sm chip-context-summary"
+              iconNode={icon('nf-md-view_dashboard')}
+              label={`Workspace ${workspaceLabel(komorebi().focusedWorkspace ?? {})}`}
+              detail={komorebiWorkspaceDetail(komorebi())}
+              tone="foam"
+            />
+          </div>
+        </Show>
       );
     }
 
-    return <BrandChip accent="rose" class="responsive-hide-md" />;
+    return null;
   }
 
   function renderRightZone() {
@@ -118,27 +112,6 @@ export function App(props: AppProps) {
       <div class="bar-grid">
         <div class="zone zone-left cluster-host">{renderLeftZone()}</div>
         <div class="zone zone-right cluster-host">{renderRightZone()}</div>
-      </div>
-    </div>
-  );
-}
-
-function BrandChip(props: {
-  accent: 'iris' | 'foam' | 'rose';
-  class?: string;
-}) {
-  return (
-    <div class={`chip chip-brand chip-accent-${props.accent} ${props.class ?? ''}`.trim()}>
-      <div class="chip-body chip-body-brand">
-        <button
-          class="brand-mark brand-trigger"
-          type="button"
-          title="Brand action"
-          aria-label="Brand action"
-          onClick={() => undefined}
-        >
-          <IconBadge node={icon('custom-tulip')} tone="rose" />
-        </button>
       </div>
     </div>
   );

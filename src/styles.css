@@ -197,24 +197,6 @@ button {
   white-space: nowrap;
 }
 
-.chip-brand {
-  padding: 0;
-  flex: 0 0 auto;
-}
-
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.brand-trigger {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-}
-
 .chip-accent-iris {
   color: var(--iris);
 }
@@ -1071,16 +1053,6 @@ button {
   height: 16px;
 }
 
-.chip-brand .icon-badge {
-  width: 27px;
-  height: 27px;
-}
-
-.chip-brand .icon-badge .icon {
-  width: 19px;
-  height: 19px;
-}
-
 .tray-icon {
   width: 16px;
   height: 16px;
@@ -1089,7 +1061,6 @@ button {
 .icon-button:hover,
 .tray-button:hover,
 .tray-overflow-button:hover,
-.brand-trigger:hover,
 .chip-button:hover,
 .workspace-pill:hover {
   transform: translateY(-1px);
@@ -1107,7 +1078,6 @@ button {
 .icon-button,
 .tray-button,
 .tray-overflow-button,
-.brand-trigger,
 .chip-action,
 .metric-combo-action,
 .workspace-pill {

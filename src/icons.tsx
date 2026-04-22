@@ -88,14 +88,6 @@ function WifiShape(props: { level: 0 | 1 | 2 | 3 | 4 }) {
 
 function iconNode(name: string): JSX.Element {
   switch (name) {
-    case 'custom-tulip':
-      return (
-        <>
-          <path d="M12 20v-6.2" />
-          <path d="M8.5 19c1-.95 2.17-1.45 3.5-1.45s2.5.5 3.5 1.45" />
-          <path d="M12 4.3c-.9-1.75-2.75-2.8-4.95-2.8-.22 4.1 1.8 7.45 4.95 9.35 3.15-1.9 5.17-5.25 4.95-9.35-2.2 0-4.05 1.05-4.95 2.8Z" />
-        </>
-      );
     case 'custom-memory':
       return (
         <>
