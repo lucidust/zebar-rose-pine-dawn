@@ -59,7 +59,11 @@ export function App(props: AppProps) {
     if (props.variant === 'with-glazewm') {
       return (
         <>
-          <BrandChip variant="with-glazewm" accent="iris" />
+          <BrandChip
+            variant="with-glazewm"
+            accent="iris"
+            class="responsive-hide-md"
+          />
           <Show when={glaze()}>
             <div class="chip chip-left-context segmented-cluster">
               <GlazeWorkspaceStrip glazewm={glaze()} />
@@ -80,7 +84,11 @@ export function App(props: AppProps) {
     if (props.variant === 'with-komorebi') {
       return (
         <>
-          <BrandChip variant="with-komorebi" accent="foam" />
+          <BrandChip
+            variant="with-komorebi"
+            accent="foam"
+            class="responsive-hide-md"
+          />
           <Show when={komorebi()}>
             <div class="chip chip-left-context segmented-cluster">
               <KomorebiWorkspaceStrip komorebi={komorebi()} />
@@ -97,7 +105,7 @@ export function App(props: AppProps) {
       );
     }
 
-    return <BrandChip variant="vanilla" accent="rose" />;
+    return <BrandChip variant="vanilla" accent="rose" class="responsive-hide-md" />;
   }
 
   function renderCenterZone() {
@@ -131,6 +139,7 @@ export function App(props: AppProps) {
 function BrandChip(props: {
   variant: Variant;
   accent: 'iris' | 'foam' | 'rose';
+  class?: string;
 }) {
   const [now, setNow] = createSignal(new Date());
   const [manualCopy, setManualCopy] = createSignal<ReturnType<
@@ -161,7 +170,7 @@ function BrandChip(props: {
   const copy = createMemo(() => manualCopy() ?? resolvedCopy());
 
   return (
-    <div class={`chip chip-brand chip-accent-${props.accent}`}>
+    <div class={`chip chip-brand chip-accent-${props.accent} ${props.class ?? ''}`.trim()}>
       <div class="chip-body chip-body-fill chip-body-brand">
         <button
           class="brand-mark brand-refresh"
@@ -337,7 +346,7 @@ function WmControlStrip(props: { glazewm: any }) {
 function MediaChip(props: { media: any; mediaProvider: any }) {
   return (
     <Show when={props.media}>
-      <div class="chip chip-media chip-center-media responsive-hide-sm">
+      <div class="chip chip-media chip-center-media responsive-hide-md">
         <div class="chip-body chip-body-fill chip-body-between">
           <div class="chip-body-main">
             <IconBadge node={icon('nf-md-music_note')} tone="rose" />
