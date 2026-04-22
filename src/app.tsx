@@ -295,16 +295,8 @@ function WmControlStrip(props: { glazewm: any }) {
     <>
       <ControlActionChip
         tone="iris"
-        title={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? 'Horizontal tiling'
-            : 'Vertical tiling'
-        }
-        ariaLabel={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? 'Horizontal tiling'
-            : 'Vertical tiling'
-        }
+        title={tilingDirectionIndicatorLabel(props.glazewm)}
+        ariaLabel={tilingDirectionIndicatorLabel(props.glazewm)}
         onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
         iconNode={
           props.glazewm?.tilingDirection === 'horizontal'
@@ -316,8 +308,8 @@ function WmControlStrip(props: { glazewm: any }) {
         <ControlActionChip
           class="responsive-hide-md"
           tone="gold"
-          title="GlazeWM paused"
-          ariaLabel="GlazeWM paused"
+          title="GlazeWM Pause Mode Active"
+          ariaLabel="GlazeWM Pause Mode Active"
           onClick={() => props.glazewm.runCommand('wm-toggle-pause')}
           iconNode={icon('nf-md-pause_circle')}
         />
@@ -327,8 +319,8 @@ function WmControlStrip(props: { glazewm: any }) {
           <ControlActionChip
             class="responsive-hide-lg"
             tone="foam"
-            title={`${mode.displayName ?? mode.name} mode`}
-            ariaLabel={`${mode.displayName ?? mode.name} mode`}
+            title={bindingModeIndicatorLabel(mode)}
+            ariaLabel={bindingModeIndicatorLabel(mode)}
             onClick={() =>
               props.glazewm.runCommand(
                 `wm-disable-binding-mode --name ${mode.name}`,
@@ -853,6 +845,30 @@ function bindingModeIcon(mode: any) {
   }
 
   return icon('nf-md-key_variant');
+}
+
+function tilingDirectionIndicatorLabel(glazewm: any) {
+  return glazewm?.tilingDirection === 'horizontal'
+    ? 'Horizontal Tiling Direction Active'
+    : 'Vertical Tiling Direction Active';
+}
+
+function bindingModeIndicatorLabel(mode: any) {
+  const raw = String(mode?.displayName ?? mode?.name ?? '').trim();
+  if (!raw) {
+    return 'Binding Mode Active';
+  }
+
+  const normalized = raw
+    .replaceAll('-', ' ')
+    .replaceAll('_', ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+
+  return normalized.toLowerCase().endsWith(' mode')
+    ? `${normalized} Active`
+    : `${normalized} Mode Active`;
 }
 
 function networkTitle(network: any) {

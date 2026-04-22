@@ -386,14 +386,14 @@ button {
   justify-content: center;
 }
 
-.chip-left-context .workspace-pill {
-  width: 24px;
-  height: 24px;
+.chip-left-context .workspace-strip {
+  --workspace-pill-size: 24px;
+  --workspace-dot-size: 12px;
+  --workspace-focused-pill-width: 30px;
+  --workspace-focused-dot-width: 18px;
 }
 
 .chip-left-context .workspace-dot {
-  width: 12px;
-  height: 12px;
   box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 11%, transparent);
 }
 
@@ -709,6 +709,10 @@ button {
 }
 
 .workspace-strip {
+  --workspace-pill-size: 26px;
+  --workspace-dot-size: 14px;
+  --workspace-focused-pill-width: 33px;
+  --workspace-focused-dot-width: 21px;
   display: flex;
   align-items: center;
   min-width: 0;
@@ -727,8 +731,8 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: var(--workspace-pill-size);
+  height: var(--workspace-pill-size);
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -737,6 +741,7 @@ button {
   color: var(--workspace-accent, var(--iris));
   flex: 0 0 auto;
   transition:
+    width 120ms ease,
     transform 120ms ease,
     color 120ms ease,
     opacity 120ms ease;
@@ -748,13 +753,15 @@ button {
 
 .workspace-dot {
   display: inline-flex;
-  width: 14px;
-  height: 14px;
+  width: var(--workspace-dot-size);
+  height: var(--workspace-dot-size);
   border-radius: 999px;
   background: currentColor;
   opacity: 0.48;
   box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 11%, transparent);
   transition:
+    width 120ms ease,
+    height 120ms ease,
     transform 120ms ease,
     opacity 120ms ease,
     box-shadow 120ms ease;
@@ -764,9 +771,13 @@ button {
   opacity: 0.82;
 }
 
+.workspace-pill.focused {
+  width: var(--workspace-focused-pill-width);
+}
+
 .workspace-pill.focused .workspace-dot {
   opacity: 1;
-  transform: scale(1.08);
+  width: var(--workspace-focused-dot-width);
   box-shadow:
     0 0 0 5px color-mix(in srgb, currentColor 14%, transparent),
     0 0 0 1.5px rgb(255 255 255 / 50%) inset;
