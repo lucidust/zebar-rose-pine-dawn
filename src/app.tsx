@@ -642,6 +642,21 @@ function NetworkChip(props: { network: any }) {
 function CpuMemoryChip(props: { cpu: any; memory: any }) {
   const hasCpu = () => props.cpu != null;
   const hasMemory = () => props.memory != null;
+  const cpuValue = () => percent(props.cpu?.usage);
+  const memoryValue = () => percent(props.memory?.usage);
+  const metricTooltip = () => {
+    const parts: string[] = [];
+
+    if (hasCpu()) {
+      parts.push(`CPU ${cpuValue()}`);
+    }
+
+    if (hasMemory()) {
+      parts.push(`Memory ${memoryValue()}`);
+    }
+
+    return parts.join(' • ');
+  };
 
   return (
     <Show when={hasCpu() || hasMemory()}>
@@ -649,25 +664,26 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
         <button
           class="chip-body chip-body-right chip-body-button metric-combo-action"
           type="button"
-          title="Open Task Manager"
-          aria-label="Open Task Manager"
+          title={metricTooltip()}
+          aria-label={`${metricTooltip()}, open Task Manager`}
           onClick={() => void openTaskManager()}
         >
+          <IconBadge
+            node={icon('nf-md-application_outline')}
+            tone="foam"
+            class="metric-chip-badge"
+          />
           <div class="stacked metric-stack">
             <Show when={hasCpu()}>
               <MetricStackLine
-                iconNode={icon('nf-oct-cpu')}
-                tone="rose"
-                value={percent(props.cpu?.usage)}
-                title={`CPU ${percent(props.cpu?.usage)}`}
+                label="C"
+                value={cpuValue()}
               />
             </Show>
             <Show when={hasMemory()}>
               <MetricStackLine
-                iconNode={icon('custom-memory')}
-                tone="iris"
-                value={percent(props.memory?.usage)}
-                title={`Memory ${percent(props.memory?.usage)}`}
+                label="M"
+                value={memoryValue()}
                 secondary
               />
             </Show>
@@ -679,18 +695,13 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
 }
 
 function MetricStackLine(props: {
-  iconNode: any;
-  tone: Tone;
+  label: string;
   value: string;
-  title: string;
   secondary?: boolean;
 }) {
   return (
-    <span
-      class={`metric-line ${props.secondary ? 'metric-line-secondary' : ''}`.trim()}
-      title={props.title}
-    >
-      <IconBadge node={props.iconNode} tone={props.tone} class="metric-line-badge" />
+    <span class={`metric-line ${props.secondary ? 'metric-line-secondary' : ''}`.trim()}>
+      <span class="metric-line-label">{props.label}</span>
       <span class="metric-stack-value">{props.value}</span>
     </span>
   );

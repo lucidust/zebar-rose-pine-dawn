@@ -43,9 +43,8 @@
   --right-cluster-chip-gap: 5px;
   --right-cluster-item-height: 28px;
   --metric-stack-gap: 1px;
-  --metric-line-gap: 4px;
-  --metric-badge-size: 13px;
-  --metric-badge-icon-size: 9px;
+  --metric-line-gap: 5px;
+  --metric-label-width: 1ch;
   --metric-value-width: 4ch;
   --tray-overflow-gap: 6px;
   --radius-md: 12px;
@@ -726,15 +725,16 @@ button {
   color: var(--subtle);
 }
 
-.metric-line-badge {
-  width: var(--metric-badge-size);
-  height: var(--metric-badge-size);
-  min-width: var(--metric-badge-size);
+.metric-chip-badge {
+  align-self: center;
 }
 
-.metric-line-badge .icon {
-  width: var(--metric-badge-icon-size);
-  height: var(--metric-badge-icon-size);
+.metric-line-label {
+  display: inline-block;
+  width: var(--metric-label-width);
+  min-width: var(--metric-label-width);
+  text-align: center;
+  color: inherit;
 }
 
 .metric-stack-value {
