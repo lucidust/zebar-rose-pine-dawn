@@ -246,46 +246,72 @@ function WorkspaceStripChip(props: { children: any }) {
 }
 
 function WmControlStrip(props: { glazewm: any }) {
+  const activeBindingMode = () => props.glazewm?.bindingModes?.[0];
+  const paused = () => Boolean(props.glazewm?.isPaused);
+  const tilingDirection = () => props.glazewm?.tilingDirection;
+
+  const tone = () => {
+    if (paused()) {
+      return 'gold';
+    }
+
+    if (activeBindingMode()) {
+      return 'foam';
+    }
+
+    return 'iris';
+  };
+
+  const title = () => {
+    if (paused()) {
+      return 'GlazeWM Pause Mode Active';
+    }
+
+    if (activeBindingMode()) {
+      return bindingModeIndicatorLabel(activeBindingMode());
+    }
+
+    return tilingDirectionIndicatorLabel(props.glazewm);
+  };
+
+  const iconNode = () => {
+    if (paused()) {
+      return icon('nf-md-pause_circle');
+    }
+
+    if (activeBindingMode()) {
+      return bindingModeIcon(activeBindingMode());
+    }
+
+    return tilingDirection() === 'horizontal'
+      ? icon('custom-split-horizontal')
+      : icon('custom-split-vertical');
+  };
+
+  const onClick = () => {
+    if (paused()) {
+      props.glazewm.runCommand('wm-toggle-pause');
+      return;
+    }
+
+    if (activeBindingMode()) {
+      props.glazewm.runCommand(
+        `wm-disable-binding-mode --name ${activeBindingMode().name}`,
+      );
+      return;
+    }
+
+    props.glazewm.runCommand('toggle-tiling-direction');
+  };
+
   return (
-    <>
-      <ControlActionChip
-        tone="iris"
-        title={tilingDirectionIndicatorLabel(props.glazewm)}
-        ariaLabel={tilingDirectionIndicatorLabel(props.glazewm)}
-        onClick={() => props.glazewm.runCommand('toggle-tiling-direction')}
-        iconNode={
-          props.glazewm?.tilingDirection === 'horizontal'
-            ? icon('custom-split-horizontal')
-            : icon('custom-split-vertical')
-        }
-      />
-      <Show when={props.glazewm?.isPaused}>
-        <ControlActionChip
-          class="responsive-hide-md"
-          tone="gold"
-          title="GlazeWM Pause Mode Active"
-          ariaLabel="GlazeWM Pause Mode Active"
-          onClick={() => props.glazewm.runCommand('wm-toggle-pause')}
-          iconNode={icon('nf-md-pause_circle')}
-        />
-      </Show>
-      <For each={props.glazewm?.bindingModes ?? []}>
-        {(mode: any) => (
-          <ControlActionChip
-            class="responsive-hide-lg"
-            tone="foam"
-            title={bindingModeIndicatorLabel(mode)}
-            ariaLabel={bindingModeIndicatorLabel(mode)}
-            onClick={() =>
-              props.glazewm.runCommand(
-                `wm-disable-binding-mode --name ${mode.name}`,
-              )
-            }
-            iconNode={bindingModeIcon(mode)}
-          />
-        )}
-      </For>
-    </>
+    <ControlActionChip
+      tone={tone()}
+      title={title()}
+      ariaLabel={title()}
+      onClick={onClick}
+      iconNode={iconNode()}
+    />
   );
 }
 
