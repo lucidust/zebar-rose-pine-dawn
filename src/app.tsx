@@ -189,6 +189,40 @@ function WeatherChip(props: { weather: any }) {
 }
 
 function GlazeWorkspaceStrip(props: { glazewm: any }) {
+  const [recentWorkspaceName, setRecentWorkspaceName] = createSignal<
+    string | null
+  >(null);
+  let lastFocusedWorkspaceName: string | null = null;
+
+  createEffect(() => {
+    const focusedWorkspaceName = props.glazewm?.focusedWorkspace?.name ?? null;
+
+    if (!focusedWorkspaceName) {
+      return;
+    }
+
+    if (
+      lastFocusedWorkspaceName &&
+      lastFocusedWorkspaceName !== focusedWorkspaceName
+    ) {
+      setRecentWorkspaceName(lastFocusedWorkspaceName);
+    }
+
+    lastFocusedWorkspaceName = focusedWorkspaceName;
+  });
+
+  const isRecentWorkspace = (workspace: { name?: string | null }) =>
+    Boolean(
+      workspace.name &&
+        workspace.name === recentWorkspaceName() &&
+        workspace.name !== props.glazewm?.focusedWorkspace?.name,
+    );
+
+  const glazeWorkspaceLabel = (workspace: any) =>
+    `${workspaceLabel(workspace)} workspace ${
+      isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
+    }${isRecentWorkspace(workspace) ? ', recent target' : ''}`;
+
   return (
     <Show when={props.glazewm?.currentWorkspaces?.length}>
       <WorkspaceStripChip>
@@ -197,19 +231,17 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
             <button
               class={`workspace-pill ${
                 isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
-              } ${workspace.hasFocus ? 'focused' : ''} ${
+              } ${isRecentWorkspace(workspace) ? 'recent' : ''} ${
+                workspace.hasFocus ? 'focused' : ''
+              } ${
                 workspace.isDisplayed ? 'displayed' : ''
               }`}
               style={{ '--workspace-accent': workspaceAccentVar(index()) }}
               onClick={() =>
                 props.glazewm.runCommand(`focus --workspace ${workspace.name}`)
               }
-              title={`${workspaceLabel(workspace)} workspace ${
-                isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
-              }`}
-              aria-label={`${workspaceLabel(workspace)} workspace ${
-                isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
-              }`}
+              title={glazeWorkspaceLabel(workspace)}
+              aria-label={glazeWorkspaceLabel(workspace)}
             >
               <span class="workspace-dot" />
             </button>

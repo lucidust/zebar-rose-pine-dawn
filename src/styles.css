@@ -721,6 +721,7 @@ button {
 
 .workspace-dot {
   display: inline-flex;
+  position: relative;
   width: var(--workspace-dot-size);
   height: var(--workspace-dot-size);
   border-radius: 999px;
@@ -733,6 +734,15 @@ button {
     transform 120ms ease,
     opacity 120ms ease,
     box-shadow 120ms ease;
+}
+
+.workspace-pill.recent:not(.focused) .workspace-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid color-mix(in srgb, var(--iris) 34%, transparent);
+  border-radius: 999px;
+  pointer-events: none;
 }
 
 .workspace-pill.displayed .workspace-dot {
