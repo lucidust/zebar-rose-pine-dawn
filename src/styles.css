@@ -682,6 +682,8 @@ button {
 }
 
 .workspace-pill {
+  --workspace-dot-opacity: 0.48;
+  --workspace-dot-ring-opacity: 11%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -705,14 +707,26 @@ button {
   cursor: default;
 }
 
+.workspace-pill.occupied {
+  color: var(--foam);
+  --workspace-dot-opacity: 0.68;
+  --workspace-dot-ring-opacity: 14%;
+}
+
+.workspace-pill.empty {
+  color: var(--subtle);
+  --workspace-dot-opacity: 0.34;
+  --workspace-dot-ring-opacity: 8%;
+}
+
 .workspace-dot {
   display: inline-flex;
   width: var(--workspace-dot-size);
   height: var(--workspace-dot-size);
   border-radius: 999px;
   background: currentColor;
-  opacity: 0.48;
-  box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 11%, transparent);
+  opacity: var(--workspace-dot-opacity);
+  box-shadow: 0 0 0 5px color-mix(in srgb, currentColor var(--workspace-dot-ring-opacity), transparent);
   transition:
     width 120ms ease,
     height 120ms ease,
@@ -727,14 +741,13 @@ button {
 
 .workspace-pill.focused {
   width: var(--workspace-focused-pill-width);
+  color: var(--workspace-accent, var(--iris));
 }
 
 .workspace-pill.focused .workspace-dot {
   opacity: 1;
   width: var(--workspace-focused-dot-width);
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, currentColor 14%, transparent),
-    0 0 0 1.5px rgb(255 255 255 / 50%) inset;
+  box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 14%, transparent);
 }
 
 .workspace-pill:hover .workspace-dot {

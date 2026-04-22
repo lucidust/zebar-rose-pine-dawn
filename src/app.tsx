@@ -33,6 +33,12 @@ function workspaceAccentVar(index: number) {
   return `var(--ws-${(index % 6) + 1})`;
 }
 
+function isGlazeWorkspaceOccupied(workspace: {
+  children?: Array<unknown> | null;
+}) {
+  return Boolean(workspace.children?.length);
+}
+
 export function App(props: AppProps) {
   const [output, setOutput] = createStore<Record<string, any>>(
     props.providers.outputMap as Record<string, any>,
@@ -189,13 +195,21 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
         <For each={props.glazewm.currentWorkspaces}>
           {(workspace: any, index) => (
             <button
-              class={`workspace-pill ${workspace.hasFocus ? 'focused' : ''} ${workspace.isDisplayed ? 'displayed' : ''}`}
+              class={`workspace-pill ${
+                isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
+              } ${workspace.hasFocus ? 'focused' : ''} ${
+                workspace.isDisplayed ? 'displayed' : ''
+              }`}
               style={{ '--workspace-accent': workspaceAccentVar(index()) }}
               onClick={() =>
                 props.glazewm.runCommand(`focus --workspace ${workspace.name}`)
               }
-              title={`${workspaceLabel(workspace)} workspace`}
-              aria-label={`${workspaceLabel(workspace)} workspace`}
+              title={`${workspaceLabel(workspace)} workspace ${
+                isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
+              }`}
+              aria-label={`${workspaceLabel(workspace)} workspace ${
+                isGlazeWorkspaceOccupied(workspace) ? 'occupied' : 'empty'
+              }`}
             >
               <span class="workspace-dot" />
             </button>
