@@ -1035,7 +1035,6 @@ button {
 .chip-right-cluster .chip-audio .icon-badge {
   position: relative;
   z-index: 1;
-  background: color-mix(in srgb, var(--foam) 12%, transparent);
 }
 
 .chip-right-cluster .chip-audio .volume-slider {
