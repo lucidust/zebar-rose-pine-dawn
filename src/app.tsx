@@ -671,6 +671,19 @@ function SystrayStrip(props: { systray: any }) {
   let rootRef: HTMLDivElement | undefined;
 
   const allIcons = createMemo(() => props.systray?.icons ?? []);
+  const popoverStyle = createMemo(() => {
+    const iconCount = allIcons().length;
+    const buttonSize = 26;
+    const gap = 6;
+    const paddingX = 8;
+    const idealWidth =
+      iconCount * buttonSize + Math.max(iconCount - 1, 0) * gap + paddingX * 2;
+
+    return {
+      width: `${idealWidth}px`,
+      'max-width': 'calc(100vw - 24px)',
+    };
+  });
 
   const closeOnOutsidePointer = (event: PointerEvent) => {
     if (!isOpen() || !rootRef) {
@@ -693,18 +706,21 @@ function SystrayStrip(props: { systray: any }) {
           type="button"
           title={`Show ${allIcons().length} tray icons`}
           aria-label={`Show ${allIcons().length} tray icons`}
+          aria-expanded={isOpen()}
           onClick={() => setIsOpen(open => !open)}
         >
           <IconBadge node={icon('custom-tray')} tone="foam" />
           <span class="tray-overflow-count">{`+${allIcons().length}`}</span>
         </button>
         <Show when={isOpen()}>
-          <div class="tray-popover">
-            <For each={allIcons()}>
-              {(trayIcon: any) => (
-                <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
-              )}
-            </For>
+          <div class="tray-popover" style={popoverStyle()}>
+            <div class="tray-popover-grid">
+              <For each={allIcons()}>
+                {(trayIcon: any) => (
+                  <TrayIconButton systray={props.systray} trayIcon={trayIcon} />
+                )}
+              </For>
+            </div>
           </div>
         </Show>
       </div>
