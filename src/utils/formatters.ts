@@ -25,43 +25,6 @@ export function workspaceLabel(workspace: {
   return workspace.displayName || workspace.name || '?';
 }
 
-export function networkLabel(network: any) {
-  return (
-    network?.defaultGateway?.ssid ||
-    network?.defaultInterface?.friendlyName ||
-    network?.defaultInterface?.name ||
-    'Offline'
-  );
-}
-
-export function compactNetworkLabel(network: any) {
-  const label = networkLabel(network).trim();
-
-  if (label.length <= 16) {
-    return label;
-  }
-
-  return `${label.slice(0, 15)}…`;
-}
-
-function formatBytesCompact(bytes: number, suffix = '') {
-  if (!Number.isFinite(bytes) || bytes <= 0) {
-    return `0B${suffix}`;
-  }
-
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let value = bytes;
-  let unitIndex = 0;
-
-  while (value >= 1000 && unitIndex < units.length - 1) {
-    value /= 1000;
-    unitIndex += 1;
-  }
-
-  const digits = value >= 100 || unitIndex === 0 ? 0 : value >= 10 ? 1 : 2;
-  return `${value.toFixed(digits)}${units[unitIndex]}${suffix}`;
-}
-
 function formatBytesCompactParts(bytes: number, suffix = '') {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return { value: '0', unit: `B${suffix}` };
@@ -83,14 +46,6 @@ function formatBytesCompactParts(bytes: number, suffix = '') {
   };
 }
 
-export function formatDataRate(bytesPerSecond: number | null | undefined) {
-  return formatBytesCompact(bytesPerSecond ?? 0, '/s');
-}
-
-export function formatDataAmount(bytes: number | null | undefined) {
-  return formatBytesCompact(bytes ?? 0);
-}
-
 export function formatDataRateParts(bytesPerSecond: number | null | undefined) {
   return formatBytesCompactParts(bytesPerSecond ?? 0, '/s');
 }
@@ -99,70 +54,12 @@ export function formatDataAmountParts(bytes: number | null | undefined) {
   return formatBytesCompactParts(bytes ?? 0);
 }
 
-export function batteryStatusText(battery: any) {
-  if (!battery) {
-    return '';
-  }
-
-  if (battery.state === 'charging') {
-    return 'Charging';
-  }
-
-  if (battery.state === 'full') {
-    return 'Full';
-  }
-
-  if (battery.state === 'empty') {
-    return 'No battery';
-  }
-
-  return 'Battery';
-}
-
 export function weatherLabel(weather: any) {
   if (!weather) {
     return 'Weather';
   }
 
   return `${Math.round(weather.celsiusTemp)}°C`;
-}
-
-export function timeRemainingLabel(minutes: number | null | undefined) {
-  if (minutes == null || minutes < 0) {
-    return '';
-  }
-
-  const totalMinutes = Math.round(minutes);
-  const hours = Math.floor(totalMinutes / 60);
-  const remainder = totalMinutes % 60;
-
-  if (!hours) {
-    return `${remainder}m`;
-  }
-
-  if (!remainder) {
-    return `${hours}h`;
-  }
-
-  return `${hours}h ${remainder}m`;
-}
-
-export function batteryDetail(battery: any) {
-  if (!battery) {
-    return '';
-  }
-
-  if (battery.state === 'charging') {
-    const remaining = timeRemainingLabel(battery.timeTillFull);
-    return remaining ? `${percent(battery.chargePercent)} · ${remaining}` : percent(battery.chargePercent);
-  }
-
-  if (battery.state === 'discharging') {
-    const remaining = timeRemainingLabel(battery.timeTillEmpty);
-    return remaining ? `${percent(battery.chargePercent)} · ${remaining}` : percent(battery.chargePercent);
-  }
-
-  return percent(battery.chargePercent);
 }
 
 export function glazeFocusedLabel(glazewm: any) {

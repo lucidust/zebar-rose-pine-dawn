@@ -8,11 +8,9 @@ import {
   onCleanup,
 } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { batteryIcon, icon, networkIcon, weatherIcon } from './icons';
+import { icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
-  batteryDetail,
-  batteryStatusText,
   clamp,
   formatDataAmountParts,
   formatDataRateParts,
@@ -593,22 +591,6 @@ function MetricStackLine(props: {
       <span class="metric-line-label">{props.label}</span>
       <span class="metric-stack-value">{props.value}</span>
     </span>
-  );
-}
-
-function BatteryChip(props: { battery: any }) {
-  return (
-    <Show when={props.battery != null}>
-      <div class="chip chip-mini chip-priority">
-        <div class="chip-body chip-body-fill">
-          <IconBadge node={batteryIcon(props.battery)} tone="foam" />
-          <div class="stacked">
-            <span class="chip-label">{batteryStatusText(props.battery)}</span>
-            <span class="chip-detail">{batteryDetail(props.battery)}</span>
-          </div>
-        </div>
-      </div>
-    </Show>
   );
 }
 

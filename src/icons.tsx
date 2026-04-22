@@ -412,39 +412,6 @@ export function networkIcon(network: any) {
   }
 }
 
-export function batteryIcon(battery: any) {
-  const charge = Math.max(0, Math.min(100, Math.round(battery?.chargePercent ?? 0)));
-  const fillWidth = Math.max(1.5, (charge / 100) * 9);
-  const levelClass =
-    battery?.state === 'charging'
-      ? 'charging'
-      : charge >= 60
-        ? 'good'
-        : charge >= 30
-          ? 'mid'
-          : 'low';
-
-  return (
-    <SvgIcon class={`battery-icon ${levelClass}`}>
-      <rect x="4.5" y="8" width="13" height="8" rx="2.25" />
-      <path d="M17.5 10.25h2v3.5h-2" />
-      <rect
-        x="6.5"
-        y="10"
-        width={fillWidth}
-        height="4"
-        rx="1.1"
-        fill="currentColor"
-        stroke="none"
-        opacity="0.9"
-      />
-      {battery?.state === 'charging' ? (
-        <path d="m11.2 7.2-1.2 3h1.45l-.8 3.5 2.95-4.6h-1.55l1.15-1.9" />
-      ) : null}
-    </SvgIcon>
-  );
-}
-
 export function weatherIcon(weather: any) {
   switch (weather?.status) {
     case 'clear_day':

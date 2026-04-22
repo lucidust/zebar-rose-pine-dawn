@@ -52,7 +52,7 @@ This pack is currently tuned around a horizontal 4K primary monitor.
 
 - Tested target: one horizontal 4K primary monitor
 - Secondary monitor status: a portrait 4K secondary monitor exists in the current workstation, but the shipped spacing and placement are not tuned for it yet
-- Current widget scope: the default `zpack.json` preset targets the primary monitor only
+- Current widget scope: the default `zpack.json` presets target all monitors, but the spacing is tuned around the primary monitor first
 
 ### GlazeWM gaps
 
@@ -73,14 +73,12 @@ gaps:
 
 Keep the Zebar side aligned with the following values when matching the GlazeWM profile above:
 
-- `zpack.json`: `offsetY: 0px`, `height: 50px`, primary monitor preset only
+- `zpack.json`: `offsetY: 0px`, `height: 50px`, all monitor presets
 - `src/styles.css`: `--shell-padding-x: 8px`
 - `src/styles.css`: `--shell-padding-y: 6px`
 - `src/styles.css`: `--pill-height: 36px`
 - `src/styles.css`: `--bar-radius: 11px`
 - `src/styles.css`: `--right-cluster-item-height: 30px`
-- `src/styles.css`: `--cluster-inner-radius: 9px`
-
 These values keep the widget within a 50px Zebar region while adding a 6px internal top gap and matching the horizontal spacing to GlazeWM's `8px` outer gaps.
 
 ## Layout Guidelines

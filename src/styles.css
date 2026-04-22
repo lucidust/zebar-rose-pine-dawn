@@ -28,11 +28,9 @@
     'Consolas',
     'SFMono-Regular',
     monospace;
-  --bar-height: 50px;
   --pill-height: 36px;
   --bar-radius: 11px;
   --pill-radius: 14px;
-  --cluster-inner-radius: 9px;
   --cluster-edge-gap: 9px;
   --cluster-divider-gap: 9px;
   --cluster-divider-height: 16px;
@@ -806,19 +804,6 @@ button {
   color: inherit;
   position: relative;
   z-index: 1;
-}
-
-.battery-icon.good {
-  color: var(--foam);
-}
-
-.battery-icon.mid {
-  color: var(--gold);
-}
-
-.battery-icon.low,
-.battery-icon.charging {
-  color: var(--love);
 }
 
 .inline-actions {

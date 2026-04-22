@@ -52,7 +52,7 @@ pnpm build
 
 - 검증 기준: 가로 배치된 4K primary 모니터 1대
 - 보조 모니터 상태: 현재 작업 환경에는 세로 배치된 4K secondary 모니터도 있지만, shipped spacing/배치 값은 아직 그 모니터에 맞춰 튜닝하지 않았습니다
-- 현재 widget 범위: 기본 `zpack.json` preset은 primary monitor만 대상으로 합니다
+- 현재 widget 범위: 기본 `zpack.json` preset은 모든 모니터를 대상으로 하지만, spacing은 우선 primary monitor 기준으로 맞춰져 있습니다
 
 ### GlazeWM gap 값
 
@@ -73,14 +73,12 @@ gaps:
 
 위 GlazeWM 프로파일과 맞출 때 Zebar 쪽은 아래 값을 유지합니다.
 
-- `zpack.json`: `offsetY: 0px`, `height: 50px`, primary monitor preset only
+- `zpack.json`: `offsetY: 0px`, `height: 50px`, all monitor presets
 - `src/styles.css`: `--shell-padding-x: 8px`
 - `src/styles.css`: `--shell-padding-y: 6px`
 - `src/styles.css`: `--pill-height: 36px`
 - `src/styles.css`: `--bar-radius: 11px`
 - `src/styles.css`: `--right-cluster-item-height: 30px`
-- `src/styles.css`: `--cluster-inner-radius: 9px`
-
 이 값들은 50px Zebar 영역 안에서 상단 6px 내부 갭을 만들고, 좌우 간격을 GlazeWM의 `8px` outer gap과 맞추도록 의도한 셋업입니다.
 
 ## 레이아웃 가이드

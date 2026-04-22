@@ -7,7 +7,6 @@ export function createProviders(variant: Variant) {
     audio: { type: 'audio' as const },
     systray: { type: 'systray' as const },
     network: { type: 'network' as const, refreshInterval: 3_000 },
-    battery: { type: 'battery' as const, refreshInterval: 5_000 },
     cpu: { type: 'cpu' as const, refreshInterval: 4_000 },
     memory: { type: 'memory' as const, refreshInterval: 4_000 },
     date: {
