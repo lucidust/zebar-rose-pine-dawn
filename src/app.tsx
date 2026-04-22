@@ -208,7 +208,7 @@ function DateTimeChip(props: { value: string }) {
   return (
     <div class="chip chip-time">
       <div class="chip-body chip-body-right chip-body-fill">
-        <IconBadge node={icon('nf-md-calendar_clock')} tone="gold" />
+        <IconBadge node={icon('nf-md-calendar_clock')} tone="rose" />
         <span class="time-text">{props.value}</span>
       </div>
     </div>
@@ -464,7 +464,7 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
           >
             <IconBadge
               node={icon(isMuted() ? 'nf-md-volume_off' : 'nf-md-volume_high')}
-              tone={isMuted() ? 'muted' : 'foam'}
+              tone={isMuted() ? 'muted' : 'iris'}
             />
           </button>
           <input
@@ -670,7 +670,7 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
         >
           <IconBadge
             node={icon('nf-md-application_outline')}
-            tone="foam"
+            tone="love"
             class="metric-chip-badge"
           />
           <div class="stacked metric-stack">
