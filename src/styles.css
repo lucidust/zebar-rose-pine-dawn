@@ -370,17 +370,20 @@ button {
   flex: 0 1 auto;
 }
 
-.chip-left-context .workspace-strip {
-  gap: 3px;
+.chip-left-workspaces {
+  flex: 0 0 auto;
 }
 
-.chip-left-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  height: 100%;
-  padding-inline-start: var(--cluster-item-pad-start);
-  padding-inline-end: var(--cluster-item-pad-end);
+.chip-left-workspaces-body {
+  justify-content: center;
+}
+
+.chip-left-control {
+  flex: 0 0 auto;
+}
+
+.chip-left-control-body {
+  justify-content: center;
 }
 
 .chip-left-context .workspace-pill {
@@ -394,19 +397,19 @@ button {
   box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 11%, transparent);
 }
 
-.chip-left-controls .chip-action {
+.chip-left-control .chip-action {
   width: 24px;
   height: 24px;
   min-width: 24px;
 }
 
-.chip-left-controls .icon-badge {
+.chip-left-control .icon-badge {
   width: 23px;
   height: 23px;
   min-width: 23px;
 }
 
-.chip-left-controls .icon-badge .icon {
+.chip-left-control .icon-badge .icon {
   width: 15px;
   height: 15px;
 }
@@ -709,11 +712,14 @@ button {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 4px;
+  gap: 3px;
   padding-block: 3px;
-  padding-inline-start: var(--cluster-item-pad-start, 6px);
-  padding-inline-end: var(--cluster-item-pad-end, 6px);
-  border-radius: var(--pill-radius);
+  padding-inline: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
   overflow: hidden;
 }
 

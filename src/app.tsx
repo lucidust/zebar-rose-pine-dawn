@@ -230,7 +230,7 @@ function WeatherChip(props: { weather: any }) {
 function GlazeWorkspaceStrip(props: { glazewm: any }) {
   return (
     <Show when={props.glazewm?.currentWorkspaces?.length}>
-      <div class="workspace-strip">
+      <WorkspaceStripChip>
         <For each={props.glazewm.currentWorkspaces}>
           {(workspace: any, index) => (
             <button
@@ -246,7 +246,7 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
             </button>
           )}
         </For>
-      </div>
+      </WorkspaceStripChip>
     </Show>
   );
 }
@@ -254,7 +254,7 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
 function KomorebiWorkspaceStrip(props: { komorebi: any }) {
   return (
     <Show when={props.komorebi?.currentWorkspaces?.length}>
-      <div class="workspace-strip">
+      <WorkspaceStripChip>
         <For each={props.komorebi.currentWorkspaces}>
           {(workspace: any, index) => (
             <div
@@ -275,15 +275,25 @@ function KomorebiWorkspaceStrip(props: { komorebi: any }) {
             </div>
           )}
         </For>
-      </div>
+      </WorkspaceStripChip>
     </Show>
+  );
+}
+
+function WorkspaceStripChip(props: { children: any }) {
+  return (
+    <div class="chip chip-left-workspaces">
+      <div class="chip-body chip-left-workspaces-body">
+        <div class="workspace-strip">{props.children}</div>
+      </div>
+    </div>
   );
 }
 
 function WmControlStrip(props: { glazewm: any }) {
   return (
-    <div class="chip chip-left-controls">
-      <ControlActionButton
+    <>
+      <ControlActionChip
         tone="iris"
         title={
           props.glazewm?.tilingDirection === 'horizontal'
@@ -303,7 +313,7 @@ function WmControlStrip(props: { glazewm: any }) {
         }
       />
       <Show when={props.glazewm?.isPaused}>
-        <ControlActionButton
+        <ControlActionChip
           class="responsive-hide-md"
           tone="gold"
           title="GlazeWM paused"
@@ -314,7 +324,7 @@ function WmControlStrip(props: { glazewm: any }) {
       </Show>
       <For each={props.glazewm?.bindingModes ?? []}>
         {(mode: any) => (
-          <ControlActionButton
+          <ControlActionChip
             class="responsive-hide-lg"
             tone="foam"
             title={`${mode.displayName ?? mode.name} mode`}
@@ -328,7 +338,7 @@ function WmControlStrip(props: { glazewm: any }) {
           />
         )}
       </For>
-    </div>
+    </>
   );
 }
 
@@ -801,6 +811,29 @@ function ControlActionButton(props: {
     >
       <IconBadge node={props.iconNode} tone={props.tone} />
     </button>
+  );
+}
+
+function ControlActionChip(props: {
+  tone: Tone;
+  title: string;
+  ariaLabel: string;
+  iconNode: any;
+  onClick: () => void;
+  class?: string;
+}) {
+  return (
+    <div class={`chip chip-left-control ${props.class ?? ''}`.trim()}>
+      <div class="chip-body chip-left-control-body">
+        <ControlActionButton
+          tone={props.tone}
+          title={props.title}
+          ariaLabel={props.ariaLabel}
+          iconNode={props.iconNode}
+          onClick={props.onClick}
+        />
+      </div>
+    </div>
   );
 }
 
