@@ -865,18 +865,29 @@ button {
 }
 
 .volume-slider {
+  display: block;
   width: 64px;
+  height: 14px;
   min-width: 64px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
   accent-color: var(--iris);
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .chip-right-cluster .volume-slider {
+  align-self: center;
   width: 58px;
+  height: 14px;
   min-width: 58px;
   accent-color: var(--muted);
 }
 
 .chip-right-cluster .volume-slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
   height: 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--highlight-high) 78%, var(--overlay));
