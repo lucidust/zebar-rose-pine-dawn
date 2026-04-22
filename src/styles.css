@@ -33,6 +33,11 @@
   --pill-height: 34px;
   --pill-radius: 999px;
   --cluster-inner-radius: 11px;
+  --chip-body-pad: 9px;
+  --chip-body-gap: 6px;
+  --right-cluster-chip-pad: 11px;
+  --right-cluster-chip-gap: 5px;
+  --right-cluster-item-height: 28px;
   --radius-md: 12px;
   --shell-padding-x: 10px;
   --shell-padding-y: 0px;
@@ -144,7 +149,7 @@ button {
   width: var(--brand-width);
   min-width: var(--brand-width);
   max-width: var(--brand-width);
-  padding-left: 6px;
+  padding: 0;
   flex: 0 0 auto;
 }
 
@@ -209,12 +214,14 @@ button {
 
 .chip-time {
   min-width: 176px;
+  padding: 0;
   justify-content: center;
 }
 
 .chip-weather {
   min-width: 78px;
   gap: 5px;
+  padding: 0;
   flex: 0 0 auto;
 }
 
@@ -222,8 +229,7 @@ button {
   min-width: 172px;
   max-width: 172px;
   gap: 5px;
-  padding-right: 12px;
-  padding-left: 8px;
+  padding: 0;
 }
 
 .time-text {
@@ -238,6 +244,7 @@ button {
 .chip-media {
   min-width: 182px;
   max-width: 240px;
+  padding: 0;
 }
 
 .chip-audio {
@@ -247,10 +254,11 @@ button {
 .chip-summary {
   min-width: 152px;
   max-width: 220px;
+  padding: 0;
 }
 
 .chip-mini {
-  padding-right: 10px;
+  padding: 0;
 }
 
 .chip-system {
@@ -278,13 +286,13 @@ button {
 }
 
 .chip-right-cluster {
-  gap: 4px;
-  padding: 3px 4px;
-  padding-right: 5px;
+  gap: 0;
+  padding: 3px 0;
 }
 
 .chip-right-cluster > .chip {
-  height: 28px;
+  height: var(--right-cluster-item-height);
+  padding: 0;
   border: none;
   box-shadow: none;
   backdrop-filter: none;
@@ -292,76 +300,37 @@ button {
   position: relative;
 }
 
-.chip-right-cluster .chip-systray {
-  position: relative;
-  background: transparent;
-}
-
-.chip-right-cluster .chip-systray:hover {
-  background: transparent;
-}
-
 .chip-right-cluster .chip-time {
   min-width: 168px;
-  padding-left: 11px;
 }
 
 .chip-right-cluster .chip-weather {
   min-width: 72px;
-  padding-left: 11px;
 }
 
 .chip-right-cluster .chip-network {
   position: relative;
-  min-width: 168px;
-  max-width: 168px;
-  padding-right: 11px;
-  padding-left: 11px;
+  min-width: 176px;
+  max-width: 176px;
 }
 
 .chip-right-cluster .chip-audio {
   position: relative;
   min-width: 106px;
-  padding-right: 8px;
-  padding-left: 4px;
-  gap: 5px;
   background: transparent;
 }
 
-.chip-right-cluster .chip-systray::before {
-  content: '';
-  position: absolute;
-  inset: 2px 4px;
-  border-radius: var(--cluster-inner-radius);
-  z-index: 0;
-}
-
-.chip-right-cluster .chip-systray::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--foam) 18%, transparent) 0%,
-    color-mix(in srgb, var(--iris) 10%, transparent) 100%
-  );
-}
-
-.chip-right-cluster .chip-systray:hover::before {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--foam) 21%, transparent) 0%,
-    color-mix(in srgb, var(--iris) 12%, transparent) 100%
-  );
-}
-
 .chip-right-cluster .chip-systray {
-  padding-right: 5px;
-  padding-left: 5px;
+  position: relative;
+  background: transparent;
 }
 
 .chip-right-cluster > .chip + .chip::after {
   content: '';
   position: absolute;
-  left: -2px;
-  top: 6px;
+  left: 0;
+  top: 50%;
+  transform: translate(-0.5px, -50%);
   width: 1px;
   height: 16px;
   background: color-mix(in srgb, var(--text) 18%, transparent);
@@ -372,6 +341,56 @@ button {
   gap: 6px;
   padding-right: 6px;
   padding-left: 6px;
+}
+
+.chip-body {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--chip-body-gap-current, var(--chip-body-gap));
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--chip-body-pad-current, var(--chip-body-pad));
+}
+
+.chip-body-fill {
+  width: 100%;
+}
+
+.chip-body-main {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chip-body-between {
+  justify-content: space-between;
+}
+
+.chip-body-button {
+  margin: 0;
+  border: none;
+  padding: 0 var(--chip-body-pad-current, var(--chip-body-pad));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.chip-body-brand {
+  --chip-body-pad-current: 6px;
+  padding-left: 6px;
+}
+
+.chip-body-right {
+  --chip-body-gap-current: var(--right-cluster-chip-gap);
+  --chip-body-pad-current: var(--right-cluster-chip-pad);
+}
+
+.chip-right-cluster .chip-body {
+  position: relative;
 }
 
 .stacked {
@@ -432,10 +451,11 @@ button {
 .network-line {
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 3px;
+  white-space: nowrap;
   min-height: 12px;
   font-family: var(--font-mono);
   font-size: 10.25px;
@@ -445,6 +465,47 @@ button {
 
 .network-line-secondary {
   color: var(--subtle);
+}
+
+.network-prefix {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.network-separator {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+  color: var(--subtle);
+  flex: 0 0 auto;
+}
+
+.network-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  flex: 0 0 auto;
+}
+
+.network-stat-value {
+  display: inline-block;
+  width: 4.3ch;
+  text-align: right;
+}
+
+.network-stat-unit {
+  display: inline-block;
+  text-align: left;
+}
+
+.network-stat-rate .network-stat-unit {
+  width: 4ch;
+}
+
+.network-stat-amount .network-stat-unit {
+  width: 2ch;
 }
 
 .media-copy {
@@ -677,34 +738,21 @@ button {
 .tray-overflow-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-width: 60px;
-  height: 26px;
-  padding: 0 9px;
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--base) 85%, white);
-  color: var(--foam);
+  justify-content: flex-start;
+  gap: inherit;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   flex: 0 0 auto;
 }
 
-.chip-right-cluster .tray-overflow-button {
-  border: none;
-  background: transparent;
-  position: relative;
-  z-index: 1;
-}
-
 .chip-right-cluster .chip-network .stacked,
-.chip-right-cluster .chip-systray .tray-overflow-button,
 .chip-right-cluster .chip-systray .tray-overflow-count {
   position: relative;
-  z-index: 1;
-}
-
-.chip-right-cluster .chip-systray .icon-badge {
-  background: transparent;
 }
 
 .tray-overflow-button .icon {
@@ -719,10 +767,15 @@ button {
   color: var(--text);
 }
 
+.chip-right-cluster .metric-combo-action {
+  gap: 5px;
+}
+
 .tray-popover {
   position: absolute;
-  top: -1px;
+  top: 50%;
   right: calc(100% + 6px);
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;

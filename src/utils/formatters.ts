@@ -62,12 +62,41 @@ function formatBytesCompact(bytes: number, suffix = '') {
   return `${value.toFixed(digits)}${units[unitIndex]}${suffix}`;
 }
 
+function formatBytesCompactParts(bytes: number, suffix = '') {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return { value: '0', unit: `B${suffix}` };
+  }
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let value = bytes;
+  let unitIndex = 0;
+
+  while (value >= 1000 && unitIndex < units.length - 1) {
+    value /= 1000;
+    unitIndex += 1;
+  }
+
+  const digits = value >= 100 || unitIndex === 0 ? 0 : value >= 10 ? 1 : 2;
+  return {
+    value: value.toFixed(digits),
+    unit: `${units[unitIndex]}${suffix}`,
+  };
+}
+
 export function formatDataRate(bytesPerSecond: number | null | undefined) {
   return formatBytesCompact(bytesPerSecond ?? 0, '/s');
 }
 
 export function formatDataAmount(bytes: number | null | undefined) {
   return formatBytesCompact(bytes ?? 0);
+}
+
+export function formatDataRateParts(bytesPerSecond: number | null | undefined) {
+  return formatBytesCompactParts(bytesPerSecond ?? 0, '/s');
+}
+
+export function formatDataAmountParts(bytes: number | null | undefined) {
+  return formatBytesCompactParts(bytes ?? 0);
 }
 
 export function batteryStatusText(battery: any) {

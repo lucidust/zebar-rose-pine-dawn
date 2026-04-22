@@ -17,7 +17,9 @@ import {
   clamp,
   compactTitle,
   formatDataAmount,
+  formatDataAmountParts,
   formatDataRate,
+  formatDataRateParts,
   glazeFocusedDetail,
   glazeFocusedLabel,
   komorebiWorkspaceDetail,
@@ -161,20 +163,22 @@ function BrandChip(props: {
 
   return (
     <div class={`chip chip-brand chip-accent-${props.accent}`}>
-      <button
-        class="brand-mark brand-refresh"
-        type="button"
-        title="Refresh quote"
-        aria-label="Refresh quote"
-        onClick={() =>
-          setManualCopy(pickRandomBrandCopy(props.variant, copy().entry.id))
-        }
-      >
-        <IconBadge node={icon('custom-tulip')} tone="rose" />
-      </button>
-      <div class="stacked">
-        <span class="chip-label brand-sentence">{copy().sentence}</span>
-        <span class="chip-detail brand-category">{copy().detail}</span>
+      <div class="chip-body chip-body-fill chip-body-brand">
+        <button
+          class="brand-mark brand-refresh"
+          type="button"
+          title="Refresh quote"
+          aria-label="Refresh quote"
+          onClick={() =>
+            setManualCopy(pickRandomBrandCopy(props.variant, copy().entry.id))
+          }
+        >
+          <IconBadge node={icon('custom-tulip')} tone="rose" />
+        </button>
+        <div class="stacked">
+          <span class="chip-label brand-sentence">{copy().sentence}</span>
+          <span class="chip-detail brand-category">{copy().detail}</span>
+        </div>
       </div>
     </div>
   );
@@ -189,10 +193,12 @@ function SummaryChip(props: {
 }) {
   return (
     <div class={`chip chip-summary ${props.class ?? ''}`.trim()}>
-      <IconBadge node={props.iconNode} tone={props.tone} />
-      <div class="stacked">
-        <span class="chip-label">{props.label}</span>
-        <span class="chip-detail">{props.detail}</span>
+      <div class="chip-body chip-body-fill">
+        <IconBadge node={props.iconNode} tone={props.tone} />
+        <div class="stacked">
+          <span class="chip-label">{props.label}</span>
+          <span class="chip-detail">{props.detail}</span>
+        </div>
       </div>
     </div>
   );
@@ -201,8 +207,10 @@ function SummaryChip(props: {
 function DateTimeChip(props: { value: string }) {
   return (
     <div class="chip chip-time">
-      <IconBadge node={icon('nf-md-calendar_clock')} tone="gold" />
-      <span class="time-text">{props.value}</span>
+      <div class="chip-body chip-body-right chip-body-fill">
+        <IconBadge node={icon('nf-md-calendar_clock')} tone="gold" />
+        <span class="time-text">{props.value}</span>
+      </div>
     </div>
   );
 }
@@ -211,8 +219,10 @@ function WeatherChip(props: { weather: any }) {
   return (
     <Show when={props.weather}>
       <div class="chip chip-weather">
-        <IconBadge node={weatherIcon(props.weather)} tone="gold" />
-        <span class="weather-value">{weatherLabel(props.weather)}</span>
+        <div class="chip-body chip-body-right">
+          <IconBadge node={weatherIcon(props.weather)} tone="gold" />
+          <span class="weather-value">{weatherLabel(props.weather)}</span>
+        </div>
       </div>
     </Show>
   );
@@ -332,53 +342,60 @@ function MediaChip(props: { media: any; mediaProvider: any }) {
   return (
     <Show when={props.media}>
       <div class="chip chip-media responsive-hide-sm">
-        <IconBadge node={icon('nf-md-music_note')} tone="rose" />
-        <div class="stacked media-copy">
-          <span class="chip-label">
-            {compactTitle(props.media?.title, 'No media')}
-          </span>
-          <span class="chip-detail">
-            {compactTitle(props.media?.artist, props.media?.isPlaying ? 'Playing' : 'Idle')}
-          </span>
-        </div>
-        <div class="inline-actions">
-          <button
-            class="icon-button"
-            disabled={!props.media?.isPreviousEnabled}
-            onClick={() =>
-              props.mediaProvider?.previous({
-                sessionId: props.media?.sessionId,
-              })
-            }
-            title="Previous"
-          >
-            {icon('nf-md-skip_previous')}
-          </button>
-          <button
-            class="icon-button"
-            onClick={() =>
-              props.mediaProvider?.togglePlayPause({
-                sessionId: props.media?.sessionId,
-              })
-            }
-            title="Play/Pause"
-          >
-            {props.media?.isPlaying
-              ? icon('nf-md-pause')
-              : icon('nf-md-play')}
-          </button>
-          <button
-            class="icon-button"
-            disabled={!props.media?.isNextEnabled}
-            onClick={() =>
-              props.mediaProvider?.next({
-                sessionId: props.media?.sessionId,
-              })
-            }
-            title="Next"
-          >
-            {icon('nf-md-skip_next')}
-          </button>
+        <div class="chip-body chip-body-fill chip-body-between">
+          <div class="chip-body-main">
+            <IconBadge node={icon('nf-md-music_note')} tone="rose" />
+            <div class="stacked media-copy">
+              <span class="chip-label">
+                {compactTitle(props.media?.title, 'No media')}
+              </span>
+              <span class="chip-detail">
+                {compactTitle(
+                  props.media?.artist,
+                  props.media?.isPlaying ? 'Playing' : 'Idle',
+                )}
+              </span>
+            </div>
+          </div>
+          <div class="inline-actions">
+            <button
+              class="icon-button"
+              disabled={!props.media?.isPreviousEnabled}
+              onClick={() =>
+                props.mediaProvider?.previous({
+                  sessionId: props.media?.sessionId,
+                })
+              }
+              title="Previous"
+            >
+              {icon('nf-md-skip_previous')}
+            </button>
+            <button
+              class="icon-button"
+              onClick={() =>
+                props.mediaProvider?.togglePlayPause({
+                  sessionId: props.media?.sessionId,
+                })
+              }
+              title="Play/Pause"
+            >
+              {props.media?.isPlaying
+                ? icon('nf-md-pause')
+                : icon('nf-md-play')}
+            </button>
+            <button
+              class="icon-button"
+              disabled={!props.media?.isNextEnabled}
+              onClick={() =>
+                props.mediaProvider?.next({
+                  sessionId: props.media?.sessionId,
+                })
+              }
+              title="Next"
+            >
+              {icon('nf-md-skip_next')}
+            </button>
+          </div>
         </div>
       </div>
     </Show>
@@ -437,27 +454,29 @@ function AudioChip(props: { audio: any; audioProvider: any }) {
   return (
     <Show when={props.audio}>
       <div class="chip chip-audio responsive-hide-lg">
-        <button
-          class="chip-action"
-          type="button"
-          title={isMuted() ? 'Unmute audio' : 'Mute audio'}
-          aria-label={isMuted() ? 'Unmute audio' : 'Mute audio'}
-          onClick={() => void toggleMute()}
-        >
-          <IconBadge
-            node={icon(isMuted() ? 'nf-md-volume_off' : 'nf-md-volume_high')}
-            tone={isMuted() ? 'muted' : 'foam'}
+        <div class="chip-body chip-body-right chip-body-fill">
+          <button
+            class="chip-action"
+            type="button"
+            title={isMuted() ? 'Unmute audio' : 'Mute audio'}
+            aria-label={isMuted() ? 'Unmute audio' : 'Mute audio'}
+            onClick={() => void toggleMute()}
+          >
+            <IconBadge
+              node={icon(isMuted() ? 'nf-md-volume_off' : 'nf-md-volume_high')}
+              tone={isMuted() ? 'muted' : 'foam'}
+            />
+          </button>
+          <input
+            class="volume-slider"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value={volume()}
+            onInput={event => void onSliderInput(event.currentTarget.valueAsNumber)}
           />
-        </button>
-        <input
-          class="volume-slider"
-          type="range"
-          min="0"
-          max="100"
-          step="1"
-          value={volume()}
-          onInput={event => void onSliderInput(event.currentTarget.valueAsNumber)}
-        />
+        </div>
       </div>
     </Show>
   );
@@ -468,6 +487,10 @@ function NetworkChip(props: { network: any }) {
   const [upBps, setUpBps] = createSignal<number | null>(null);
   const [todayDown, setTodayDown] = createSignal(0);
   const [todayUp, setTodayUp] = createSignal(0);
+  const downRate = () => formatDataRateParts(downBps());
+  const upRate = () => formatDataRateParts(upBps());
+  const totalDown = () => formatDataAmountParts(todayDown());
+  const totalUp = () => formatDataAmountParts(todayUp());
 
   let prevReceived: number | null = null;
   let prevTransmitted: number | null = null;
@@ -582,14 +605,34 @@ function NetworkChip(props: { network: any }) {
         class="chip chip-network responsive-hide-md"
         title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
       >
-        <IconBadge node={networkIcon(props.network)} tone="pine" />
-        <div class="stacked">
-          <span class="chip-label network-line">
-            {`↓ ${formatDataRate(downBps())} · ${formatDataAmount(todayDown())}`}
-          </span>
-          <span class="chip-detail network-line network-line-secondary">
-            {`↑ ${formatDataRate(upBps())} · ${formatDataAmount(todayUp())}`}
-          </span>
+        <div class="chip-body chip-body-right chip-body-fill">
+          <IconBadge node={networkIcon(props.network)} tone="pine" />
+          <div class="stacked">
+            <span class="chip-label network-line">
+              <span class="network-prefix">↓</span>
+              <span class="network-stat network-stat-rate">
+                <span class="network-stat-value">{downRate().value}</span>
+                <span class="network-stat-unit">{downRate().unit}</span>
+              </span>
+              <span class="network-separator">·</span>
+              <span class="network-stat network-stat-amount">
+                <span class="network-stat-value">{totalDown().value}</span>
+                <span class="network-stat-unit">{totalDown().unit}</span>
+              </span>
+            </span>
+            <span class="chip-detail network-line network-line-secondary">
+              <span class="network-prefix">↑</span>
+              <span class="network-stat network-stat-rate">
+                <span class="network-stat-value">{upRate().value}</span>
+                <span class="network-stat-unit">{upRate().unit}</span>
+              </span>
+              <span class="network-separator">·</span>
+              <span class="network-stat network-stat-amount">
+                <span class="network-stat-value">{totalUp().value}</span>
+                <span class="network-stat-unit">{totalUp().unit}</span>
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </Show>
@@ -604,7 +647,7 @@ function CpuMemoryChip(props: { cpu: any; memory: any }) {
     <Show when={hasCpu() || hasMemory()}>
       <div class="chip chip-metric-combo chip-priority">
         <button
-          class="metric-combo-action"
+          class="chip-body chip-body-right chip-body-button metric-combo-action"
           type="button"
           title="Open Task Manager"
           aria-label="Open Task Manager"
@@ -635,10 +678,12 @@ function BatteryChip(props: { battery: any }) {
   return (
     <Show when={props.battery != null}>
       <div class="chip chip-mini chip-priority">
-        <IconBadge node={batteryIcon(props.battery)} tone="foam" />
-        <div class="stacked">
-          <span class="chip-label">{batteryStatusText(props.battery)}</span>
-          <span class="chip-detail">{batteryDetail(props.battery)}</span>
+        <div class="chip-body chip-body-fill">
+          <IconBadge node={batteryIcon(props.battery)} tone="foam" />
+          <div class="stacked">
+            <span class="chip-label">{batteryStatusText(props.battery)}</span>
+            <span class="chip-detail">{batteryDetail(props.battery)}</span>
+          </div>
         </div>
       </div>
     </Show>
@@ -667,16 +712,16 @@ function SystrayStrip(props: { systray: any }) {
   return (
     <Show when={props.systray?.icons?.length}>
       <div class="chip chip-systray" ref={rootRef}>
-          <button
-            class="tray-overflow-button"
-            type="button"
-            title={`Show ${allIcons().length} tray icons`}
-            aria-label={`Show ${allIcons().length} tray icons`}
-            onClick={() => setIsOpen(open => !open)}
-          >
-            {icon('custom-tray')}
-            <span class="tray-overflow-count">{`+${allIcons().length}`}</span>
-          </button>
+        <button
+          class="chip-body chip-body-right chip-body-button tray-overflow-button"
+          type="button"
+          title={`Show ${allIcons().length} tray icons`}
+          aria-label={`Show ${allIcons().length} tray icons`}
+          onClick={() => setIsOpen(open => !open)}
+        >
+          <IconBadge node={icon('custom-tray')} tone="foam" />
+          <span class="tray-overflow-count">{`+${allIcons().length}`}</span>
+        </button>
         <Show when={isOpen()}>
           <div class="tray-popover">
             <For each={allIcons()}>
