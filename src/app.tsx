@@ -107,7 +107,7 @@ export function App(props: AppProps) {
 
   function renderRightZone() {
     return (
-      <div class="chip chip-right-cluster">
+      <div class="chip chip-right-cluster segmented-cluster">
         <CpuMemoryChip cpu={output.cpu} memory={output.memory} />
         <NetworkChip network={output.network} />
         <SystrayStrip systray={output.systray} />
@@ -121,9 +121,9 @@ export function App(props: AppProps) {
   return (
     <div class="bar-shell">
       <div class="bar-grid">
-        <div class="zone zone-left">{renderLeftZone()}</div>
-        <div class="zone zone-center">{renderCenterZone()}</div>
-        <div class="zone zone-right">{renderRightZone()}</div>
+        <div class="zone zone-left cluster-host">{renderLeftZone()}</div>
+        <div class="zone zone-center cluster-host">{renderCenterZone()}</div>
+        <div class="zone zone-right cluster-host">{renderRightZone()}</div>
       </div>
     </div>
   );
@@ -605,7 +605,7 @@ function NetworkChip(props: { network: any }) {
         class="chip chip-network responsive-hide-md"
         title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
       >
-        <div class="chip-body chip-body-right chip-body-fill">
+        <div class="chip-body chip-body-right">
           <IconBadge node={networkIcon(props.network)} tone="pine" />
           <div class="stacked">
             <span class="chip-label network-line">
