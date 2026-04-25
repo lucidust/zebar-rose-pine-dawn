@@ -2,13 +2,18 @@ import * as zebar from 'zebar';
 
 export type Variant = 'vanilla' | 'with-glazewm' | 'with-komorebi';
 
-export function createProviders(variant: Variant) {
+type CreateProviderOptions = {
+  includeLiveSystemStats?: boolean;
+};
+
+export function createProviders(
+  variant: Variant,
+  options: CreateProviderOptions = {},
+) {
+  const includeLiveSystemStats = options.includeLiveSystemStats ?? true;
   const commonProviders = {
     audio: { type: 'audio' as const },
     systray: { type: 'systray' as const },
-    network: { type: 'network' as const, refreshInterval: 3_000 },
-    cpu: { type: 'cpu' as const, refreshInterval: 4_000 },
-    memory: { type: 'memory' as const, refreshInterval: 4_000 },
     date: {
       type: 'date' as const,
       formatting: 'ccc, d LLL HH:mm',
@@ -16,6 +21,13 @@ export function createProviders(variant: Variant) {
       refreshInterval: 1_000,
     },
     weather: { type: 'weather' as const, refreshInterval: 1_800_000 },
+    ...(includeLiveSystemStats
+      ? {
+          network: { type: 'network' as const, refreshInterval: 4_000 },
+          cpu: { type: 'cpu' as const, refreshInterval: 4_000 },
+          memory: { type: 'memory' as const, refreshInterval: 4_000 },
+        }
+      : {}),
   };
 
   if (variant === 'with-glazewm') {

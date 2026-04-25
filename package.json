@@ -11,6 +11,7 @@
     "validate:pack": "node ./tools/validate-zpack.mjs"
   },
   "dependencies": {
+    "@tauri-apps/api": "2.0.2",
     "solid-js": "1.9.12",
     "zebar": "^3.0.0"
   },

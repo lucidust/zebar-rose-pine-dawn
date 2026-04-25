@@ -25,6 +25,7 @@ import {
 type AppProps = {
   providers: any;
   variant: Variant;
+  includeLiveSystemStats: boolean;
 };
 
 type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris' | 'muted';
@@ -96,8 +97,10 @@ export function App(props: AppProps) {
   function renderRightZone() {
     return (
       <div class="chip chip-right-cluster segmented-cluster">
-        <CpuMemoryChip cpu={output.cpu} memory={output.memory} />
-        <NetworkChip network={output.network} />
+        <Show when={props.includeLiveSystemStats}>
+          <CpuMemoryChip cpu={output.cpu} memory={output.memory} />
+          <NetworkChip network={output.network} />
+        </Show>
         <SystrayStrip systray={output.systray} />
         <AudioChip audio={audio()} audioProvider={output.audio} />
         <WeatherChip weather={weather()} />
@@ -534,7 +537,7 @@ function NetworkChip(props: { network: any }) {
   return (
     <Show when={props.network}>
       <div
-        class="chip chip-network responsive-hide-md"
+        class="chip chip-network"
         title={props.network?.defaultInterface ? networkTitle(props.network) : 'Offline'}
       >
         <div class="chip-body chip-body-right">
