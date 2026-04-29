@@ -31,6 +31,22 @@ pnpm build
 
 After building, Zebar loads the generated `dist/` assets from this directory through `zpack.json`.
 
+## Companion Helpers
+
+This pack may depend on small local helper executables for host features that
+Zebar does not expose as native providers.
+
+- Night Light helper: sibling repository `../zebar-nightlight-helper`
+- Expected binary name: `zebar-nightlight-helper.exe`
+- Expected CLI contract: `status --json`, `on`, `off`, and `toggle`
+- Integration boundary: this pack owns the Zebar UI and `zpack.json` shell
+  command allowlist; the helper repository owns Windows registry access,
+  Night Light behavior, release binaries, and upstream vendored code notices.
+
+Keep helper code out of this pack unless the helper becomes pack-specific. The
+separate repository keeps the Windows registry implementation auditable and
+lets this pack track only the stable CLI contract.
+
 ## Design References
 
 - Official Rosé Pine palette overview: [rosepinetheme.com/palette](https://rosepinetheme.com/palette/)

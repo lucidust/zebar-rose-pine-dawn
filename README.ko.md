@@ -31,6 +31,17 @@ pnpm build
 
 빌드 후 Zebar는 이 디렉토리의 `zpack.json`을 기준으로 `dist/` 산출물을 로드합니다.
 
+## 보조 헬퍼
+
+Zebar native provider로 노출되지 않는 host 기능은 작은 로컬 helper 실행 파일에 의존할 수 있습니다.
+
+- Night Light helper: 형제 저장소 `../zebar-nightlight-helper`
+- 예상 바이너리 이름: `zebar-nightlight-helper.exe`
+- 예상 CLI contract: `status --json`, `on`, `off`, `toggle`
+- 통합 경계: 이 pack은 Zebar UI와 `zpack.json`의 shell command allowlist를 담당하고, helper 저장소는 Windows registry 접근, Night Light 동작, release binary, vendored upstream 코드 고지를 담당합니다.
+
+helper가 이 pack 전용 구현으로 바뀌기 전까지 helper 코드는 이 pack 안에 넣지 않습니다. 별도 저장소로 두면 Windows registry 구현을 독립적으로 검토할 수 있고, 이 pack은 안정적인 CLI contract만 추적하면 됩니다.
+
 ## 참고 문서
 
 - Rosé Pine 공식 팔레트 개요: [rosepinetheme.com/palette](https://rosepinetheme.com/palette/)
