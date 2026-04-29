@@ -354,6 +354,12 @@ button {
   background: transparent;
 }
 
+.chip-right-cluster .chip-nightlight {
+  position: relative;
+  min-width: 40px;
+  background: transparent;
+}
+
 .chip-right-cluster .chip-systray {
   position: relative;
   background: transparent;
@@ -1048,6 +1054,26 @@ button {
 }
 
 .chip-audio .icon-badge .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.nightlight-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+.nightlight-badge {
+  width: 24px;
+  height: 24px;
+}
+
+.nightlight-badge .icon {
   width: 16px;
   height: 16px;
 }

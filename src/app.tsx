@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  onMount,
 } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { icon, networkIcon, weatherIcon } from './icons';
@@ -29,6 +30,16 @@ type AppProps = {
 };
 
 type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris' | 'muted';
+
+type NightLightStatus = {
+  enabled: boolean;
+  scheduleMode: string;
+  colorTemperatureKelvin: number;
+  scheduleStart: string;
+  scheduleEnd: string;
+  sunsetTime: string;
+  sunriseTime: string;
+};
 
 function workspaceAccentVar(index: number) {
   return `var(--ws-${(index % 6) + 1})`;
@@ -103,6 +114,9 @@ export function App(props: AppProps) {
         </Show>
         <SystrayStrip systray={output.systray} />
         <AudioChip audio={audio()} audioProvider={output.audio} />
+        <Show when={props.includeLiveSystemStats}>
+          <NightLightChip />
+        </Show>
         <WeatherChip weather={weather()} />
         <DateTimeChip value={date()} />
       </div>
@@ -343,6 +357,91 @@ async function openTaskManager() {
   } catch (error) {
     console.error('Failed to launch Taskmgr.exe', error);
   }
+}
+
+async function openNightLightSettings() {
+  try {
+    await zebar.shellExec('explorer.exe', 'ms-settings:nightlight');
+  } catch (error) {
+    console.error('Failed to open Night Light settings.', error);
+  }
+}
+
+function NightLightChip() {
+  const [status, setStatus] = createSignal<NightLightStatus | null>(null);
+  const [isAvailable, setIsAvailable] = createSignal(false);
+  let disposed = false;
+
+  const refreshStatus = async () => {
+    try {
+      const result = await zebar.shellExec(
+        'zebar-nightlight-helper.exe',
+        ['status', '--json'],
+      );
+
+      if (result.code !== 0) {
+        throw new Error(result.stderr || `exit code ${result.code}`);
+      }
+
+      const nextStatus = JSON.parse(result.stdout.trim()) as NightLightStatus;
+
+      if (!disposed && typeof nextStatus.enabled === 'boolean') {
+        setStatus(nextStatus);
+        setIsAvailable(true);
+      }
+    } catch (error) {
+      console.warn('Failed to read Night Light status.', error);
+      if (!disposed) {
+        setIsAvailable(false);
+      }
+    }
+  };
+
+  onMount(() => {
+    void refreshStatus();
+    const intervalId = window.setInterval(() => void refreshStatus(), 60_000);
+
+    onCleanup(() => {
+      disposed = true;
+      window.clearInterval(intervalId);
+    });
+  });
+
+  const title = () => {
+    const value = status();
+
+    if (!value) {
+      return 'Open Night Light settings';
+    }
+
+    const state = value.enabled ? 'On' : 'Off';
+    const schedule =
+      value.scheduleMode === 'off'
+        ? 'schedule off'
+        : `${value.scheduleMode} ${value.scheduleStart}-${value.scheduleEnd}`;
+
+    return `Night Light ${state}, ${schedule}, open settings`;
+  };
+
+  return (
+    <Show when={isAvailable() && status()}>
+      <div class="chip chip-nightlight">
+        <button
+          class="chip-body chip-body-right chip-body-button nightlight-button"
+          type="button"
+          title={title()}
+          aria-label={title()}
+          onClick={() => void openNightLightSettings()}
+        >
+          <IconBadge
+            node={icon('nf-md-weather_partly_cloudy')}
+            tone={status()?.enabled ? 'gold' : 'muted'}
+            class="nightlight-badge"
+          />
+        </button>
+      </div>
+    </Show>
+  );
 }
 
 function AudioChip(props: { audio: any; audioProvider: any }) {
