@@ -1078,6 +1078,12 @@ button {
   height: 16px;
 }
 
+.nightlight-button[disabled] {
+  opacity: 0.58;
+  cursor: default;
+  transform: none;
+}
+
 .tray-icon {
   width: 16px;
   height: 16px;

@@ -370,25 +370,29 @@ async function openNightLightSettings() {
 function NightLightChip() {
   const [status, setStatus] = createSignal<NightLightStatus | null>(null);
   const [isAvailable, setIsAvailable] = createSignal(false);
+  const [isToggling, setIsToggling] = createSignal(false);
   let disposed = false;
+
+  const readStatus = async (args: string[]) => {
+    const result = await zebar.shellExec('zebar-nightlight-helper.exe', args);
+
+    if (result.code !== 0) {
+      throw new Error(result.stderr || `exit code ${result.code}`);
+    }
+
+    return JSON.parse(result.stdout.trim()) as NightLightStatus;
+  };
+
+  const applyStatus = (nextStatus: NightLightStatus) => {
+    if (!disposed && typeof nextStatus.enabled === 'boolean') {
+      setStatus(nextStatus);
+      setIsAvailable(true);
+    }
+  };
 
   const refreshStatus = async () => {
     try {
-      const result = await zebar.shellExec(
-        'zebar-nightlight-helper.exe',
-        ['status', '--json'],
-      );
-
-      if (result.code !== 0) {
-        throw new Error(result.stderr || `exit code ${result.code}`);
-      }
-
-      const nextStatus = JSON.parse(result.stdout.trim()) as NightLightStatus;
-
-      if (!disposed && typeof nextStatus.enabled === 'boolean') {
-        setStatus(nextStatus);
-        setIsAvailable(true);
-      }
+      applyStatus(await readStatus(['status', '--json']));
     } catch (error) {
       console.warn('Failed to read Night Light status.', error);
       if (!disposed) {
@@ -407,20 +411,40 @@ function NightLightChip() {
     });
   });
 
+  const toggleNightLight = async () => {
+    if (isToggling()) {
+      return;
+    }
+
+    setIsToggling(true);
+
+    try {
+      applyStatus(await readStatus(['toggle', '--json']));
+    } catch (error) {
+      console.error('Failed to toggle Night Light.', error);
+      await openNightLightSettings();
+    } finally {
+      if (!disposed) {
+        setIsToggling(false);
+      }
+    }
+  };
+
   const title = () => {
     const value = status();
 
     if (!value) {
-      return 'Open Night Light settings';
+      return 'Toggle Night Light';
     }
 
     const state = value.enabled ? 'On' : 'Off';
+    const action = value.enabled ? 'turn off' : 'turn on';
     const schedule =
       value.scheduleMode === 'off'
         ? 'schedule off'
         : `${value.scheduleMode} ${value.scheduleStart}-${value.scheduleEnd}`;
 
-    return `Night Light ${state}, ${schedule}, open settings`;
+    return `Night Light ${state}, ${schedule}, ${action}`;
   };
 
   return (
@@ -431,7 +455,8 @@ function NightLightChip() {
           type="button"
           title={title()}
           aria-label={title()}
-          onClick={() => void openNightLightSettings()}
+          disabled={isToggling()}
+          onClick={() => void toggleNightLight()}
         >
           <IconBadge
             node={icon(

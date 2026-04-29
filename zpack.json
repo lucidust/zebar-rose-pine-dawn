@@ -28,7 +28,7 @@
           },
           {
             "program": "zebar-nightlight-helper.exe",
-            "argsRegex": "^status --json$"
+            "argsRegex": "^(status|toggle) --json$"
           },
           {
             "program": "explorer.exe",
@@ -76,7 +76,7 @@
           },
           {
             "program": "zebar-nightlight-helper.exe",
-            "argsRegex": "^status --json$"
+            "argsRegex": "^(status|toggle) --json$"
           },
           {
             "program": "explorer.exe",
@@ -124,7 +124,7 @@
           },
           {
             "program": "zebar-nightlight-helper.exe",
-            "argsRegex": "^status --json$"
+            "argsRegex": "^(status|toggle) --json$"
           },
           {
             "program": "explorer.exe",
