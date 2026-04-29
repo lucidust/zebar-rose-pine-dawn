@@ -35,7 +35,7 @@ pnpm build
 
 Zebar native provider로 노출되지 않는 host 기능은 작은 로컬 helper 실행 파일에 의존할 수 있습니다.
 
-- Night Light helper: 형제 저장소 `../zebar-nightlight-helper`
+- Night Light helper: 로컬 저장소 `C:\Users\luci\repo\zebar-nightlight-helper`
 - 예상 바이너리 이름: `zebar-nightlight-helper.exe`
 - 예상 CLI contract: `status --json`, `on`, `off`, `toggle`
 - 통합 경계: 이 pack은 Zebar UI와 `zpack.json`의 shell command allowlist를 담당하고, helper 저장소는 Windows registry 접근, Night Light 동작, release binary, vendored upstream 코드 고지를 담당합니다.
