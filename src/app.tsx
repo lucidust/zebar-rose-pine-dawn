@@ -434,7 +434,11 @@ function NightLightChip() {
           onClick={() => void openNightLightSettings()}
         >
           <IconBadge
-            node={icon('nf-md-weather_partly_cloudy')}
+            node={icon(
+              status()?.enabled
+                ? 'nf-weather-night_clear'
+                : 'nf-md-weather_partly_cloudy',
+            )}
             tone={status()?.enabled ? 'gold' : 'muted'}
             class="nightlight-badge"
           />
