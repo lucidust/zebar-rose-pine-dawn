@@ -16,8 +16,8 @@ export function createProviders(
     systray: { type: 'systray' as const },
     date: {
       type: 'date' as const,
-      formatting: 'ccc, d LLL HH:mm',
-      locale: 'en-gb',
+      formatting: 'LLL dd ccc HH:mm',
+      locale: 'en-us',
       refreshInterval: 1_000,
     },
     weather: { type: 'weather' as const, refreshInterval: 1_800_000 },
