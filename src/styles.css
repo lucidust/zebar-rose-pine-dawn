@@ -1087,6 +1087,7 @@ button {
 .tray-button:hover,
 .tray-overflow-button:hover,
 .chip-button:hover,
+.nightlight-button:hover,
 .workspace-pill:hover {
   transform: translateY(-1px);
 }
@@ -1103,6 +1104,7 @@ button {
 .icon-button,
 .tray-button,
 .tray-overflow-button,
+.nightlight-button,
 .chip-action,
 .metric-combo-action,
 .workspace-pill {
