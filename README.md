@@ -36,8 +36,8 @@ After building, Zebar loads the generated `dist/` assets from this directory thr
 This pack may depend on small local helper executables for host features that
 Zebar does not expose as native providers.
 
-- Night Light helper: local repository `C:\Users\luci\repo\zebar-nightlight-helper`
-- Expected binary name: `zebar-nightlight-helper.exe`
+- Night Light helper: installed through Scoop
+- Expected binary name: `wnlctl.exe`
 - Expected CLI contract: `status --json`, `on`, `off`, and `toggle`
 - Integration boundary: this pack owns the Zebar UI and `zpack.json` shell
   command allowlist; the helper repository owns Windows registry access,

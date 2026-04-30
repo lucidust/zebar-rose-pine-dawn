@@ -374,7 +374,7 @@ function NightLightChip() {
   let disposed = false;
 
   const readStatus = async (args: string[]) => {
-    const result = await zebar.shellExec('zebar-nightlight-helper.exe', args);
+    const result = await zebar.shellExec('wnlctl.exe', args);
 
     if (result.code !== 0) {
       throw new Error(result.stderr || `exit code ${result.code}`);
