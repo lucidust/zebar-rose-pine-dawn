@@ -18,7 +18,7 @@ export function createProviders(
       type: 'date' as const,
       formatting: 'LLL dd ccc HH:mm',
       locale: 'en-us',
-      refreshInterval: 1_000,
+      refreshInterval: 15_000,
     },
     weather: { type: 'weather' as const, refreshInterval: 1_800_000 },
     ...(includeLiveSystemStats

@@ -56,8 +56,16 @@ export function App(props: AppProps) {
     props.providers.outputMap as Record<string, any>,
   );
 
-  props.providers.onOutput((nextOutput: Record<string, any>) => {
-    setOutput(reconcile(nextOutput));
+  Object.entries(props.providers.raw ?? {}).forEach(([providerName, provider]) => {
+    const rawProvider = provider as any;
+
+    rawProvider.onOutput((nextOutput: any) => {
+      setOutput(providerName, reconcile(nextOutput));
+    });
+
+    if (rawProvider.output != null) {
+      setOutput(providerName, reconcile(rawProvider.output));
+    }
   });
 
   const glaze = () => output.glazewm;
