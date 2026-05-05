@@ -31,6 +31,17 @@ const ARROWS_DIAGONAL_MINIMIZE_2: SvgNode = [
   ['path', { d: 'M10 14l-6 6' }],
 ];
 
+const ARROWS_MAXIMIZE: SvgNode = [
+  ['path', { d: 'M16 4h4v4' }],
+  ['path', { d: 'M14 10l6 -6' }],
+  ['path', { d: 'M8 20h-4v-4' }],
+  ['path', { d: 'M4 20l6 -6' }],
+  ['path', { d: 'M16 20h4v-4' }],
+  ['path', { d: 'M14 14l6 6' }],
+  ['path', { d: 'M8 4h-4v4' }],
+  ['path', { d: 'M4 4l6 6' }],
+];
+
 const CALENDAR_CLOCK: SvgNode = [
   ['path', { d: 'M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3' }],
   ['path', { d: 'M16 3v4' }],
@@ -64,6 +75,11 @@ const COLUMNS_2: SvgNode = [
   ['path', { d: 'M12 3v18' }],
 ];
 
+const COPY_RECTANGLE: SvgNode = [
+  ['path', { d: 'M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z' }],
+  ['path', { d: 'M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2' }],
+];
+
 const DEVICE_DESKTOP_ANALYTICS: SvgNode = [
   ['path', { d: 'M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10' }],
   ['path', { d: 'M7 20h10' }],
@@ -87,9 +103,21 @@ const LAYOUT_DASHBOARD: SvgNode = [
   ['path', { d: 'M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1' }],
 ];
 
+const LAYOUT_GRID: SvgNode = [
+  ['path', { d: 'M4 4m0 1a1 1 0 0 1 1 -1h5a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1z' }],
+  ['path', { d: 'M13 4m0 1a1 1 0 0 1 1 -1h5a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1z' }],
+  ['path', { d: 'M4 13m0 1a1 1 0 0 1 1 -1h5a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1z' }],
+  ['path', { d: 'M13 13m0 1a1 1 0 0 1 1 -1h5a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1z' }],
+];
+
 const LAYOUT_ROWS: SvgNode = [
   ['path', { d: 'M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12' }],
   ['path', { d: 'M4 12l16 0' }],
+];
+
+const MINUS_RECTANGLE: SvgNode = [
+  ['path', { d: 'M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z' }],
+  ['path', { d: 'M9 12h6' }],
 ];
 
 const MOON: SvgNode = [
@@ -197,6 +225,16 @@ function renderIcon(nodes: SvgNode, extraClass = ''): JSX.Element {
 
 export function icon(name: string, extraClass = ''): JSX.Element {
   switch (name) {
+    case 'custom-focus-floating':
+      return renderIcon(COPY_RECTANGLE, extraClass);
+    case 'custom-focus-fullscreen':
+      return renderIcon(ARROWS_MAXIMIZE, extraClass);
+    case 'custom-focus-minimized':
+      return renderIcon(MINUS_RECTANGLE, extraClass);
+    case 'custom-focus-none':
+      return renderIcon(APP_WINDOW, extraClass);
+    case 'custom-focus-tiling':
+      return renderIcon(LAYOUT_GRID, extraClass);
     case 'custom-metrics':
       return renderIcon(DEVICE_DESKTOP_ANALYTICS, extraClass);
     case 'custom-resize-mode':
