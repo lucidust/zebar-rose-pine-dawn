@@ -35,9 +35,10 @@ type FocusWindowState = 'none' | 'tiling' | 'floating' | 'fullscreen' | 'minimiz
 type GlazeIpcMessage = {
   messageType?: string;
   clientMessage?: string;
-  subscriptionId?: string;
   data?: any;
 };
+
+const FOCUS_STATE_POLL_INTERVAL = 500;
 
 type NightLightStatus = {
   enabled: boolean;
@@ -89,7 +90,7 @@ export function App(props: AppProps) {
           <div class="chip chip-left-context segmented-cluster">
             <GlazeWorkspaceStrip glazewm={glaze()} />
             <WmControlStrip glazewm={glaze()} />
-            <FocusWindowStateChip glazewm={glaze()} />
+            <FocusWindowStateChip />
             <SummaryChip
               class="responsive-hide-sm chip-context-summary"
               iconNode={icon('nf-md-application_outline')}
@@ -490,11 +491,11 @@ function NightLightChip() {
   );
 }
 
-function FocusWindowStateChip(props: { glazewm: any }) {
+function FocusWindowStateChip() {
   const [focusedWindow, setFocusedWindow] = createSignal<any | null>(null);
   let socket: WebSocket | null = null;
-  let subscriptionId: string | null = null;
-  let refreshTimer: number | undefined;
+  let pollInterval: number | undefined;
+  let queryInFlight = false;
   let disposed = false;
 
   const applyFocusedWindow = (focused: any) => {
@@ -506,26 +507,23 @@ function FocusWindowStateChip(props: { glazewm: any }) {
   };
 
   const queryFocusedWindow = () => {
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send('query focused');
+    if (queryInFlight || socket?.readyState !== WebSocket.OPEN) {
+      return;
     }
-  };
 
-  const scheduleRefresh = (delay = 40) => {
-    window.clearTimeout(refreshTimer);
-    refreshTimer = window.setTimeout(queryFocusedWindow, delay);
+    queryInFlight = true;
+    socket.send('query focused');
   };
-
-  createEffect(() => {
-    applyFocusedWindow(getFocusedGlazeWindow(props.glazewm));
-  });
 
   onMount(() => {
     socket = new WebSocket('ws://localhost:6123');
 
     socket.addEventListener('open', () => {
       queryFocusedWindow();
-      socket?.send('sub --events all');
+      pollInterval = window.setInterval(
+        queryFocusedWindow,
+        FOCUS_STATE_POLL_INTERVAL,
+      );
     });
 
     socket.addEventListener('message', event => {
@@ -539,39 +537,22 @@ function FocusWindowStateChip(props: { glazewm: any }) {
         message.messageType === 'client_response' &&
         message.clientMessage === 'query focused'
       ) {
+        queryInFlight = false;
         applyFocusedWindow(message.data?.focused);
-        return;
       }
+    });
 
-      if (
-        message.messageType === 'client_response' &&
-        message.clientMessage === 'sub --events all'
-      ) {
-        subscriptionId = message.data?.subscriptionId ?? null;
-        return;
-      }
-
-      if (message.messageType === 'event_subscription') {
-        scheduleRefresh();
-      }
+    socket.addEventListener('error', () => {
+      queryInFlight = false;
     });
 
     socket.addEventListener('close', () => {
-      if (!disposed) {
-        setFocusedWindow(getFocusedGlazeWindow(props.glazewm));
-      }
+      queryInFlight = false;
     });
-
-    const pollInterval = window.setInterval(queryFocusedWindow, 1_500);
 
     onCleanup(() => {
       disposed = true;
       window.clearInterval(pollInterval);
-      window.clearTimeout(refreshTimer);
-
-      if (socket?.readyState === WebSocket.OPEN && subscriptionId) {
-        socket.send(`unsub --id ${subscriptionId}`);
-      }
 
       socket?.close();
       socket = null;
@@ -582,37 +563,14 @@ function FocusWindowStateChip(props: { glazewm: any }) {
     normalizeFocusWindowState(focusedWindow()?.state?.type),
   );
   const metadata = createMemo(() => focusWindowStateMetadata(windowState()));
-  const command = createMemo(() => focusWindowStateCommand(windowState()));
-
-  const onClick = () => {
-    const nextCommand = command();
-    const windowId = focusedWindow()?.id;
-
-    if (!nextCommand || !windowId) {
-      return;
-    }
-
-    void props.glazewm
-      .runCommand(nextCommand, windowId)
-      .then(() => {
-        scheduleRefresh(80);
-        window.setTimeout(queryFocusedWindow, 250);
-        window.setTimeout(queryFocusedWindow, 700);
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to toggle focused window state.', error);
-      });
-  };
 
   return (
-    <ControlActionChip
+    <StatusIconChip
       class="chip-focus-state"
       tone={metadata().tone}
       title={metadata().title}
       ariaLabel={metadata().title}
-      onClick={onClick}
       iconNode={icon(metadata().icon)}
-      disabled={!command()}
     />
   );
 }
@@ -1003,7 +961,6 @@ function ControlActionButton(props: {
   iconNode: any;
   onClick: () => void;
   class?: string;
-  disabled?: boolean;
 }) {
   return (
     <button
@@ -1012,7 +969,6 @@ function ControlActionButton(props: {
       title={props.title}
       aria-label={props.ariaLabel}
       onClick={props.onClick}
-      disabled={props.disabled}
     >
       <IconBadge node={props.iconNode} tone={props.tone} />
     </button>
@@ -1026,7 +982,6 @@ function ControlActionChip(props: {
   iconNode: any;
   onClick: () => void;
   class?: string;
-  disabled?: boolean;
 }) {
   return (
     <div class={`chip chip-left-control ${props.class ?? ''}`.trim()}>
@@ -1037,8 +992,28 @@ function ControlActionChip(props: {
           ariaLabel={props.ariaLabel}
           iconNode={props.iconNode}
           onClick={props.onClick}
-          disabled={props.disabled}
         />
+      </div>
+    </div>
+  );
+}
+
+function StatusIconChip(props: {
+  tone: Tone;
+  title: string;
+  ariaLabel: string;
+  iconNode: any;
+  class?: string;
+}) {
+  return (
+    <div
+      class={`chip chip-left-control ${props.class ?? ''}`.trim()}
+      title={props.title}
+      aria-label={props.ariaLabel}
+      role="status"
+    >
+      <div class="chip-body chip-left-control-body">
+        <IconBadge node={props.iconNode} tone={props.tone} />
       </div>
     </div>
   );
@@ -1062,19 +1037,6 @@ function bindingModeIcon(mode: any) {
   return icon('nf-md-key_variant');
 }
 
-function getFocusedGlazeWindow(glazewm: any) {
-  const focused = glazewm?.focusedContainer;
-
-  if (focused?.type !== 'window') {
-    return null;
-  }
-
-  return (
-    glazewm?.allWindows?.find((window: any) => window.id === focused.id) ??
-    focused
-  );
-}
-
 function normalizeFocusWindowState(value: unknown): FocusWindowState {
   switch (value) {
     case 'tiling':
@@ -1084,21 +1046,6 @@ function normalizeFocusWindowState(value: unknown): FocusWindowState {
       return value;
     default:
       return 'none';
-  }
-}
-
-function focusWindowStateCommand(state: FocusWindowState) {
-  switch (state) {
-    case 'tiling':
-      return 'toggle-tiling';
-    case 'floating':
-      return 'toggle-floating --centered';
-    case 'fullscreen':
-      return 'toggle-fullscreen';
-    case 'minimized':
-      return 'toggle-minimized';
-    case 'none':
-      return null;
   }
 }
 
@@ -1112,25 +1059,25 @@ function focusWindowStateMetadata(state: FocusWindowState): {
       return {
         icon: 'custom-focus-tiling',
         title: 'Focused Window Tiling',
-        tone: 'pine',
+        tone: 'muted',
       };
     case 'floating':
       return {
         icon: 'custom-focus-floating',
         title: 'Focused Window Floating',
-        tone: 'foam',
+        tone: 'pine',
       };
     case 'fullscreen':
       return {
         icon: 'custom-focus-fullscreen',
         title: 'Focused Window Fullscreen',
-        tone: 'iris',
+        tone: 'foam',
       };
     case 'minimized':
       return {
         icon: 'custom-focus-minimized',
         title: 'Focused Window Minimized',
-        tone: 'gold',
+        tone: 'rose',
       };
     case 'none':
       return {

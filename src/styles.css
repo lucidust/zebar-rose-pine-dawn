@@ -632,11 +632,6 @@ button {
   flex: 0 0 auto;
 }
 
-.chip-action[disabled] {
-  opacity: 0.58;
-  cursor: default;
-}
-
 .tone-love {
   color: var(--love);
 }
@@ -1105,10 +1100,6 @@ button {
 
 .chip-action:hover {
   transform: translateY(-1px);
-}
-
-.chip-action[disabled]:hover {
-  transform: none;
 }
 
 .metric-combo-action:hover {
