@@ -2,6 +2,7 @@
   "name": "zebar-rose-pine-dawn",
   "version": "0.1.0",
   "description": "Rose Pine Dawn top bar pack for Zebar",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "vite build",

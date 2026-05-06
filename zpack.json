@@ -5,7 +5,7 @@
   "description": "Rose Pine Dawn top bar pack for Zebar with vanilla, GlazeWM, and Komorebi variants.",
   "tags": ["topbar", "rose-pine", "glazewm", "komorebi"],
   "previewImages": ["./resources/preview-image-1.png"],
-  "repositoryUrl": "",
+  "repositoryUrl": "https://github.com/lucidust/zebar-rose-pine-dawn",
   "widgets": [
     {
       "name": "vanilla",
@@ -29,10 +29,6 @@
           {
             "program": "wnlctl.exe",
             "argsRegex": "^(status|toggle) --json$"
-          },
-          {
-            "program": "explorer.exe",
-            "argsRegex": "^ms-settings:nightlight$"
           }
         ]
       },
@@ -77,10 +73,6 @@
           {
             "program": "wnlctl.exe",
             "argsRegex": "^(status|toggle) --json$"
-          },
-          {
-            "program": "explorer.exe",
-            "argsRegex": "^ms-settings:nightlight$"
           }
         ]
       },
@@ -125,10 +117,6 @@
           {
             "program": "wnlctl.exe",
             "argsRegex": "^(status|toggle) --json$"
-          },
-          {
-            "program": "explorer.exe",
-            "argsRegex": "^ms-settings:nightlight$"
           }
         ]
       },

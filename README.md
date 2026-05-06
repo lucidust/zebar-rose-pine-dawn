@@ -1,78 +1,90 @@
 # zebar-rose-pine-dawn
 
-Rose Pine Dawn top bar pack for Zebar.
+Rosé Pine Dawn top bar pack for [Zebar](https://github.com/glzr-io/zebar).
 
-## Standards
+[한국어](./README.ko.md)
 
-- The canonical interpretation entry points for this repository are `repo-metadata.yaml` and `.agent/standards-baseline.md`.
-- Workspace standards are not automation or sync helpers; they define how this repository should be read and interpreted.
-- The canonical runtime and pack contract artifact is `zpack.json`.
+![zebar-rose-pine-dawn preview](./resources/preview-image-1.png)
 
-## Language Policy
+## Features
 
-- The repository default language is English.
-- Korean documentation is provided as companion material, starting with [README.ko.md](./README.ko.md).
-- Runtime UI strings, labels, and shipped widget text should default to English unless a task explicitly introduces localization.
+- Top bar themed with the official [Rosé Pine Dawn palette](https://rosepinetheme.com/palette/).
+- Full-width rail with modular workspace and system chips.
+- System tray overflow popover, audio, network traffic, weather, date/time, and combined CPU/memory status.
+- Optional Windows Night Light control through [`wnlctl`](https://github.com/lucidust/wnlctl).
+- Local SVG icons bundled with the pack; no remote icon font dependency at runtime.
+
+## Chips
+
+Shared chips:
+
+- CPU/memory and network traffic.
+- System tray overflow.
+- Volume.
+- Windows Night Light, when `wnlctl.exe` is installed.
+- Weather.
+- Date and time.
+
+GlazeWM integration:
+
+- Workspace buttons.
+- Focused workspace and window context.
+- Binding mode, pause state, and tiling direction controls.
+
+On non-primary monitors, live system stats are hidden to keep secondary bars lighter. This currently affects CPU/memory and network traffic.
 
 ## Variants
 
-- `vanilla`: shared system status bar without WM-specific controls
-- `with-glazewm`: GlazeWM workspaces and WM status controls
-- `with-komorebi`: Komorebi workspace-aware status bar
+This pack ships three widget variants:
 
-## Development
+- `vanilla`: shared system status bar without WM-specific controls.
+- `with-glazewm`: GlazeWM workspaces and WM status controls.
+- `with-komorebi`: builds successfully, but needs tester feedback before it is treated as fully verified.
 
-```bash
+`vanilla` and `with-glazewm` are the currently supported variants.
+
+## Install
+
+### Marketplace
+
+Install the pack from the Zebar marketplace and choose one of the shipped variants.
+
+### Custom Widget
+
+For development or local customization, clone this repository under your Zebar config directory and point Zebar at the local pack:
+
+```powershell
+git clone https://github.com/lucidust/zebar-rose-pine-dawn.git "$env:USERPROFILE\.glzr\zebar\zebar-rose-pine-dawn"
+cd "$env:USERPROFILE\.glzr\zebar\zebar-rose-pine-dawn"
 pnpm install
-pnpm typecheck
-pnpm validate:pack
 pnpm build
 ```
 
-After building, Zebar loads the generated `dist/` assets from this directory through `zpack.json`.
+Zebar loads the generated `dist/` assets through `zpack.json`.
 
-## Companion Helpers
+## Optional Night Light Helper
 
-This pack may depend on small local helper executables for host features that
-Zebar does not expose as native providers.
+The Night Light chip requires `wnlctl.exe`. If `wnlctl` is not available on `PATH`, the Night Light control is hidden and the rest of the bar continues to run.
 
-- Night Light helper: installed through Scoop
-- Expected binary name: `wnlctl.exe`
-- Expected CLI contract: `status --json`, `on`, `off`, and `toggle`
-- Integration boundary: this pack owns the Zebar UI and `zpack.json` shell
-  command allowlist; the helper repository owns Windows registry access,
-  Night Light behavior, release binaries, and upstream vendored code notices.
+Install with Scoop:
 
-Keep helper code out of this pack unless the helper becomes pack-specific. The
-separate repository keeps the Windows registry implementation auditable and
-lets this pack track only the stable CLI contract.
+```powershell
+scoop bucket add lucidust https://github.com/lucidust/scoop-bucket
+scoop install wnlctl
+```
 
-## Design References
+The pack uses only these helper commands:
 
-- Official Rosé Pine palette overview: [rosepinetheme.com/palette](https://rosepinetheme.com/palette/)
-- Official Rosé Pine ingredient table with canonical hex values, including Dawn: [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)
-- Zebar runtime and provider documentation: [github.com/glzr-io/zebar](https://github.com/glzr-io/zebar)
-- Legacy visual reference used for this pack refresh: [github.com/adriankarlen/rose-pine.zebar](https://github.com/adriankarlen/rose-pine.zebar)
+```powershell
+wnlctl status --json
+wnlctl toggle --json
+```
 
-Use the Rosé Pine Dawn values from the official palette references above as the color source of truth for this repository.
+`wnlctl` is maintained separately at [lucidust/wnlctl](https://github.com/lucidust/wnlctl). That repository owns Windows registry access, release binaries, and helper-specific limitations.
 
-## Customization
+## Recommended GlazeWM Setup
 
-- Font stacks are configured in [src/styles.css](./src/styles.css) through the `--font-sans` and `--font-mono` root variables.
-- Shipped icons are bundled local SVG components sourced through [src/icons.tsx](./src/icons.tsx), so the pack does not depend on remote icon fonts for runtime rendering.
-- The left brand trigger is icon-only by default and remains a dedicated click target for future actions.
-
-## Recommended Setup
-
-This pack is currently tuned around a horizontal 4K primary monitor.
-
-- Tested target: one horizontal 4K primary monitor
-- Secondary monitor status: a portrait 4K secondary monitor exists in the current workstation, but the shipped spacing and placement are not tuned for it yet
-- Current widget scope: the default `zpack.json` presets target all monitors, but the spacing is tuned around the primary monitor first
-
-### GlazeWM gaps
-
-Use the following GlazeWM gap values as the current recommended set for this pack:
+This pack is tuned around a 50px top bar region. A matching GlazeWM gap configuration is:
 
 ```yaml
 gaps:
@@ -85,38 +97,27 @@ gaps:
     left: '8px'
 ```
 
-### Zebar spacing
+## Development
 
-Keep the Zebar side aligned with the following values when matching the GlazeWM profile above:
+```powershell
+pnpm install
+pnpm validate:pack
+pnpm typecheck
+pnpm build
+```
 
-- `zpack.json`: `offsetY: 0px`, `height: 50px`, all monitor presets
-- `src/styles.css`: `--shell-padding-x: 8px`
-- `src/styles.css`: `--shell-padding-y: 6px`
-- `src/styles.css`: `--pill-height: 36px`
-- `src/styles.css`: `--bar-radius: 11px`
-- `src/styles.css`: `--right-cluster-item-height: 30px`
-These values keep the widget within a 50px Zebar region while adding a 6px internal top gap and matching the horizontal spacing to GlazeWM's `8px` outer gaps.
+Useful files:
 
-## Layout Guidelines
+- `zpack.json`: canonical Zebar pack contract.
+- `src/providers.ts`: provider wiring for each variant.
+- `src/entries/*`: Vite entrypoints for shipped variants.
+- `src/styles.css`: layout, spacing, and theme tokens.
 
-- Keep the shipped variants aligned to the same zone order: left for brand, workspace-aware context, and WM controls when available; right for shared system widgets ending with weather and date/time.
-- Restrict variant-specific differences to workspace-aware content and WM controls; do not reorder shared system widgets per variant without updating all shipped variants together.
-- Treat `vanilla`, `with-glazewm`, and `with-komorebi` as one layout family for future maintenance.
-- Treat the full-width rail as the shared bar chrome, with feature chips remaining modular content units on top of it.
+## Notes
 
-## Right Cluster Rules
+- Runtime UI strings and default widget labels are English.
+- This pack is primarily tuned on a horizontal 4K monitor.
 
-- Keep right-side widgets implemented as feature-specific chips for maintenance, even when they are presented as one visual cluster.
-- Use the full-width bar rail as the shared chrome instead of wrapping the right-side system cluster in its own pill.
-- Prefer background-backed sub-chips for interactive controls such as tray, audio, and clickable metrics.
-- Prefer separators or spacing for text-heavy informational chips such as network, weather, and date/time.
-- Use both backgrounds and separators only when they serve different roles, and keep both subtle.
-- Treat these as guidelines rather than fixed rules; adjust per widget density and interaction cost.
+## License
 
-## Features
-
-- Rose Pine Dawn palette-driven theme
-- Full-width top bar rail with modular workspace and system chips
-- System tray overflow popover, audio, network traffic, weather, and a combined CPU/memory indicator
-- Workspace switching and WM controls in `with-glazewm`
-- Responsive top bar layout that collapses lower-priority content on narrower widths
+MIT

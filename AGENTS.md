@@ -8,6 +8,7 @@ Use this file as a short entry point, not as the canonical rule source.
 
 - Read [`repo-metadata.yaml`](./repo-metadata.yaml) first for the active repository interpretation metadata.
 - Read [`.agent/standards-baseline.md`](./.agent/standards-baseline.md) for the pinned local meaning of behavior-changing metadata.
+- Read [`.agent/release.md`](./.agent/release.md) when the task touches versioning, release prep, marketplace publishing, tags, or token handling.
 - Read [`README.md`](./README.md) for the repository role, variants, and developer-facing context.
 - Read [`zpack.json`](./zpack.json) when the task touches the Zebar pack contract, shipped widgets, or packaging behavior.
 
@@ -19,6 +20,7 @@ Use this file as a short entry point, not as the canonical rule source.
 - This repository currently pins `profile: service`; read changes first for Zebar runtime stability, variant-level behavior consistency, and pack contract safety.
 - This repository currently pins `commit_style_source: central_rules` and `central_rules_mode: required`; treat the default commit policy as Conventional Commits with `type(scope): subject` unless a higher-priority local source documents an allowed exception.
 - Treat `zpack.json` as the canonical pack contract artifact for shipped widgets.
+- Treat `.agent/release.md` as the canonical local release procedure.
 - Do not infer the meaning of behavior-changing metadata enum values from names alone; use the pinned baseline definitions.
 - Write user-facing responses and plans in Korean by default.
 - Keep code, identifiers, file paths, YAML keys, and canonical rule documents in their original language unless the task explicitly requires translation.

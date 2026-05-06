@@ -377,14 +377,6 @@ async function openTaskManager() {
   }
 }
 
-async function openNightLightSettings() {
-  try {
-    await zebar.shellExec('explorer.exe', 'ms-settings:nightlight');
-  } catch (error) {
-    console.error('Failed to open Night Light settings.', error);
-  }
-}
-
 function NightLightChip() {
   const [status, setStatus] = createSignal<NightLightStatus | null>(null);
   const [isAvailable, setIsAvailable] = createSignal(false);
@@ -440,7 +432,6 @@ function NightLightChip() {
       applyStatus(await readStatus(['toggle', '--json']));
     } catch (error) {
       console.error('Failed to toggle Night Light.', error);
-      await openNightLightSettings();
     } finally {
       if (!disposed) {
         setIsToggling(false);
