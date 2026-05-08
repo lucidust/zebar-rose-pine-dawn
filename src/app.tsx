@@ -15,8 +15,8 @@ import {
   clamp,
   formatDataAmountParts,
   formatDataRateParts,
-  glazeFocusedDetail,
-  glazeFocusedLabel,
+  glazeFocusedContainerDetail,
+  glazeFocusedContainerLabel,
   komorebiWorkspaceDetail,
   percent,
   weatherLabel,
@@ -82,6 +82,15 @@ export function App(props: AppProps) {
   const audio = () => output.audio?.defaultPlaybackDevice;
   const weather = () => output.weather;
   const date = () => output.date?.formatted ?? '';
+  const polledGlazeFocusedContainer = usePolledGlazeFocusedContainer(
+    props.variant === 'with-glazewm',
+  );
+  const glazeFocusedContainer = () => {
+    const polledFocused = polledGlazeFocusedContainer();
+    return polledFocused === undefined
+      ? glaze()?.focusedContainer
+      : polledFocused;
+  };
 
   function renderLeftZone() {
     if (props.variant === 'with-glazewm') {
@@ -90,12 +99,15 @@ export function App(props: AppProps) {
           <div class="chip chip-left-context segmented-cluster">
             <GlazeWorkspaceStrip glazewm={glaze()} />
             <WmControlStrip glazewm={glaze()} />
-            <FocusWindowStateChip />
+            <FocusWindowStateChip focusedContainer={glazeFocusedContainer()} />
             <SummaryChip
               class="responsive-hide-sm chip-context-summary"
               iconNode={icon('nf-md-application_outline')}
-              label={glazeFocusedLabel(glaze())}
-              detail={glazeFocusedDetail(glaze())}
+              label={glazeFocusedContainerLabel(glazeFocusedContainer())}
+              detail={glazeFocusedContainerDetail(
+                glazeFocusedContainer(),
+                glaze(),
+              )}
               tone="iris"
             />
           </div>
@@ -482,22 +494,24 @@ function NightLightChip() {
   );
 }
 
-function FocusWindowStateChip() {
-  const [focusedWindow, setFocusedWindow] = createSignal<any | null>(null);
+function usePolledGlazeFocusedContainer(enabled: boolean) {
+  const [focusedContainer, setFocusedContainer] = createSignal<
+    any | null | undefined
+  >(undefined);
   let socket: WebSocket | null = null;
   let pollInterval: number | undefined;
   let queryInFlight = false;
   let disposed = false;
 
-  const applyFocusedWindow = (focused: any) => {
+  const applyFocusedContainer = (focused: any) => {
     if (disposed) {
       return;
     }
 
-    setFocusedWindow(focused?.type === 'window' ? focused : null);
+    setFocusedContainer(focused ?? null);
   };
 
-  const queryFocusedWindow = () => {
+  const queryFocusedContainer = () => {
     if (queryInFlight || socket?.readyState !== WebSocket.OPEN) {
       return;
     }
@@ -507,12 +521,16 @@ function FocusWindowStateChip() {
   };
 
   onMount(() => {
+    if (!enabled) {
+      return;
+    }
+
     socket = new WebSocket('ws://localhost:6123');
 
     socket.addEventListener('open', () => {
-      queryFocusedWindow();
+      queryFocusedContainer();
       pollInterval = window.setInterval(
-        queryFocusedWindow,
+        queryFocusedContainer,
         FOCUS_STATE_POLL_INTERVAL,
       );
     });
@@ -529,7 +547,7 @@ function FocusWindowStateChip() {
         message.clientMessage === 'query focused'
       ) {
         queryInFlight = false;
-        applyFocusedWindow(message.data?.focused);
+        applyFocusedContainer(message.data?.focused);
       }
     });
 
@@ -550,8 +568,12 @@ function FocusWindowStateChip() {
     });
   });
 
+  return focusedContainer;
+}
+
+function FocusWindowStateChip(props: { focusedContainer: any }) {
   const windowState = createMemo(() =>
-    normalizeFocusWindowState(focusedWindow()?.state?.type),
+    normalizeFocusWindowState(props.focusedContainer?.state?.type),
   );
   const metadata = createMemo(() => focusWindowStateMetadata(windowState()));
 

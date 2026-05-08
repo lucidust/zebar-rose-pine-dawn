@@ -62,9 +62,7 @@ export function weatherLabel(weather: any) {
   return `${Math.round(weather.celsiusTemp)}°C`;
 }
 
-export function glazeFocusedLabel(glazewm: any) {
-  const focused = glazewm?.focusedContainer;
-
+export function glazeFocusedContainerLabel(focused: any) {
   if (!focused) {
     return 'No focus';
   }
@@ -81,9 +79,7 @@ export function glazeFocusedLabel(glazewm: any) {
   return focused.type || 'Container';
 }
 
-export function glazeFocusedDetail(glazewm: any) {
-  const focused = glazewm?.focusedContainer;
-
+export function glazeFocusedContainerDetail(focused: any, glazewm?: any) {
   if (!focused) {
     return '';
   }
@@ -98,6 +94,14 @@ export function glazeFocusedDetail(glazewm: any) {
   }
 
   return glazewm?.tilingDirection === 'horizontal' ? 'Horizontal split' : 'Vertical split';
+}
+
+export function glazeFocusedLabel(glazewm: any) {
+  return glazeFocusedContainerLabel(glazewm?.focusedContainer);
+}
+
+export function glazeFocusedDetail(glazewm: any) {
+  return glazeFocusedContainerDetail(glazewm?.focusedContainer, glazewm);
 }
 
 export function komorebiWorkspaceDetail(komorebi: any) {
