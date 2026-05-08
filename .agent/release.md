@@ -55,6 +55,8 @@ Do not publish unless the user explicitly approves.
 $env:ZEBAR_PUBLISH_TOKEN = "<token>"
 ```
 
+If `ZEBAR_PUBLISH_TOKEN` is not set in the current shell, check the ignored local `.env` file before concluding that the token is unavailable. Do not print the token value.
+
 7. Publish with Zebar CLI:
 
 ```powershell
@@ -71,4 +73,6 @@ zebar publish `
 
 - `.env` may exist locally for convenience and may contain `ZEBAR_PUBLISH_TOKEN`.
 - `.env.example` documents the variable name only and must not contain a real token.
+- Check both the current shell environment and the ignored local `.env` file before concluding that `ZEBAR_PUBLISH_TOKEN` is unavailable.
+- Never print the token value while checking, loading, publishing, or debugging.
 - If a real token is ever committed, stop and rotate the token before continuing release work.
