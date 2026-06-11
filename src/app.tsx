@@ -8,7 +8,7 @@ import {
   onCleanup,
   onMount,
 } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { useProviderOutput } from './app/use-provider-output';
 import { icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
@@ -110,21 +110,7 @@ function isKomorebiWorkspaceOccupied(workspace: any) {
 }
 
 export function App(props: AppProps) {
-  const [output, setOutput] = createStore<Record<string, any>>(
-    props.providers.outputMap as Record<string, any>,
-  );
-
-  Object.entries(props.providers.raw ?? {}).forEach(([providerName, provider]) => {
-    const rawProvider = provider as any;
-
-    rawProvider.onOutput((nextOutput: any) => {
-      setOutput(providerName, reconcile(nextOutput));
-    });
-
-    if (rawProvider.output != null) {
-      setOutput(providerName, reconcile(rawProvider.output));
-    }
-  });
+  const output = useProviderOutput(props.providers);
 
   const glaze = () => output.glazewm;
   const [komorebiRefreshNonce, setKomorebiRefreshNonce] = createSignal(0);
