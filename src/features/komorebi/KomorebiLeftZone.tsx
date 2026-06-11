@@ -18,6 +18,7 @@ import {
 import { icon } from '../../icons';
 import {
   clamp,
+  compactTitle,
   komorebiLayoutLabel,
   komorebiWindowDetail,
   komorebiWindowLabel,
@@ -84,7 +85,9 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
     () => props.komorebi,
     komorebiRefreshNonce,
   );
-  const komorebi = () => polledKomorebi() ?? props.komorebi;
+  const komorebi = createMemo(() =>
+    mergeKomorebiProviderState(props.komorebi, polledKomorebi()),
+  );
   const refreshKomorebiState = () => setKomorebiRefreshNonce(value => value + 1);
 
   return (
@@ -381,6 +384,9 @@ function normalizeKomorebiMonitor(rawMonitor: any) {
 }
 
 function normalizeKomorebiWorkspace(rawWorkspace: any) {
+  const rawFloatingWindows =
+    rawWorkspace?.floating_windows ?? rawWorkspace?.floatingWindows;
+  const floatingWindows = normalizeKomorebiWindowList(rawFloatingWindows);
   const tilingContainers = (
     rawWorkspace?.containers?.elements ??
     rawWorkspace?.tilingContainers ??
@@ -390,8 +396,11 @@ function normalizeKomorebiWorkspace(rawWorkspace: any) {
   return {
     containerPadding:
       rawWorkspace?.container_padding ?? rawWorkspace?.containerPadding ?? null,
-    floatingWindows: normalizeKomorebiWindowList(
-      rawWorkspace?.floating_windows ?? rawWorkspace?.floatingWindows,
+    floatingWindows,
+    focusedFloatingWindowIndex: clamp(
+      rawFloatingWindows?.focused ?? rawWorkspace?.focusedFloatingWindowIndex ?? 0,
+      0,
+      Math.max(floatingWindows.length - 1, 0),
     ),
     focusedContainerIndex: clamp(
       rawWorkspace?.containers?.focused ??
@@ -401,6 +410,7 @@ function normalizeKomorebiWorkspace(rawWorkspace: any) {
       Math.max(tilingContainers.length - 1, 0),
     ),
     latestLayout: rawWorkspace?.latest_layout ?? rawWorkspace?.latestLayout ?? [],
+    layer: normalizeKomorebiLayerValue(rawWorkspace?.layer),
     layout: normalizeKomorebiLayoutValue(rawWorkspace?.layout),
     layoutFlip: rawWorkspace?.layout_flip ?? rawWorkspace?.layoutFlip ?? null,
     maximizedWindow: normalizeKomorebiWindow(
@@ -471,6 +481,251 @@ function normalizeKomorebiLayoutValue(rawLayout: any) {
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .replaceAll('-', '_')
     .toLowerCase();
+}
+
+function normalizeKomorebiLayerValue(rawLayer: any) {
+  if (!rawLayer) {
+    return null;
+  }
+
+  return String(rawLayer)
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replaceAll('-', '_')
+    .toLowerCase();
+}
+
+function mergeKomorebiProviderState(providerState: any, polledState: any) {
+  if (!providerState) {
+    return polledState;
+  }
+
+  if (!polledState) {
+    return providerState;
+  }
+
+  const allMonitors = Array.isArray(providerState.allMonitors)
+    ? providerState.allMonitors.map((monitor: any) =>
+        enrichKomorebiMonitor(
+          monitor,
+          findMatchingKomorebiMonitor(polledState.allMonitors, monitor),
+        ),
+      )
+    : providerState.allMonitors;
+
+  const currentMonitor =
+    findMatchingKomorebiMonitor(allMonitors, providerState.currentMonitor) ??
+    enrichKomorebiMonitor(
+      providerState.currentMonitor,
+      findMatchingKomorebiMonitor(polledState.allMonitors, providerState.currentMonitor),
+    );
+  const focusedMonitor =
+    findMatchingKomorebiMonitor(allMonitors, providerState.focusedMonitor) ??
+    enrichKomorebiMonitor(
+      providerState.focusedMonitor,
+      findMatchingKomorebiMonitor(polledState.allMonitors, providerState.focusedMonitor),
+    );
+  const currentWorkspaces =
+    currentMonitor?.workspaces ??
+    enrichKomorebiWorkspaceList(
+      providerState.currentWorkspaces,
+      polledState.currentWorkspaces,
+    );
+  const allWorkspaces = Array.isArray(allMonitors)
+    ? allMonitors.flatMap((monitor: any) => monitor.workspaces ?? [])
+    : enrichKomorebiWorkspaceList(
+        providerState.allWorkspaces,
+        polledState.allWorkspaces,
+      );
+
+  return {
+    ...providerState,
+    allMonitors,
+    currentMonitor,
+    focusedMonitor,
+    currentWorkspaces,
+    allWorkspaces,
+    displayedWorkspace:
+      currentMonitor?.workspaces?.[currentMonitor.focusedWorkspaceIndex] ??
+      enrichKomorebiWorkspace(
+        providerState.displayedWorkspace,
+        polledState.displayedWorkspace,
+      ),
+    focusedWorkspace:
+      focusedMonitor?.workspaces?.[focusedMonitor.focusedWorkspaceIndex] ??
+      enrichKomorebiWorkspace(
+        providerState.focusedWorkspace,
+        polledState.focusedWorkspace,
+      ),
+  };
+}
+
+function enrichKomorebiMonitor(providerMonitor: any, polledMonitor: any) {
+  if (!providerMonitor) {
+    return providerMonitor;
+  }
+
+  return {
+    ...providerMonitor,
+    workspaces: enrichKomorebiWorkspaceList(
+      providerMonitor.workspaces,
+      polledMonitor?.workspaces,
+    ),
+  };
+}
+
+function enrichKomorebiWorkspaceList(
+  providerWorkspaces: any[] | undefined,
+  polledWorkspaces: any[] | undefined,
+) {
+  if (!Array.isArray(providerWorkspaces)) {
+    return providerWorkspaces;
+  }
+
+  return providerWorkspaces.map((workspace, index) =>
+    enrichKomorebiWorkspace(workspace, polledWorkspaces?.[index]),
+  );
+}
+
+function enrichKomorebiWorkspace(providerWorkspace: any, polledWorkspace: any) {
+  if (!providerWorkspace) {
+    return providerWorkspace;
+  }
+
+  const floatingFocusedIndex = resolveFocusedWindowIndex(
+    providerWorkspace.floatingWindows,
+    polledWorkspace?.floatingWindows,
+    polledWorkspace?.focusedFloatingWindowIndex,
+  );
+
+  return {
+    ...providerWorkspace,
+    focusedFloatingWindowIndex:
+      floatingFocusedIndex ?? providerWorkspace.focusedFloatingWindowIndex,
+    layer: providerWorkspace.layer ?? polledWorkspace?.layer,
+    tile: providerWorkspace.tile ?? polledWorkspace?.tile,
+    tilingContainers: enrichKomorebiContainerList(
+      providerWorkspace.tilingContainers,
+      polledWorkspace?.tilingContainers,
+    ),
+    monocleContainer: enrichKomorebiContainer(
+      providerWorkspace.monocleContainer,
+      polledWorkspace?.monocleContainer,
+    ),
+  };
+}
+
+function enrichKomorebiContainerList(
+  providerContainers: any[] | undefined,
+  polledContainers: any[] | undefined,
+) {
+  if (!Array.isArray(providerContainers)) {
+    return providerContainers;
+  }
+
+  return providerContainers.map((container, index) =>
+    enrichKomorebiContainer(
+      container,
+      findMatchingKomorebiContainer(polledContainers, container, index),
+    ),
+  );
+}
+
+function enrichKomorebiContainer(providerContainer: any, polledContainer: any) {
+  if (!providerContainer) {
+    return providerContainer;
+  }
+
+  const focusedWindowIndex = resolveFocusedWindowIndex(
+    providerContainer.windows,
+    polledContainer?.windows,
+    polledContainer?.focusedWindowIndex,
+  );
+
+  return {
+    ...providerContainer,
+    focusedWindowIndex:
+      focusedWindowIndex ?? providerContainer.focusedWindowIndex,
+  };
+}
+
+function findMatchingKomorebiMonitor(monitors: any[] | undefined, monitor: any) {
+  if (!Array.isArray(monitors) || !monitor) {
+    return null;
+  }
+
+  return monitors.find(candidate => isSameKomorebiMonitor(candidate, monitor)) ?? null;
+}
+
+function findMatchingKomorebiContainer(
+  containers: any[] | undefined,
+  container: any,
+  fallbackIndex: number,
+) {
+  if (!Array.isArray(containers)) {
+    return null;
+  }
+
+  if (container?.id != null) {
+    const matched = containers.find(candidate => candidate?.id === container.id);
+    if (matched) {
+      return matched;
+    }
+  }
+
+  return containers[fallbackIndex] ?? null;
+}
+
+function resolveFocusedWindowIndex(
+  providerWindows: any[] | undefined,
+  polledWindows: any[] | undefined,
+  polledFocusedIndex: number | null | undefined,
+) {
+  if (!Array.isArray(providerWindows) || polledFocusedIndex == null) {
+    return undefined;
+  }
+
+  const polledWindow = polledWindows?.[polledFocusedIndex];
+  if (polledWindow) {
+    const matchedIndex = providerWindows.findIndex(window =>
+      isSameKomorebiWindow(window, polledWindow),
+    );
+
+    if (matchedIndex !== -1) {
+      return matchedIndex;
+    }
+  }
+
+  if (
+    polledFocusedIndex >= 0 &&
+    polledFocusedIndex < providerWindows.length &&
+    (!polledWindow ||
+      isSameKomorebiWindow(providerWindows[polledFocusedIndex], polledWindow))
+  ) {
+    return polledFocusedIndex;
+  }
+
+  return undefined;
+}
+
+function isSameKomorebiWindow(a: any, b: any) {
+  if (!a || !b) {
+    return false;
+  }
+
+  if (a.hwnd != null && b.hwnd != null) {
+    return a.hwnd === b.hwnd;
+  }
+
+  if (a.id != null && b.id != null) {
+    return a.id === b.id;
+  }
+
+  return Boolean(
+    a.title &&
+      b.title &&
+      a.title === b.title &&
+      (a.exe === b.exe || a.class === b.class),
+  );
 }
 
 function usePolledKomorebiState(
@@ -911,6 +1166,10 @@ function komorebiFocusedSummaryDetail(komorebi: any) {
   }
 
   const state = komorebiFocusState(focusedWorkspace);
+  if (state === 'stack') {
+    return komorebiFocusStateDetail(focusedWorkspace, state);
+  }
+
   const focusedWindow = komorebiFocusedWindow(focusedWorkspace);
   const detailParts = [
     komorebiWindowDetail(focusedWindow, ''),
@@ -960,6 +1219,10 @@ function komorebiFocusedWindow(workspace: any) {
     ];
   }
 
+  if (isKomorebiFloatingFocus(workspace)) {
+    return komorebiFocusedFloatingWindow(workspace);
+  }
+
   const focusedContainer = komorebiFocusedTilingContainer(workspace);
   if (focusedContainer?.windows?.length) {
     return focusedContainer.windows[
@@ -971,7 +1234,7 @@ function komorebiFocusedWindow(workspace: any) {
     ];
   }
 
-  return workspace.floatingWindows?.[0] ?? null;
+  return komorebiFocusedFloatingWindow(workspace);
 }
 
 function komorebiFocusState(workspace: any): KomorebiFocusState {
@@ -985,6 +1248,10 @@ function komorebiFocusState(workspace: any): KomorebiFocusState {
 
   if (workspace.monocleContainer?.windows?.length) {
     return 'monocle';
+  }
+
+  if (isKomorebiFloatingFocus(workspace)) {
+    return 'floating';
   }
 
   const focusedContainer = komorebiFocusedTilingContainer(workspace);
@@ -1007,6 +1274,37 @@ function komorebiFocusState(workspace: any): KomorebiFocusState {
   }
 
   return 'empty';
+}
+
+function isKomorebiFloatingFocus(workspace: any) {
+  const floatingWindows = workspace?.floatingWindows ?? [];
+  if (!floatingWindows.length) {
+    return false;
+  }
+
+  if (normalizeKomorebiLayerValue(workspace?.layer) === 'floating') {
+    return true;
+  }
+
+  const focusedContainerWindowCount =
+    komorebiFocusedTilingContainer(workspace)?.windows?.length ?? 0;
+
+  return focusedContainerWindowCount === 0 && workspace?.tile !== false;
+}
+
+function komorebiFocusedFloatingWindow(workspace: any) {
+  const floatingWindows = workspace?.floatingWindows ?? [];
+  if (!floatingWindows.length) {
+    return null;
+  }
+
+  const focusedFloatingWindowIndex = clamp(
+    workspace?.focusedFloatingWindowIndex ?? 0,
+    0,
+    floatingWindows.length - 1,
+  );
+
+  return floatingWindows[focusedFloatingWindowIndex] ?? floatingWindows[0] ?? null;
 }
 
 function komorebiFocusStateMetadata(state: KomorebiFocusState): {
@@ -1068,8 +1366,7 @@ function komorebiFocusStateDetail(
     case 'tiling-disabled':
       return 'Tiling Off';
     case 'stack': {
-      const count = komorebiFocusedTilingContainer(workspace)?.windows?.length ?? 0;
-      return `Stack ${count}`;
+      return komorebiStackDetail(workspace);
     }
     case 'tiling':
       return komorebiLayoutLabel(workspace?.layout);
@@ -1082,6 +1379,31 @@ function komorebiFocusStateDetail(
     case 'empty':
       return 'Empty';
   }
+}
+
+function komorebiStackDetail(workspace: any) {
+  const windows = komorebiFocusedTilingContainer(workspace)?.windows ?? [];
+  const count = windows.length;
+
+  if (!count) {
+    return 'Stack 0';
+  }
+
+  const visibleLabels = windows.slice(0, 2).map(stackWindowLabel);
+  const hiddenCount = Math.max(0, count - visibleLabels.length);
+  const suffix = hiddenCount ? ` +${hiddenCount}` : '';
+
+  return `Stack ${count}: ${visibleLabels.join(', ')}${suffix}`;
+}
+
+function stackWindowLabel(window: any) {
+  const rawLabel =
+    String(window?.exe ?? '').replace(/\.exe$/i, '') ||
+    window?.class ||
+    window?.title ||
+    'Window';
+
+  return compactTitle(rawLabel, 'Window');
 }
 
 function komorebiLayoutIcon(layout: string | null | undefined) {
