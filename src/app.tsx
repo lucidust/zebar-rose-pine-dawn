@@ -9,6 +9,15 @@ import {
   onMount,
 } from 'solid-js';
 import { useProviderOutput } from './app/use-provider-output';
+import { BarShell } from './components/bar/BarShell';
+import {
+  ControlActionChip,
+  IconBadge,
+  StatusIconChip,
+  SummaryChip,
+  WorkspaceStripChip,
+  type Tone,
+} from './components/chips';
 import { icon, networkIcon, weatherIcon } from './icons';
 import type { Variant } from './providers';
 import {
@@ -32,7 +41,6 @@ type AppProps = {
   includeLiveSystemStats: boolean;
 };
 
-type Tone = 'love' | 'gold' | 'rose' | 'pine' | 'foam' | 'iris' | 'muted';
 type FocusWindowState = 'none' | 'tiling' | 'floating' | 'fullscreen' | 'minimized';
 type KomorebiFocusState =
   | 'empty'
@@ -203,35 +211,7 @@ export function App(props: AppProps) {
     );
   }
 
-  return (
-    <div class="bar-shell">
-      <div class="bar-rail" aria-hidden="true" />
-      <div class="bar-grid">
-        <div class="zone zone-left cluster-host">{renderLeftZone()}</div>
-        <div class="zone zone-right cluster-host">{renderRightZone()}</div>
-      </div>
-    </div>
-  );
-}
-
-function SummaryChip(props: {
-  class?: string;
-  iconNode: any;
-  label: string;
-  detail: string;
-  tone: Tone;
-}) {
-  return (
-    <div class={`chip chip-summary ${props.class ?? ''}`.trim()}>
-      <div class="chip-body chip-body-fill">
-        <IconBadge node={props.iconNode} tone={props.tone} />
-        <div class="stacked">
-          <span class="chip-label">{props.label}</span>
-          <span class="chip-detail">{props.detail}</span>
-        </div>
-      </div>
-    </div>
-  );
+  return <BarShell left={renderLeftZone()} right={renderRightZone()} />;
 }
 
 function DateTimeChip(props: { value: string }) {
@@ -363,16 +343,6 @@ function KomorebiWorkspaceStrip(props: {
         </For>
       </WorkspaceStripChip>
     </Show>
-  );
-}
-
-function WorkspaceStripChip(props: { children: any }) {
-  return (
-    <div class="chip chip-left-workspaces">
-      <div class="chip-body chip-left-workspaces-body">
-        <div class="workspace-strip">{props.children}</div>
-      </div>
-    </div>
   );
 }
 
@@ -1760,79 +1730,6 @@ function TrayIconButton(props: { systray: any; trayIcon: any }) {
     >
       <img class="tray-icon" src={props.trayIcon.iconUrl} alt={props.trayIcon.tooltip} />
     </button>
-  );
-}
-
-function ControlActionButton(props: {
-  tone: Tone;
-  title: string;
-  ariaLabel: string;
-  iconNode: any;
-  onClick: () => void;
-  class?: string;
-}) {
-  return (
-    <button
-      class={`chip-action ${props.class ?? ''}`.trim()}
-      type="button"
-      title={props.title}
-      aria-label={props.ariaLabel}
-      onClick={props.onClick}
-    >
-      <IconBadge node={props.iconNode} tone={props.tone} />
-    </button>
-  );
-}
-
-function ControlActionChip(props: {
-  tone: Tone;
-  title: string;
-  ariaLabel: string;
-  iconNode: any;
-  onClick: () => void;
-  class?: string;
-}) {
-  return (
-    <div class={`chip chip-left-control ${props.class ?? ''}`.trim()}>
-      <div class="chip-body chip-left-control-body">
-        <ControlActionButton
-          tone={props.tone}
-          title={props.title}
-          ariaLabel={props.ariaLabel}
-          iconNode={props.iconNode}
-          onClick={props.onClick}
-        />
-      </div>
-    </div>
-  );
-}
-
-function StatusIconChip(props: {
-  tone: Tone;
-  title: string;
-  ariaLabel: string;
-  iconNode: any;
-  class?: string;
-}) {
-  return (
-    <div
-      class={`chip chip-left-control ${props.class ?? ''}`.trim()}
-      title={props.title}
-      aria-label={props.ariaLabel}
-      role="status"
-    >
-      <div class="chip-body chip-left-control-body">
-        <IconBadge node={props.iconNode} tone={props.tone} />
-      </div>
-    </div>
-  );
-}
-
-function IconBadge(props: { node: any; tone: Tone; class?: string }) {
-  return (
-    <span class={`icon-badge tone-${props.tone} ${props.class ?? ''}`.trim()}>
-      {props.node}
-    </span>
   );
 }
 
