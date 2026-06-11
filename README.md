@@ -31,7 +31,13 @@ GlazeWM integration:
 - Focused workspace and window context.
 - Binding mode, pause state, and tiling direction controls.
 
-On non-primary monitors, live system stats are hidden to keep secondary bars lighter. This currently affects CPU/memory and network traffic.
+Komorebi integration:
+
+- Workspace buttons.
+- Focused workspace, container, stack, and window context.
+- Layout status and layout cycling, excluding scrolling layout.
+
+On non-primary monitors, live system stats are hidden to keep secondary bars lighter. This affects CPU/memory and network traffic.
 
 ## Variants
 
@@ -39,9 +45,7 @@ This pack ships three widget variants:
 
 - `vanilla`: shared system status bar without WM-specific controls.
 - `with-glazewm`: GlazeWM workspaces and WM status controls.
-- `with-komorebi`: builds successfully, but needs tester feedback before it is treated as fully verified.
-
-`vanilla` and `with-glazewm` are the currently supported variants.
+- `with-komorebi`: Komorebi workspaces, layout status, and focused container/window context.
 
 ## Install
 

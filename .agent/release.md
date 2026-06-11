@@ -14,8 +14,7 @@ This document is the maintainer and agent checklist for releasing this Zebar pac
 ## Pre-Release Checklist
 
 - Confirm `zpack.json` is the canonical pack contract and includes the intended `name`, `version`, `repositoryUrl`, widgets, privileges, presets, and preview images.
-- Keep `vanilla` and `with-glazewm` documented as supported variants.
-- Keep `with-komorebi` documented as builds successfully but needing tester feedback until it is runtime-tested.
+- Keep `vanilla`, `with-glazewm`, and `with-komorebi` documented as shipped variants.
 - Keep `resources/preview-image-1.png` as the marketplace preview unless the user supplies a replacement.
 - Confirm `.env` and other secret-bearing env files are ignored; commit only `.env.example`.
 - Never commit `ZEBAR_PUBLISH_TOKEN`.
@@ -37,8 +36,8 @@ Runtime validation policy:
 
 - Daily development can use the local custom widget from this repository.
 - Release validation should also install or load the release candidate separately from the marketplace/custom-pack path when practical.
-- Verify `vanilla` and `with-glazewm` before publishing.
-- Do not claim `with-komorebi` as fully verified until it has been tested with Komorebi.
+- Verify `vanilla`, `with-glazewm`, and `with-komorebi` before publishing when their host integrations are available.
+- If a host integration is unavailable during release validation, document the skipped variant and reason in the release notes.
 
 ## Publish Steps
 

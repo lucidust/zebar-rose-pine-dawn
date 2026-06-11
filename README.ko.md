@@ -31,7 +31,13 @@ GlazeWM 연동:
 - 현재 workspace와 focused window 정보
 - binding mode, pause 상태, tiling direction 제어
 
-보조 모니터에서는 바를 가볍게 유지하기 위해 live system stats를 숨깁니다. 현재는 CPU/메모리와 네트워크 트래픽이 여기에 해당합니다.
+Komorebi 연동:
+
+- workspace 버튼
+- 현재 workspace, container, stack, focused window 정보
+- layout 상태 표시와 layout 순환 제어. 단, scrolling layout은 제외
+
+보조 모니터에서는 바를 가볍게 유지하기 위해 live system stats를 숨깁니다. CPU/메모리와 네트워크 트래픽이 여기에 해당합니다.
 
 ## 변형
 
@@ -39,9 +45,7 @@ GlazeWM 연동:
 
 - `vanilla`: WM 연동 없이 공통 시스템 상태만 표시
 - `with-glazewm`: GlazeWM workspace와 WM 상태 제어 포함
-- `with-komorebi`: 빌드는 통과하지만, 정식 지원 전 사용자 피드백이 필요함
-
-현재 정식 지원 대상은 `vanilla`와 `with-glazewm`입니다.
+- `with-komorebi`: Komorebi workspace, layout 상태, focused container/window 정보 포함
 
 ## 설치
 
