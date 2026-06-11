@@ -51,6 +51,11 @@ type GlazeIpcMessage = {
 
 const FOCUS_STATE_POLL_INTERVAL = 500;
 const KOMOREBI_STATE_POLL_INTERVAL = 750;
+const KOMOREBI_STATE_CHANNEL = 'zebar-rose-pine-dawn-komorebi-state';
+const KOMOREBI_STATE_DISCOVERY_WINDOW = 220;
+const KOMOREBI_STATE_CLAIM_WINDOW = 80;
+const KOMOREBI_STATE_LEADER_TIMEOUT = 2_500;
+const KOMOREBI_STATE_HEARTBEAT_INTERVAL = 1_000;
 const KOMOREBI_LAYOUT_CYCLE = [
   { state: 'bsp', command: 'bsp' },
   { state: 'columns', command: 'columns' },
@@ -61,6 +66,19 @@ const KOMOREBI_LAYOUT_CYCLE = [
   { state: 'grid', command: 'grid' },
   { state: 'right_main_vertical_stack', command: 'right-main-vertical-stack' },
 ] as const;
+
+type KomorebiStateChannelMessage =
+  | {
+      type: 'hello' | 'claim' | 'heartbeat' | 'refresh-request';
+      instanceId: string;
+      timestamp: number;
+    }
+  | {
+      type: 'state';
+      instanceId: string;
+      timestamp: number;
+      rawState: unknown;
+    };
 
 type NightLightStatus = {
   enabled: boolean;
@@ -878,10 +896,51 @@ function usePolledKomorebiState(
   baseKomorebi: () => any,
   refreshTrigger: () => number,
 ) {
+  const instanceId = createKomorebiStateInstanceId();
+  const [rawState, setRawState] = createSignal<unknown | undefined>(undefined);
   const [state, setState] = createSignal<any | undefined>(undefined);
+  let channel: BroadcastChannel | null = null;
   let disposed = false;
+  let isLeader = false;
   let queryInFlight = false;
+  let candidates = new Set<string>();
+  let knownLeaderId: string | null = null;
+  let lastLeaderMessageAt = 0;
+  let discoveryTimer: number | undefined;
+  let claimTimer: number | undefined;
+  let heartbeatTimer: number | undefined;
   let intervalId: number | undefined;
+  let leaderTimeoutTimer: number | undefined;
+
+  const postChannelMessage = (message: KomorebiStateChannelMessage) => {
+    channel?.postMessage(message);
+  };
+
+  const clearLeaderTimers = () => {
+    window.clearInterval(intervalId);
+    window.clearInterval(heartbeatTimer);
+    intervalId = undefined;
+    heartbeatTimer = undefined;
+  };
+
+  const clearClaimTimer = () => {
+    window.clearTimeout(claimTimer);
+    claimTimer = undefined;
+  };
+
+  const sendHeartbeat = () => {
+    postChannelMessage({
+      type: 'heartbeat',
+      instanceId,
+      timestamp: Date.now(),
+    });
+  };
+
+  const applyRawState = (nextRawState: unknown | undefined) => {
+    if (!disposed) {
+      setRawState(nextRawState);
+    }
+  };
 
   const refreshState = async () => {
     if (!enabled || disposed || queryInFlight) {
@@ -897,47 +956,352 @@ function usePolledKomorebiState(
         throw new Error(result.stderr || `exit code ${result.code}`);
       }
 
-      const rawState = JSON.parse(result.stdout.trim());
-      const normalizedState = normalizeKomorebiState(
-        rawState,
-        baseKomorebi(),
-      );
+      const nextRawState = JSON.parse(result.stdout.trim());
 
-      if (!disposed && normalizedState) {
-        setState(normalizedState);
+      if (!disposed) {
+        applyRawState(nextRawState);
+        postChannelMessage({
+          type: 'state',
+          instanceId,
+          timestamp: Date.now(),
+          rawState: nextRawState,
+        });
       }
     } catch (error) {
       if (!disposed) {
-        setState(undefined);
+        applyRawState(undefined);
+        postChannelMessage({
+          type: 'state',
+          instanceId,
+          timestamp: Date.now(),
+          rawState: undefined,
+        });
       }
     } finally {
       queryInFlight = false;
     }
   };
 
-  onMount(() => {
-    if (!enabled) {
+  const becomeFollower = (leaderId: string) => {
+    isLeader = false;
+    knownLeaderId = leaderId;
+    lastLeaderMessageAt = Date.now();
+    clearClaimTimer();
+    clearLeaderTimers();
+  };
+
+  const becomeLeader = () => {
+    if (disposed) {
       return;
     }
 
+    isLeader = true;
+    knownLeaderId = instanceId;
+    lastLeaderMessageAt = Date.now();
+    clearClaimTimer();
+    clearLeaderTimers();
+    sendHeartbeat();
     void refreshState();
     intervalId = window.setInterval(
       () => void refreshState(),
       KOMOREBI_STATE_POLL_INTERVAL,
     );
+    heartbeatTimer = window.setInterval(
+      sendHeartbeat,
+      KOMOREBI_STATE_HEARTBEAT_INTERVAL,
+    );
+  };
 
-    onCleanup(() => {
-      disposed = true;
-      window.clearInterval(intervalId);
+  const startLeaderClaim = () => {
+    if (disposed || claimTimer != null) {
+      return;
+    }
+
+    postChannelMessage({
+      type: 'claim',
+      instanceId,
+      timestamp: Date.now(),
     });
+    claimTimer = window.setTimeout(() => {
+      claimTimer = undefined;
+      becomeLeader();
+    }, KOMOREBI_STATE_CLAIM_WINDOW);
+  };
+
+  const finishElection = () => {
+    discoveryTimer = undefined;
+
+    if (disposed) {
+      return;
+    }
+
+    const leaderId = [...candidates].sort()[0] ?? instanceId;
+
+    if (leaderId === instanceId) {
+      startLeaderClaim();
+    } else {
+      becomeFollower(leaderId);
+    }
+  };
+
+  const startElection = () => {
+    if (disposed || discoveryTimer != null) {
+      return;
+    }
+
+    isLeader = false;
+    knownLeaderId = null;
+    lastLeaderMessageAt = 0;
+    clearClaimTimer();
+    clearLeaderTimers();
+    candidates = new Set([instanceId]);
+    postChannelMessage({
+      type: 'hello',
+      instanceId,
+      timestamp: Date.now(),
+    });
+    discoveryTimer = window.setTimeout(
+      finishElection,
+      KOMOREBI_STATE_DISCOVERY_WINDOW,
+    );
+  };
+
+  const handleLeaderMessage = (leaderId: string) => {
+    if (leaderId === instanceId) {
+      return true;
+    }
+
+    candidates.add(leaderId);
+
+    if (isLeader) {
+      if (leaderId < instanceId) {
+        becomeFollower(leaderId);
+        return true;
+      }
+
+      sendHeartbeat();
+      return false;
+    }
+
+    if (claimTimer != null) {
+      if (leaderId < instanceId) {
+        becomeFollower(leaderId);
+        return true;
+      }
+
+      return false;
+    }
+
+    if (discoveryTimer != null) {
+      return true;
+    }
+
+    const now = Date.now();
+    const currentLeaderIsAlive =
+      knownLeaderId != null &&
+      now - lastLeaderMessageAt <= KOMOREBI_STATE_LEADER_TIMEOUT;
+
+    if (currentLeaderIsAlive && knownLeaderId < leaderId) {
+      return false;
+    }
+
+    knownLeaderId = leaderId;
+    lastLeaderMessageAt = now;
+    return true;
+  };
+
+  const handleClaimMessage = (claimantId: string) => {
+    if (claimantId === instanceId) {
+      return;
+    }
+
+    candidates.add(claimantId);
+
+    if (discoveryTimer != null) {
+      return;
+    }
+
+    if (isLeader) {
+      if (claimantId < instanceId) {
+        becomeFollower(claimantId);
+        return;
+      }
+
+      sendHeartbeat();
+      return;
+    }
+
+    if (claimTimer != null) {
+      if (claimantId < instanceId) {
+        becomeFollower(claimantId);
+      }
+
+      return;
+    }
+
+    const now = Date.now();
+    const currentLeaderIsAlive =
+      knownLeaderId != null &&
+      now - lastLeaderMessageAt <= KOMOREBI_STATE_LEADER_TIMEOUT;
+
+    if (currentLeaderIsAlive && knownLeaderId < claimantId) {
+      return;
+    }
+
+    knownLeaderId = claimantId;
+    lastLeaderMessageAt = now;
+  };
+
+  const handleChannelMessage = (message: unknown) => {
+    if (!isKomorebiStateChannelMessage(message) || disposed) {
+      return;
+    }
+
+    if (message.type === 'hello') {
+      if (message.instanceId !== instanceId) {
+        candidates.add(message.instanceId);
+      }
+
+      if (isLeader) {
+        sendHeartbeat();
+      }
+
+      return;
+    }
+
+    if (message.type === 'claim') {
+      handleClaimMessage(message.instanceId);
+      return;
+    }
+
+    if (message.type === 'refresh-request') {
+      if (isLeader && message.instanceId !== instanceId) {
+        void refreshState();
+      }
+
+      return;
+    }
+
+    const shouldAcceptLeader = handleLeaderMessage(message.instanceId);
+
+    if (message.type === 'state' && shouldAcceptLeader) {
+      lastLeaderMessageAt = Date.now();
+      applyRawState(message.rawState);
+    }
+  };
+
+  const checkLeaderTimeout = () => {
+    if (
+      disposed ||
+      isLeader ||
+      discoveryTimer != null ||
+      claimTimer != null ||
+      Date.now() - lastLeaderMessageAt <= KOMOREBI_STATE_LEADER_TIMEOUT
+    ) {
+      return;
+    }
+
+    startElection();
+  };
+
+  const startLegacyPolling = () => {
+    isLeader = true;
+    void refreshState();
+    intervalId = window.setInterval(
+      () => void refreshState(),
+      KOMOREBI_STATE_POLL_INTERVAL,
+    );
+  };
+
+  createEffect(() => {
+    const currentRawState = rawState();
+    const currentBaseKomorebi = baseKomorebi();
+
+    if (!enabled || currentRawState == null) {
+      setState(undefined);
+      return;
+    }
+
+    const normalizedState = normalizeKomorebiState(
+      currentRawState,
+      currentBaseKomorebi,
+    );
+    setState(normalizedState ?? undefined);
   });
 
   createEffect(() => {
     refreshTrigger();
-    void refreshState();
+
+    if (!enabled || disposed) {
+      return;
+    }
+
+    if (isLeader) {
+      void refreshState();
+      return;
+    }
+
+    postChannelMessage({
+      type: 'refresh-request',
+      instanceId,
+      timestamp: Date.now(),
+    });
+  });
+
+  onMount(() => {
+    if (!enabled) {
+      return;
+    }
+
+    if (typeof BroadcastChannel === 'undefined') {
+      startLegacyPolling();
+    } else {
+      channel = new BroadcastChannel(KOMOREBI_STATE_CHANNEL);
+      channel.addEventListener('message', event =>
+        handleChannelMessage(event.data),
+      );
+      leaderTimeoutTimer = window.setInterval(checkLeaderTimeout, 500);
+      startElection();
+    }
+
+    onCleanup(() => {
+      disposed = true;
+      window.clearTimeout(discoveryTimer);
+      clearClaimTimer();
+      window.clearInterval(leaderTimeoutTimer);
+      clearLeaderTimers();
+      channel?.close();
+      channel = null;
+    });
   });
 
   return state;
+}
+
+function createKomorebiStateInstanceId() {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+  );
+}
+
+function isKomorebiStateChannelMessage(
+  message: unknown,
+): message is KomorebiStateChannelMessage {
+  if (!message || typeof message !== 'object') {
+    return false;
+  }
+
+  const candidate = message as Partial<KomorebiStateChannelMessage>;
+
+  return (
+    typeof candidate.type === 'string' &&
+    typeof candidate.instanceId === 'string' &&
+    typeof candidate.timestamp === 'number' &&
+    ['hello', 'claim', 'heartbeat', 'refresh-request', 'state'].includes(
+      candidate.type,
+    )
+  );
 }
 
 function usePolledGlazeFocusedContainer(enabled: boolean) {
