@@ -4,6 +4,7 @@
   "description": "Rose Pine Dawn top bar pack for Zebar",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
