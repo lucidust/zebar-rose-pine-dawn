@@ -85,28 +85,27 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
     () => props.komorebi,
     komorebiRefreshNonce,
   );
-  const komorebi = createMemo(() =>
-    mergeKomorebiProviderState(props.komorebi, polledKomorebi()),
+  const focusKomorebi = createMemo(() =>
+    createKomorebiFocusOverlay(props.komorebi, polledKomorebi()),
   );
   const refreshKomorebiState = () => setKomorebiRefreshNonce(value => value + 1);
 
   return (
-    <Show when={komorebi()}>
+    <Show when={props.komorebi}>
       <div class="chip chip-left-context segmented-cluster">
         <KomorebiWorkspaceStrip
-          komorebi={komorebi()}
-          onRequestStateRefresh={refreshKomorebiState}
+          komorebi={props.komorebi}
         />
         <KomorebiLayoutControlChip
-          komorebi={komorebi()}
+          komorebi={props.komorebi}
           onRequestStateRefresh={refreshKomorebiState}
         />
-        <KomorebiFocusStateChip komorebi={komorebi()} />
+        <KomorebiFocusStateChip komorebi={focusKomorebi()} />
         <SummaryChip
           class="responsive-hide-sm chip-context-summary"
-          iconNode={komorebiFocusedSummaryIcon(komorebi())}
-          label={komorebiFocusedSummaryLabel(komorebi())}
-          detail={komorebiFocusedSummaryDetail(komorebi())}
+          iconNode={komorebiFocusedSummaryIcon(focusKomorebi())}
+          label={komorebiFocusedSummaryLabel(focusKomorebi())}
+          detail={komorebiFocusedSummaryDetail(focusKomorebi())}
           tone="foam"
         />
       </div>
@@ -116,7 +115,6 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
 
 function KomorebiWorkspaceStrip(props: {
   komorebi: any;
-  onRequestStateRefresh: () => void;
 }) {
   const komorebiWorkspaceTitle = (workspace: any, workspaceIndex: number) =>
     `${komorebiWorkspaceLabel(workspace, workspaceIndex)} workspace ${
@@ -141,13 +139,8 @@ function KomorebiWorkspaceStrip(props: {
                   : ''
               }`}
               style={{ '--workspace-accent': workspaceAccentVar(index()) }}
-              title={komorebiWorkspaceTitle(workspace, index())}
               aria-label={komorebiWorkspaceTitle(workspace, index())}
-              onClick={() =>
-                void focusKomorebiWorkspace(props.komorebi, index()).then(
-                  props.onRequestStateRefresh,
-                )
-              }
+              onClick={() => void focusKomorebiWorkspace(props.komorebi, index())}
             >
               <span class="workspace-dot" />
             </button>
@@ -494,7 +487,7 @@ function normalizeKomorebiLayerValue(rawLayer: any) {
     .toLowerCase();
 }
 
-function mergeKomorebiProviderState(providerState: any, polledState: any) {
+function createKomorebiFocusOverlay(providerState: any, polledState: any) {
   if (!providerState) {
     return polledState;
   }
@@ -503,87 +496,34 @@ function mergeKomorebiProviderState(providerState: any, polledState: any) {
     return providerState;
   }
 
-  const allMonitors = Array.isArray(providerState.allMonitors)
-    ? providerState.allMonitors.map((monitor: any) =>
-        enrichKomorebiMonitor(
-          monitor,
-          findMatchingKomorebiMonitor(polledState.allMonitors, monitor),
-        ),
+  const workspaceIndex = komorebiBarWorkspaceIndex(providerState);
+  const providerWorkspace = komorebiBarWorkspace(providerState);
+  const polledMonitor =
+    findMatchingKomorebiMonitor(polledState.allMonitors, providerState.currentMonitor) ??
+    polledState.currentMonitor;
+  const polledWorkspace =
+    polledMonitor?.workspaces?.[workspaceIndex] ??
+    polledState.currentWorkspaces?.[workspaceIndex] ??
+    polledState.displayedWorkspace;
+  const overlayWorkspace = enrichKomorebiWorkspace(
+    providerWorkspace,
+    polledWorkspace,
+  );
+  const currentWorkspaces = Array.isArray(providerState.currentWorkspaces)
+    ? providerState.currentWorkspaces.map((workspace: any, index: number) =>
+        index === workspaceIndex ? overlayWorkspace ?? workspace : workspace,
       )
-    : providerState.allMonitors;
-
-  const currentMonitor =
-    findMatchingKomorebiMonitor(allMonitors, providerState.currentMonitor) ??
-    enrichKomorebiMonitor(
-      providerState.currentMonitor,
-      findMatchingKomorebiMonitor(polledState.allMonitors, providerState.currentMonitor),
-    );
-  const focusedMonitor =
-    findMatchingKomorebiMonitor(allMonitors, providerState.focusedMonitor) ??
-    enrichKomorebiMonitor(
-      providerState.focusedMonitor,
-      findMatchingKomorebiMonitor(polledState.allMonitors, providerState.focusedMonitor),
-    );
-  const currentWorkspaces =
-    currentMonitor?.workspaces ??
-    enrichKomorebiWorkspaceList(
-      providerState.currentWorkspaces,
-      polledState.currentWorkspaces,
-    );
-  const allWorkspaces = Array.isArray(allMonitors)
-    ? allMonitors.flatMap((monitor: any) => monitor.workspaces ?? [])
-    : enrichKomorebiWorkspaceList(
-        providerState.allWorkspaces,
-        polledState.allWorkspaces,
-      );
+    : providerState.currentWorkspaces;
+  const currentMonitor = providerState.currentMonitor
+    ? { ...providerState.currentMonitor, workspaces: currentWorkspaces }
+    : providerState.currentMonitor;
 
   return {
     ...providerState,
-    allMonitors,
     currentMonitor,
-    focusedMonitor,
     currentWorkspaces,
-    allWorkspaces,
-    displayedWorkspace:
-      currentMonitor?.workspaces?.[currentMonitor.focusedWorkspaceIndex] ??
-      enrichKomorebiWorkspace(
-        providerState.displayedWorkspace,
-        polledState.displayedWorkspace,
-      ),
-    focusedWorkspace:
-      focusedMonitor?.workspaces?.[focusedMonitor.focusedWorkspaceIndex] ??
-      enrichKomorebiWorkspace(
-        providerState.focusedWorkspace,
-        polledState.focusedWorkspace,
-      ),
+    displayedWorkspace: overlayWorkspace ?? providerState.displayedWorkspace,
   };
-}
-
-function enrichKomorebiMonitor(providerMonitor: any, polledMonitor: any) {
-  if (!providerMonitor) {
-    return providerMonitor;
-  }
-
-  return {
-    ...providerMonitor,
-    workspaces: enrichKomorebiWorkspaceList(
-      providerMonitor.workspaces,
-      polledMonitor?.workspaces,
-    ),
-  };
-}
-
-function enrichKomorebiWorkspaceList(
-  providerWorkspaces: any[] | undefined,
-  polledWorkspaces: any[] | undefined,
-) {
-  if (!Array.isArray(providerWorkspaces)) {
-    return providerWorkspaces;
-  }
-
-  return providerWorkspaces.map((workspace, index) =>
-    enrichKomorebiWorkspace(workspace, polledWorkspaces?.[index]),
-  );
 }
 
 function enrichKomorebiWorkspace(providerWorkspace: any, polledWorkspace: any) {

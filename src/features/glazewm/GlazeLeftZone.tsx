@@ -123,7 +123,6 @@ function GlazeWorkspaceStrip(props: { glazewm: any }) {
               onClick={() =>
                 props.glazewm.runCommand(`focus --workspace ${workspace.name}`)
               }
-              title={glazeWorkspaceLabel(workspace)}
               aria-label={glazeWorkspaceLabel(workspace)}
             >
               <span class="workspace-dot" />
