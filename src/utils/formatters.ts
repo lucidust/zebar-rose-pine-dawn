@@ -129,3 +129,36 @@ export function komorebiWorkspaceDetail(komorebi: any) {
 
   return parts.join(' · ');
 }
+
+export function komorebiLayoutLabel(layout: string | null | undefined) {
+  if (!layout) {
+    return 'Layout';
+  }
+
+  if (layout.toLowerCase() === 'bsp') {
+    return 'BSP';
+  }
+
+  return layout
+    .replaceAll('_', ' ')
+    .replaceAll('-', ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+}
+
+export function komorebiWindowLabel(window: any, fallback = 'No focus') {
+  if (!window) {
+    return fallback;
+  }
+
+  return compactTitle(window.title, window.exe || window.class || fallback);
+}
+
+export function komorebiWindowDetail(window: any, fallback = '') {
+  if (!window) {
+    return fallback;
+  }
+
+  return compactTitle(window.exe || window.class, fallback || 'Active window');
+}
