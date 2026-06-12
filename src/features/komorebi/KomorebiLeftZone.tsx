@@ -94,7 +94,7 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
           iconNode={komorebiFocusedSummaryIcon(focusKomorebi())}
           label={komorebiFocusedSummaryLabel(focusKomorebi())}
           detail={komorebiFocusedSummaryDetail(focusKomorebi())}
-          tone="foam"
+          tone="iris"
         />
       </div>
     </Show>
