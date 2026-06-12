@@ -4,7 +4,15 @@ Rosé Pine Dawn top bar pack for [Zebar](https://github.com/glzr-io/zebar).
 
 [한국어](./README.ko.md)
 
-![zebar-rose-pine-dawn preview](./resources/preview-image-1.png)
+## Previews
+
+GlazeWM:
+
+![zebar-rose-pine-dawn GlazeWM preview](./resources/preview-image-1.png)
+
+Komorebi:
+
+![zebar-rose-pine-dawn Komorebi preview](./resources/preview-image-2.png)
 
 ## Features
 
@@ -35,7 +43,7 @@ Komorebi integration:
 
 - Workspace buttons.
 - Focused workspace, container, stack, and window context.
-- Layout status and layout cycling, excluding scrolling layout.
+- Layout, pause, tiling, stack, floating, maximized, and monocle focus status.
 
 On non-primary monitors, live system stats are hidden to keep secondary bars lighter. This affects CPU/memory and network traffic.
 
@@ -100,6 +108,19 @@ gaps:
     bottom: '8px'
     left: '8px'
 ```
+
+## Recommended Komorebi Setup
+
+Use the `with-komorebi` variant when Komorebi is running and `komorebic.exe` is available to Zebar. The bar uses Zebar's Komorebi provider for live workspace data and `komorebic.exe state` to enrich focus state across tiling, stack, floating, maximized, and monocle workspaces.
+
+The pack allows only these Komorebi helper commands:
+
+```powershell
+komorebic state
+komorebic focus-monitor-workspace <monitor-index> <workspace-index>
+```
+
+The bar is tuned around the same 50px top region as the GlazeWM variant. Configure Komorebi work area or application gaps separately if you want windows to avoid the bar.
 
 ## Development
 

@@ -4,7 +4,15 @@
 
 [English](./README.md)
 
-![zebar-rose-pine-dawn preview](./resources/preview-image-1.png)
+## 미리보기
+
+GlazeWM:
+
+![zebar-rose-pine-dawn GlazeWM preview](./resources/preview-image-1.png)
+
+Komorebi:
+
+![zebar-rose-pine-dawn Komorebi preview](./resources/preview-image-2.png)
 
 ## 특징
 
@@ -35,7 +43,7 @@ Komorebi 연동:
 
 - workspace 버튼
 - 현재 workspace, container, stack, focused window 정보
-- layout 상태 표시와 layout 순환 제어. 단, scrolling layout은 제외
+- layout, pause, tiling, stack, floating, maximized, monocle focus 상태 표시
 
 보조 모니터에서는 바를 가볍게 유지하기 위해 live system stats를 숨깁니다. CPU/메모리와 네트워크 트래픽이 여기에 해당합니다.
 
@@ -100,6 +108,19 @@ gaps:
     bottom: '8px'
     left: '8px'
 ```
+
+## 권장 Komorebi 설정
+
+Komorebi가 실행 중이고 Zebar에서 `komorebic.exe`를 사용할 수 있을 때 `with-komorebi` variant를 사용하세요. 바는 Zebar의 Komorebi provider로 live workspace 데이터를 받고, `komorebic.exe state`로 tiling, stack, floating, maximized, monocle workspace의 focus 상태를 보강합니다.
+
+이 팩은 아래 Komorebi helper 명령만 허용합니다.
+
+```powershell
+komorebic state
+komorebic focus-monitor-workspace <monitor-index> <workspace-index>
+```
+
+바는 GlazeWM variant와 같은 50px 상단 영역을 기준으로 튜닝되어 있습니다. 창이 바를 피해야 한다면 Komorebi work area나 application gap 설정을 별도로 맞추세요.
 
 ## 개발
 
