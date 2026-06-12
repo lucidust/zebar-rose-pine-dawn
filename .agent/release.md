@@ -68,6 +68,49 @@ zebar publish `
 
 8. Confirm the marketplace entry, preview image, metadata, and install behavior.
 
+## Publish Troubleshooting Notes
+
+Use the official `zebar publish` CLI flow above first. The notes below are
+only for diagnosing publish attempts that appear to finish locally but do not
+show up in the marketplace.
+
+Marketplace state can be checked through the same backend endpoint used by the
+Zebar settings UI. Replace the published ID if the pack owner/name changes:
+
+```powershell
+$encodedInput = '%7B%22json%22%3A%7B%22id%22%3A%22lucidust.zebar-rose-pine-dawn%22%7D%7D'
+$url = "https://api.glzr.io/v1/trpc/widgetPack.getByPublishedId?input=$encodedInput"
+$pack = ((Invoke-WebRequest -UseBasicParsing $url).Content | ConvertFrom-Json).result.data.json
+$pack | Select-Object publishedId, latestVersion, updatedAt, tarballUrl
+$pack.versions | Select-Object version, commitSha, releaseUrl, createdAt
+```
+
+If `latestVersion` is still the previous version and the new version is absent
+from `versions`, treat the publish as not landed rather than waiting for a UI
+cache refresh. The marketplace page displays this API's `latestVersion`.
+
+Known Windows/Scoop observations from the `v0.3.0` publish:
+
+- The Scoop shim and installed Zebar binary were both Windows GUI subsystem
+  executables. Direct PowerShell invocation can return an exit code before
+  stdout is fully attached/flushed.
+- A failed direct invocation produced a Rust panic similar to
+  `failed printing to stdout: The pipe is being closed` while printing the file
+  list before upload.
+- `Start-Process -ArgumentList @(..., '--release-notes', 'text with spaces')`
+  can split the release notes into separate CLI arguments. If using
+  `Start-Process` for diagnostics, pass a correctly quoted single argument
+  string or use `.NET` `System.Diagnostics.ProcessStartInfo.ArgumentList`.
+- A real publish must still be confirmed through the marketplace API after the
+  command exits; do not infer success from local exit behavior alone.
+
+If the CLI repeatedly fails before the marketplace is updated, inspect the
+current Zebar upstream `packages/desktop/src/publish.rs` before using any
+manual reproduction. Any direct API upload should mirror the official CLI
+payload (`packConfig`, tarball, `commitSha`, `releaseNotes`, `releaseUrl`) and
+should be treated as a maintainer-approved fallback, not the default release
+path.
+
 ## Secret Handling
 
 - `.env` may exist locally for convenience and may contain `ZEBAR_PUBLISH_TOKEN`.
