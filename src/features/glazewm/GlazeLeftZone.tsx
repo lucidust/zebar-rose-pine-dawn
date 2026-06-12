@@ -326,31 +326,31 @@ function focusWindowStateMetadata(state: FocusWindowState): {
       return {
         icon: 'custom-focus-tiling',
         title: 'Focused Window Tiling',
-        tone: 'muted',
+        tone: 'iris',
       };
     case 'floating':
       return {
         icon: 'custom-focus-floating',
         title: 'Focused Window Floating',
-        tone: 'pine',
+        tone: 'iris',
       };
     case 'fullscreen':
       return {
         icon: 'custom-focus-fullscreen',
         title: 'Focused Window Fullscreen',
-        tone: 'foam',
+        tone: 'iris',
       };
     case 'minimized':
       return {
         icon: 'custom-focus-minimized',
         title: 'Focused Window Minimized',
-        tone: 'rose',
+        tone: 'iris',
       };
     case 'none':
       return {
         icon: 'custom-focus-none',
         title: 'Workspace Focus Active',
-        tone: 'muted',
+        tone: 'iris',
       };
   }
 }

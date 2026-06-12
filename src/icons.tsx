@@ -75,9 +75,17 @@ const COLUMNS_2: SvgNode = [
   ['path', { d: 'M12 3v18' }],
 ];
 
-const COPY_RECTANGLE: SvgNode = [
-  ['path', { d: 'M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z' }],
-  ['path', { d: 'M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2' }],
+const FLOATING_WINDOW: SvgNode = [
+  ['path', { d: 'M4 5a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-10' }],
+  ['path', { d: 'M7 6h.01' }],
+  ['path', { d: 'M10 6h.01' }],
+  ['path', { d: 'M12 11a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v7a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1v-7' }],
+];
+
+const STACK_LAYERS: SvgNode = [
+  ['path', { d: 'M12 4l8 4l-8 4l-8 -4l8 -4' }],
+  ['path', { d: 'M4 12l8 4l8 -4' }],
+  ['path', { d: 'M4 16l8 4l8 -4' }],
 ];
 
 const DEVICE_DESKTOP_ANALYTICS: SvgNode = [
@@ -226,13 +234,15 @@ function renderIcon(nodes: SvgNode, extraClass = ''): JSX.Element {
 export function icon(name: string, extraClass = ''): JSX.Element {
   switch (name) {
     case 'custom-focus-floating':
-      return renderIcon(COPY_RECTANGLE, extraClass);
+      return renderIcon(FLOATING_WINDOW, extraClass);
     case 'custom-focus-fullscreen':
       return renderIcon(ARROWS_MAXIMIZE, extraClass);
     case 'custom-focus-minimized':
       return renderIcon(MINUS_RECTANGLE, extraClass);
     case 'custom-focus-none':
       return renderIcon(APP_WINDOW, extraClass);
+    case 'custom-focus-stack':
+      return renderIcon(STACK_LAYERS, extraClass);
     case 'custom-focus-tiling':
       return renderIcon(LAYOUT_GRID, extraClass);
     case 'custom-metrics':

@@ -9,7 +9,6 @@ import {
   onMount,
 } from 'solid-js';
 import {
-  ControlActionChip,
   StatusIconChip,
   SummaryChip,
   WorkspaceStripChip,
@@ -41,16 +40,6 @@ const KOMOREBI_STATE_DISCOVERY_WINDOW = 220;
 const KOMOREBI_STATE_CLAIM_WINDOW = 80;
 const KOMOREBI_STATE_LEADER_TIMEOUT = 2_500;
 const KOMOREBI_STATE_HEARTBEAT_INTERVAL = 1_000;
-const KOMOREBI_LAYOUT_CYCLE = [
-  { state: 'bsp', command: 'bsp' },
-  { state: 'columns', command: 'columns' },
-  { state: 'rows', command: 'rows' },
-  { state: 'vertical_stack', command: 'vertical-stack' },
-  { state: 'horizontal_stack', command: 'horizontal-stack' },
-  { state: 'ultrawide_vertical_stack', command: 'ultrawide-vertical-stack' },
-  { state: 'grid', command: 'grid' },
-  { state: 'right_main_vertical_stack', command: 'right-main-vertical-stack' },
-] as const;
 
 type KomorebiStateChannelMessage =
   | {
@@ -79,16 +68,15 @@ function isKomorebiWorkspaceOccupied(workspace: any) {
 }
 
 export function KomorebiLeftZone(props: { komorebi: any }) {
-  const [komorebiRefreshNonce, setKomorebiRefreshNonce] = createSignal(0);
   const polledKomorebi = usePolledKomorebiState(
     true,
     () => props.komorebi,
-    komorebiRefreshNonce,
+    () => 0,
   );
   const focusKomorebi = createMemo(() =>
     createKomorebiFocusOverlay(props.komorebi, polledKomorebi()),
   );
-  const refreshKomorebiState = () => setKomorebiRefreshNonce(value => value + 1);
+  const isPaused = () => Boolean(polledKomorebi()?.isPaused);
 
   return (
     <Show when={props.komorebi}>
@@ -96,9 +84,9 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
         <KomorebiWorkspaceStrip
           komorebi={props.komorebi}
         />
-        <KomorebiLayoutControlChip
+        <KomorebiLayoutStatusChip
           komorebi={props.komorebi}
-          onRequestStateRefresh={refreshKomorebiState}
+          isPaused={isPaused()}
         />
         <KomorebiFocusStateChip komorebi={focusKomorebi()} />
         <SummaryChip
@@ -151,25 +139,28 @@ function KomorebiWorkspaceStrip(props: {
   );
 }
 
-function KomorebiLayoutControlChip(props: {
+function KomorebiLayoutStatusChip(props: {
   komorebi: any;
-  onRequestStateRefresh: () => void;
+  isPaused: boolean;
 }) {
   const layout = () => komorebiBarWorkspace(props.komorebi)?.layout;
   const layoutLabel = () => komorebiLayoutLabel(layout());
-  const title = () => `${layoutLabel()} Layout Active, cycle layout`;
+  const title = () =>
+    props.isPaused
+      ? `Komorebi Paused, ${layoutLabel()} Layout Active`
+      : `${layoutLabel()} Layout Active`;
 
   return (
-    <ControlActionChip
-      tone="iris"
+    <StatusIconChip
+      class="chip-layout-state"
+      tone={props.isPaused ? 'gold' : 'iris'}
       title={title()}
       ariaLabel={title()}
-      onClick={() =>
-        void cycleKomorebiLayout(props.komorebi).then(
-          props.onRequestStateRefresh,
-        )
+      iconNode={
+        props.isPaused
+          ? icon('nf-md-pause_circle')
+          : komorebiLayoutIcon(layout())
       }
-      iconNode={komorebiLayoutIcon(layout())}
     />
   );
 }
@@ -208,20 +199,6 @@ async function runKomorebic(args: string[]) {
   }
 }
 
-async function cycleKomorebiLayout(komorebi: any) {
-  const workspaceIndex = komorebiBarWorkspaceIndex(komorebi);
-  const nextLayout = nextKomorebiLayoutCommand(
-    komorebiBarWorkspace(komorebi)?.layout,
-  );
-
-  await runKomorebic([
-    'workspace-layout',
-    String(komorebiCurrentMonitorIndex(komorebi)),
-    String(workspaceIndex),
-    nextLayout,
-  ]);
-}
-
 function focusKomorebiWorkspace(komorebi: any, workspaceIndex: number) {
   const monitorIndex = komorebiCurrentMonitorIndex(komorebi);
 
@@ -230,18 +207,6 @@ function focusKomorebiWorkspace(komorebi: any, workspaceIndex: number) {
     String(monitorIndex),
     String(workspaceIndex),
   ]);
-}
-
-function nextKomorebiLayoutCommand(layout: string | null | undefined) {
-  const currentLayoutIndex = KOMOREBI_LAYOUT_CYCLE.findIndex(
-    candidate => candidate.state === normalizeKomorebiLayoutValue(layout),
-  );
-  const nextLayoutIndex =
-    currentLayoutIndex === -1
-      ? 0
-      : (currentLayoutIndex + 1) % KOMOREBI_LAYOUT_CYCLE.length;
-
-  return KOMOREBI_LAYOUT_CYCLE[nextLayoutIndex].command;
 }
 
 function komorebiCurrentMonitorIndex(komorebi: any) {
@@ -339,6 +304,7 @@ function normalizeKomorebiState(rawState: any, baseKomorebi: any) {
     allMonitors,
     focusedMonitor,
     currentMonitor,
+    isPaused: Boolean(rawState?.is_paused ?? rawState?.isPaused),
   };
 }
 
@@ -464,7 +430,10 @@ function normalizeKomorebiLayoutValue(rawLayout: any) {
   const value =
     typeof rawLayout === 'string'
       ? rawLayout
-      : rawLayout?.Default ?? rawLayout?.default ?? rawLayout;
+      : rawLayout?.Default ??
+        rawLayout?.default ??
+        rawLayout?.Custom ??
+        rawLayout?.custom;
 
   if (!value) {
     return null;
@@ -523,6 +492,7 @@ function createKomorebiFocusOverlay(providerState: any, polledState: any) {
     currentMonitor,
     currentWorkspaces,
     displayedWorkspace: overlayWorkspace ?? providerState.displayedWorkspace,
+    isPaused: polledState.isPaused ?? providerState.isPaused,
   };
 }
 
@@ -1148,6 +1118,10 @@ function komorebiFocusedWindow(workspace: any) {
     return workspace.maximizedWindow;
   }
 
+  if (isKomorebiFloatingFocus(workspace)) {
+    return komorebiFocusedFloatingWindow(workspace);
+  }
+
   const monocleWindows = workspace.monocleContainer?.windows ?? [];
   if (monocleWindows.length) {
     return monocleWindows[
@@ -1157,10 +1131,6 @@ function komorebiFocusedWindow(workspace: any) {
         monocleWindows.length - 1,
       )
     ];
-  }
-
-  if (isKomorebiFloatingFocus(workspace)) {
-    return komorebiFocusedFloatingWindow(workspace);
   }
 
   const focusedContainer = komorebiFocusedTilingContainer(workspace);
@@ -1186,12 +1156,12 @@ function komorebiFocusState(workspace: any): KomorebiFocusState {
     return 'maximized';
   }
 
-  if (workspace.monocleContainer?.windows?.length) {
-    return 'monocle';
-  }
-
   if (isKomorebiFloatingFocus(workspace)) {
     return 'floating';
+  }
+
+  if (workspace.monocleContainer?.windows?.length) {
+    return 'monocle';
   }
 
   const focusedContainer = komorebiFocusedTilingContainer(workspace);
@@ -1229,7 +1199,11 @@ function isKomorebiFloatingFocus(workspace: any) {
   const focusedContainerWindowCount =
     komorebiFocusedTilingContainer(workspace)?.windows?.length ?? 0;
 
-  return focusedContainerWindowCount === 0 && workspace?.tile !== false;
+  return (
+    focusedContainerWindowCount === 0 &&
+    !workspace?.monocleContainer?.windows?.length &&
+    workspace?.tile !== false
+  );
 }
 
 function komorebiFocusedFloatingWindow(workspace: any) {
@@ -1257,17 +1231,17 @@ function komorebiFocusStateMetadata(state: KomorebiFocusState): {
       return {
         icon: 'custom-focus-floating',
         title: 'Workspace Tiling Disabled',
-        tone: 'gold',
+        tone: 'iris',
       };
     case 'tiling':
       return {
         icon: 'custom-focus-tiling',
         title: 'Focused Container Tiling',
-        tone: 'muted',
+        tone: 'iris',
       };
     case 'stack':
       return {
-        icon: 'custom-tray',
+        icon: 'custom-focus-stack',
         title: 'Focused Container Stack',
         tone: 'iris',
       };
@@ -1275,25 +1249,25 @@ function komorebiFocusStateMetadata(state: KomorebiFocusState): {
       return {
         icon: 'custom-focus-floating',
         title: 'Floating Window Focus',
-        tone: 'pine',
+        tone: 'iris',
       };
     case 'maximized':
       return {
         icon: 'custom-focus-fullscreen',
         title: 'Focused Window Maximized',
-        tone: 'foam',
+        tone: 'iris',
       };
     case 'monocle':
       return {
         icon: 'custom-focus-fullscreen',
         title: 'Focused Container Monocle',
-        tone: 'foam',
+        tone: 'iris',
       };
     case 'empty':
       return {
         icon: 'custom-focus-none',
         title: 'Workspace Focus Active',
-        tone: 'muted',
+        tone: 'iris',
       };
   }
 }
