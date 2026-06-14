@@ -3,26 +3,26 @@ import * as zebar from 'zebar';
 export type Variant = 'vanilla' | 'with-glazewm' | 'with-komorebi';
 
 type CreateProviderOptions = {
-  includeLiveSystemStats?: boolean;
+  includeSystemStatus?: boolean;
 };
 
 export function createProviders(
   variant: Variant,
   options: CreateProviderOptions = {},
 ) {
-  const includeLiveSystemStats = options.includeLiveSystemStats ?? true;
+  const includeSystemStatus = options.includeSystemStatus ?? true;
   const commonProviders = {
-    audio: { type: 'audio' as const },
-    systray: { type: 'systray' as const },
-    date: {
-      type: 'date' as const,
-      formatting: 'LLL dd ccc HH:mm',
-      locale: 'en-us',
-      refreshInterval: 15_000,
-    },
-    weather: { type: 'weather' as const, refreshInterval: 1_800_000 },
-    ...(includeLiveSystemStats
+    ...(includeSystemStatus
       ? {
+          audio: { type: 'audio' as const },
+          systray: { type: 'systray' as const },
+          date: {
+            type: 'date' as const,
+            formatting: 'LLL dd ccc HH:mm',
+            locale: 'en-us',
+            refreshInterval: 15_000,
+          },
+          weather: { type: 'weather' as const, refreshInterval: 1_800_000 },
           network: { type: 'network' as const, refreshInterval: 4_000 },
           cpu: { type: 'cpu' as const, refreshInterval: 4_000 },
           memory: { type: 'memory' as const, refreshInterval: 4_000 },

@@ -47,7 +47,7 @@ export function GlazeLeftZone(props: { glazewm: any }) {
         <WmControlStrip glazewm={props.glazewm} />
         <FocusWindowStateChip focusedContainer={focusedContainer()} />
         <SummaryChip
-          class="responsive-hide-sm chip-context-summary"
+          class="chip-context-summary"
           iconNode={icon('nf-md-application_outline')}
           label={glazeFocusedContainerLabel(focusedContainer())}
           detail={glazeFocusedContainerDetail(

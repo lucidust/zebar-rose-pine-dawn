@@ -45,7 +45,7 @@ Komorebi integration:
 - Focused workspace, container, stack, and window context.
 - Layout, pause, tiling, stack, floating, maximized, and monocle focus status.
 
-On non-primary monitors, live system stats are hidden to keep secondary bars lighter. This affects CPU/memory and network traffic.
+On non-primary monitors, the right-side system status group is hidden to keep secondary bars lighter.
 
 ## Variants
 

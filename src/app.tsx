@@ -8,7 +8,7 @@ import type { Variant } from './providers';
 type AppProps = {
   providers: any;
   variant: Variant;
-  includeLiveSystemStats: boolean;
+  includeSystemStatus: boolean;
 };
 
 export function App(props: AppProps) {
@@ -32,7 +32,7 @@ export function App(props: AppProps) {
       right={
         <SystemStatusZone
           output={output}
-          includeLiveSystemStats={props.includeLiveSystemStats}
+          includeSystemStatus={props.includeSystemStatus}
         />
       }
     />

@@ -20,7 +20,7 @@ import {
 
 type SystemStatusZoneProps = {
   output: Record<string, any>;
-  includeLiveSystemStats: boolean;
+  includeSystemStatus: boolean;
 };
 
 type NightLightStatus = {
@@ -39,19 +39,17 @@ export function SystemStatusZone(props: SystemStatusZoneProps) {
   const date = () => props.output.date?.formatted ?? '';
 
   return (
-    <div class="chip chip-right-cluster segmented-cluster">
-      <Show when={props.includeLiveSystemStats}>
+    <Show when={props.includeSystemStatus}>
+      <div class="chip chip-right-cluster segmented-cluster">
         <CpuMemoryChip cpu={props.output.cpu} memory={props.output.memory} />
         <NetworkChip network={props.output.network} />
-      </Show>
-      <SystrayStrip systray={props.output.systray} />
-      <AudioChip audio={audio()} audioProvider={props.output.audio} />
-      <Show when={props.includeLiveSystemStats}>
+        <SystrayStrip systray={props.output.systray} />
+        <AudioChip audio={audio()} audioProvider={props.output.audio} />
         <NightLightChip />
-      </Show>
-      <WeatherChip weather={weather()} />
-      <DateTimeChip value={date()} />
-    </div>
+        <WeatherChip weather={weather()} />
+        <DateTimeChip value={date()} />
+      </div>
+    </Show>
   );
 }
 

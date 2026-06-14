@@ -15,11 +15,11 @@ function sameMonitor(a: Monitor, b: Monitor) {
   );
 }
 
-function shouldShowLiveSystemStatsByWidth() {
+function shouldShowSystemStatusByWidth() {
   return !window.matchMedia('(max-width: 1220px)').matches;
 }
 
-export async function shouldShowLiveSystemStats() {
+export async function shouldShowSystemStatus() {
   try {
     const [current, primary] = await Promise.all([
       currentMonitor(),
@@ -33,5 +33,5 @@ export async function shouldShowLiveSystemStats() {
     console.warn('Failed to detect Zebar monitor placement.', error);
   }
 
-  return shouldShowLiveSystemStatsByWidth();
+  return shouldShowSystemStatusByWidth();
 }

@@ -1153,10 +1153,6 @@ button {
 }
 
 @media (max-width: 1460px) {
-  .chip-time {
-    min-width: 164px;
-  }
-
   .responsive-hide-lg {
     display: none;
   }

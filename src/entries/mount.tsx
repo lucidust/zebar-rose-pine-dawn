@@ -1,19 +1,19 @@
 import { render } from 'solid-js/web';
 import { App } from '../app';
-import { shouldShowLiveSystemStats } from '../monitor';
+import { shouldShowSystemStatus } from '../monitor';
 import { createProviders, type Variant } from '../providers';
 import '../styles.css';
 
 export async function mountVariant(variant: Variant) {
-  const includeLiveSystemStats = await shouldShowLiveSystemStats();
-  const providers = createProviders(variant, { includeLiveSystemStats });
+  const includeSystemStatus = await shouldShowSystemStatus();
+  const providers = createProviders(variant, { includeSystemStatus });
 
   render(
     () => (
       <App
         providers={providers}
         variant={variant}
-        includeLiveSystemStats={includeLiveSystemStats}
+        includeSystemStatus={includeSystemStatus}
       />
     ),
     document.getElementById('root')!,

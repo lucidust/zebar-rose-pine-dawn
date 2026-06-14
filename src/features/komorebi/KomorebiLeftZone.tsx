@@ -129,7 +129,7 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
         />
         <KomorebiFocusStateChip workspace={focusWorkspace()} />
         <SummaryChip
-          class="responsive-hide-sm chip-context-summary"
+          class="chip-context-summary"
           iconNode={komorebiFocusedSummaryIcon(focusWorkspace())}
           label={komorebiFocusedSummaryLabel(
             focusWorkspace(),

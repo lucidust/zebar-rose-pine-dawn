@@ -45,7 +45,7 @@ Komorebi 연동:
 - 현재 workspace, container, stack, focused window 정보
 - layout, pause, tiling, stack, floating, maximized, monocle focus 상태 표시
 
-보조 모니터에서는 바를 가볍게 유지하기 위해 live system stats를 숨깁니다. CPU/메모리와 네트워크 트래픽이 여기에 해당합니다.
+보조 모니터에서는 바를 가볍게 유지하기 위해 우측 system status 그룹 전체를 숨깁니다.
 
 ## 변형
 
