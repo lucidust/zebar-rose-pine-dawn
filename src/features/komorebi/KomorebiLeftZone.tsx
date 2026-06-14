@@ -21,7 +21,6 @@ import {
   komorebiLayoutLabel,
   komorebiWindowDetail,
   komorebiWindowLabel,
-  komorebiWorkspaceDetail,
   workspaceLabel,
 } from '../../utils/formatters';
 
@@ -73,9 +72,10 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
     () => props.komorebi,
     () => 0,
   );
-  const focusKomorebi = createMemo(() =>
-    createKomorebiFocusOverlay(props.komorebi, polledKomorebi()),
+  const focusWorkspace = createMemo(() =>
+    createKomorebiFocusWorkspaceOverlay(props.komorebi, polledKomorebi()),
   );
+  const focusWorkspaceLabel = () => komorebiBarWorkspaceLabel(props.komorebi);
   const isPaused = () => Boolean(polledKomorebi()?.isPaused);
 
   return (
@@ -88,12 +88,15 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
           komorebi={props.komorebi}
           isPaused={isPaused()}
         />
-        <KomorebiFocusStateChip komorebi={focusKomorebi()} />
+        <KomorebiFocusStateChip workspace={focusWorkspace()} />
         <SummaryChip
           class="responsive-hide-sm chip-context-summary"
-          iconNode={komorebiFocusedSummaryIcon(focusKomorebi())}
-          label={komorebiFocusedSummaryLabel(focusKomorebi())}
-          detail={komorebiFocusedSummaryDetail(focusKomorebi())}
+          iconNode={komorebiFocusedSummaryIcon(focusWorkspace())}
+          label={komorebiFocusedSummaryLabel(
+            focusWorkspace(),
+            focusWorkspaceLabel(),
+          )}
+          detail={komorebiFocusedSummaryDetail(focusWorkspace())}
           tone="iris"
         />
       </div>
@@ -165,9 +168,9 @@ function KomorebiLayoutStatusChip(props: {
   );
 }
 
-function KomorebiFocusStateChip(props: { komorebi: any }) {
+function KomorebiFocusStateChip(props: { workspace: any }) {
   const focusState = createMemo(() =>
-    komorebiFocusState(komorebiBarWorkspace(props.komorebi)),
+    komorebiFocusState(props.workspace),
   );
   const metadata = createMemo(() =>
     komorebiFocusStateMetadata(focusState()),
@@ -456,44 +459,27 @@ function normalizeKomorebiLayerValue(rawLayer: any) {
     .toLowerCase();
 }
 
-function createKomorebiFocusOverlay(providerState: any, polledState: any) {
-  if (!providerState) {
-    return polledState;
-  }
-
-  if (!polledState) {
-    return providerState;
-  }
-
+function createKomorebiFocusWorkspaceOverlay(
+  providerState: any,
+  polledState: any,
+) {
   const workspaceIndex = komorebiBarWorkspaceIndex(providerState);
   const providerWorkspace = komorebiBarWorkspace(providerState);
+
+  if (!providerWorkspace || !polledState) {
+    return providerWorkspace;
+  }
+
   const polledMonitor =
     findMatchingKomorebiMonitor(polledState.allMonitors, providerState.currentMonitor) ??
-    polledState.currentMonitor;
+    null;
   const polledWorkspace =
     polledMonitor?.workspaces?.[workspaceIndex] ??
-    polledState.currentWorkspaces?.[workspaceIndex] ??
-    polledState.displayedWorkspace;
-  const overlayWorkspace = enrichKomorebiWorkspace(
-    providerWorkspace,
-    polledWorkspace,
-  );
-  const currentWorkspaces = Array.isArray(providerState.currentWorkspaces)
-    ? providerState.currentWorkspaces.map((workspace: any, index: number) =>
-        index === workspaceIndex ? overlayWorkspace ?? workspace : workspace,
-      )
-    : providerState.currentWorkspaces;
-  const currentMonitor = providerState.currentMonitor
-    ? { ...providerState.currentMonitor, workspaces: currentWorkspaces }
-    : providerState.currentMonitor;
+    (!providerState.currentMonitor
+      ? polledState.currentWorkspaces?.[workspaceIndex]
+      : null);
 
-  return {
-    ...providerState,
-    currentMonitor,
-    currentWorkspaces,
-    displayedWorkspace: overlayWorkspace ?? providerState.displayedWorkspace,
-    isPaused: polledState.isPaused ?? providerState.isPaused,
-  };
+  return enrichKomorebiWorkspace(providerWorkspace, polledWorkspace);
 }
 
 function enrichKomorebiWorkspace(providerWorkspace: any, polledWorkspace: any) {
@@ -1051,46 +1037,63 @@ function isKomorebiStateChannelMessage(
   );
 }
 
-function komorebiFocusedSummaryIcon(komorebi: any) {
-  return komorebiFocusedWindow(komorebiBarWorkspace(komorebi))
+function komorebiFocusedSummaryIcon(workspace: any) {
+  return komorebiFocusedWindow(workspace)
     ? icon('nf-md-application_outline')
     : icon('nf-md-view_dashboard');
 }
 
-function komorebiFocusedSummaryLabel(komorebi: any) {
-  const focusedWorkspace = komorebiBarWorkspace(komorebi);
-  const focusedWindow = komorebiFocusedWindow(focusedWorkspace);
+function komorebiFocusedSummaryLabel(workspace: any, workspaceName: string) {
+  const focusedWindow = komorebiFocusedWindow(workspace);
 
   if (focusedWindow) {
     return komorebiWindowLabel(focusedWindow);
   }
 
-  return `Workspace ${komorebiBarWorkspaceLabel(komorebi)}`;
+  return `Workspace ${workspaceName}`;
 }
 
-function komorebiFocusedSummaryDetail(komorebi: any) {
-  const focusedWorkspace = komorebiBarWorkspace(komorebi);
-
-  if (!focusedWorkspace) {
+function komorebiFocusedSummaryDetail(workspace: any) {
+  if (!workspace) {
     return '';
   }
 
-  const state = komorebiFocusState(focusedWorkspace);
+  const state = komorebiFocusState(workspace);
   if (state === 'stack') {
-    return komorebiFocusStateDetail(focusedWorkspace, state);
+    return komorebiFocusStateDetail(workspace, state);
   }
 
-  const focusedWindow = komorebiFocusedWindow(focusedWorkspace);
+  const focusedWindow = komorebiFocusedWindow(workspace);
   const detailParts = [
     komorebiWindowDetail(focusedWindow, ''),
-    komorebiFocusStateDetail(focusedWorkspace, state),
+    komorebiFocusStateDetail(workspace, state),
   ].filter(Boolean);
 
   if (detailParts.length) {
     return detailParts.join(' · ');
   }
 
-  return komorebiWorkspaceDetail(komorebi) || 'Empty';
+  return komorebiWorkspaceSummaryDetail(workspace) || 'Empty';
+}
+
+function komorebiWorkspaceSummaryDetail(workspace: any) {
+  const containers = workspace?.tilingContainers?.length ?? 0;
+  const floating = workspace?.floatingWindows?.length ?? 0;
+  const parts: string[] = [];
+
+  if (workspace?.layout) {
+    parts.push(String(workspace.layout).replaceAll('_', ' '));
+  }
+
+  if (containers) {
+    parts.push(`Tiles ${containers}`);
+  }
+
+  if (floating) {
+    parts.push(`Floating ${floating}`);
+  }
+
+  return parts.join(' · ');
 }
 
 function komorebiFocusedTilingContainer(workspace: any) {
