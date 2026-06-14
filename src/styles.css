@@ -285,6 +285,14 @@ button {
   flex: 0 0 216px;
 }
 
+.chip-komorebi-debug {
+  width: 330px;
+  min-width: 330px;
+  max-width: 330px;
+  flex: 0 0 330px;
+  font-family: var(--font-mono);
+}
+
 .chip-mini {
   padding: 0;
 }
@@ -530,6 +538,16 @@ button {
 
 .chip-context-summary .chip-detail {
   font-size: 9.5px;
+}
+
+.chip-komorebi-debug .chip-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+.chip-komorebi-debug .chip-detail {
+  font-family: var(--font-mono);
+  font-size: 8.75px;
 }
 
 .weather-value {

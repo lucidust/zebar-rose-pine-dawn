@@ -122,6 +122,10 @@ komorebic focus-monitor-workspace <monitor-index> <workspace-index>
 
 The bar is tuned around the same 50px top region as the GlazeWM variant. Configure Komorebi work area or application gaps separately if you want windows to avoid the bar.
 
+### Komorebi Debug Chip
+
+The `with-komorebi` variant has a build-time debug chip for comparing Zebar provider state with `komorebic.exe state` polling. Enable it only for local debug builds by setting `VITE_KOMOREBI_DEBUG=1` before running `pnpm build`; it is disabled in normal builds and has no runtime toggle.
+
 ## Development
 
 ```powershell

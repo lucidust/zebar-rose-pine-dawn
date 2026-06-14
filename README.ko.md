@@ -122,6 +122,10 @@ komorebic focus-monitor-workspace <monitor-index> <workspace-index>
 
 바는 GlazeWM variant와 같은 50px 상단 영역을 기준으로 튜닝되어 있습니다. 창이 바를 피해야 한다면 Komorebi work area나 application gap 설정을 별도로 맞추세요.
 
+### Komorebi 디버그 칩
+
+`with-komorebi` variant에는 Zebar provider 상태와 `komorebic.exe state` polling 상태를 비교하기 위한 빌드 타임 디버그 칩이 있습니다. 로컬 디버그 빌드에서만 `pnpm build` 실행 전 `VITE_KOMOREBI_DEBUG=1`을 설정해 켜세요. 일반 빌드에서는 꺼져 있으며 런타임 토글은 제공하지 않습니다.
+
 ## 개발
 
 ```powershell

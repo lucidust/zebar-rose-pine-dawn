@@ -39,6 +39,8 @@ const KOMOREBI_STATE_DISCOVERY_WINDOW = 220;
 const KOMOREBI_STATE_CLAIM_WINDOW = 80;
 const KOMOREBI_STATE_LEADER_TIMEOUT = 2_500;
 const KOMOREBI_STATE_HEARTBEAT_INTERVAL = 1_000;
+const KOMOREBI_STATE_QUERY_TIMEOUT = 1_500;
+const KOMOREBI_DEBUG_ENABLED = import.meta.env.VITE_KOMOREBI_DEBUG === '1';
 
 type KomorebiStateChannelMessage =
   | {
@@ -53,6 +55,20 @@ type KomorebiStateChannelMessage =
       rawState: unknown;
     };
 
+type KomorebiPollDebugState = {
+  instanceId: string;
+  isLeader: boolean;
+  knownLeaderId: string | null;
+  queryInFlight: boolean;
+  refreshAttempts: number;
+  refreshFailures: number;
+  refreshSuccesses: number;
+  lastError: string | null;
+  lastRefreshCompletedAt: number | null;
+  lastRefreshStartedAt: number | null;
+  lastStateReceivedAt: number | null;
+};
+
 function workspaceAccentVar(index: number) {
   return `var(--ws-${(index % 6) + 1})`;
 }
@@ -66,6 +82,23 @@ function isKomorebiWorkspaceOccupied(workspace: any) {
   );
 }
 
+function useKomorebiRevision(key: () => string) {
+  const [revision, setRevision] = createSignal(0);
+  let previousKey: string | undefined;
+
+  createEffect(() => {
+    const nextKey = key();
+
+    if (previousKey !== undefined && nextKey !== previousKey) {
+      setRevision(value => value + 1);
+    }
+
+    previousKey = nextKey;
+  });
+
+  return revision;
+}
+
 export function KomorebiLeftZone(props: { komorebi: any }) {
   const polledKomorebi = usePolledKomorebiState(
     true,
@@ -77,6 +110,12 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
   );
   const focusWorkspaceLabel = () => komorebiBarWorkspaceLabel(props.komorebi);
   const isPaused = () => Boolean(polledKomorebi()?.isPaused);
+  const providerRevision = useKomorebiRevision(() =>
+    komorebiDebugProviderKey(props.komorebi),
+  );
+  const polledRevision = useKomorebiRevision(() =>
+    komorebiDebugProviderKey(polledKomorebi()),
+  );
 
   return (
     <Show when={props.komorebi}>
@@ -99,6 +138,16 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
           detail={komorebiFocusedSummaryDetail(focusWorkspace())}
           tone="iris"
         />
+        <Show when={KOMOREBI_DEBUG_ENABLED}>
+          <KomorebiDebugChip
+            focusWorkspace={focusWorkspace()}
+            komorebi={props.komorebi}
+            pollDebug={(polledKomorebi as any).debug?.()}
+            polledKomorebi={polledKomorebi()}
+            polledRevision={polledRevision()}
+            providerRevision={providerRevision()}
+          />
+        </Show>
       </div>
     </Show>
   );
@@ -187,6 +236,85 @@ function KomorebiFocusStateChip(props: { workspace: any }) {
   );
 }
 
+function KomorebiDebugChip(props: {
+  focusWorkspace: any;
+  komorebi: any;
+  pollDebug?: KomorebiPollDebugState;
+  polledKomorebi: any;
+  polledRevision: number;
+  providerRevision: number;
+}) {
+  const providerSnapshot = createMemo(() =>
+    komorebiDebugSnapshot(props.komorebi),
+  );
+  const polledSnapshot = createMemo(() =>
+    komorebiDebugSnapshot(props.polledKomorebi),
+  );
+  const matchedPolledMonitor = createMemo(() =>
+    findMatchingKomorebiMonitor(
+      props.polledKomorebi?.allMonitors,
+      props.komorebi?.currentMonitor,
+    ),
+  );
+  const focusState = createMemo(() =>
+    komorebiFocusState(props.focusWorkspace),
+  );
+  const label = () =>
+    `P${props.providerRevision}/S${props.polledRevision} ` +
+    `prov=${providerSnapshot().currentMonitor}:${
+      providerSnapshot().currentWorkspace
+    } poll=${polledSnapshot().currentMonitor}:${
+      polledSnapshot().currentWorkspace
+    }`;
+  const detail = () =>
+    `role=${props.pollDebug?.isLeader ? 'L' : 'F'} ` +
+    `focus=${providerSnapshot().focusedMonitor}:${
+      providerSnapshot().focusedWorkspace
+    } match=${matchedPolledMonitor() ? 'yes' : 'no'} ${focusState()} ` +
+    `A${props.pollDebug?.refreshAttempts ?? 0}/` +
+    `S${props.pollDebug?.refreshSuccesses ?? 0}/` +
+    `E${props.pollDebug?.refreshFailures ?? 0}`;
+  const title = () =>
+    [
+      'Komorebi debug',
+      `provider=${providerSnapshot().summary}`,
+      `polled=${polledSnapshot().summary}`,
+      `pollRole=${props.pollDebug?.isLeader ? 'leader' : 'follower'}`,
+      `pollLeader=${props.pollDebug?.knownLeaderId ?? 'none'}`,
+      `pollInFlight=${props.pollDebug?.queryInFlight ? 'yes' : 'no'}`,
+      `pollAttempts=${props.pollDebug?.refreshAttempts ?? 0}`,
+      `pollSuccesses=${props.pollDebug?.refreshSuccesses ?? 0}`,
+      `pollFailures=${props.pollDebug?.refreshFailures ?? 0}`,
+      `pollLastError=${props.pollDebug?.lastError ?? 'none'}`,
+      `pollLastCompleted=${komorebiDebugTimestamp(
+        props.pollDebug?.lastRefreshCompletedAt,
+      )}`,
+      `pollLastState=${komorebiDebugTimestamp(
+        props.pollDebug?.lastStateReceivedAt,
+      )}`,
+      `matchedPolledMonitor=${matchedPolledMonitor() ? 'yes' : 'no'}`,
+      `focusWorkspace=${workspaceLabel(props.focusWorkspace ?? {})}`,
+      `focusState=${focusState()}`,
+      `devicePixelRatio=${komorebiDebugDevicePixelRatio()}`,
+    ].join('\n');
+
+  return (
+    <div
+      class="chip chip-summary chip-komorebi-debug"
+      title={title()}
+      aria-label={title()}
+      role="status"
+    >
+      <div class="chip-body chip-body-fill">
+        <div class="stacked">
+          <span class="chip-label">{label()}</span>
+          <span class="chip-detail">{detail()}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 async function runKomorebic(args: string[]) {
   try {
     const result = await zebar.shellExec('komorebic.exe', args);
@@ -259,6 +387,79 @@ function komorebiBarWorkspaceLabel(komorebi: any) {
   }
 
   return String(komorebiBarWorkspaceIndex(komorebi) + 1);
+}
+
+function komorebiDebugProviderKey(komorebi: any) {
+  if (!komorebi) {
+    return 'none';
+  }
+
+  const workspace = komorebiBarWorkspace(komorebi);
+  const focusedWindow = komorebiFocusedWindow(workspace);
+
+  return [
+    komorebiDebugMonitorName(komorebi.currentMonitor),
+    komorebiBarWorkspaceIndex(komorebi),
+    komorebiDebugMonitorName(komorebi.focusedMonitor),
+    komorebi?.focusedMonitor?.focusedWorkspaceIndex ?? '?',
+    workspaceLabel(workspace ?? {}),
+    workspace?.tilingContainers?.length ?? 0,
+    workspace?.floatingWindows?.length ?? 0,
+    workspace?.focusedContainerIndex ?? '?',
+    focusedWindow?.hwnd ?? focusedWindow?.id ?? focusedWindow?.title ?? 'none',
+    komorebiFocusState(workspace),
+    komorebi?.isPaused ? 'paused' : 'active',
+  ].join('|');
+}
+
+function komorebiDebugSnapshot(komorebi: any) {
+  const currentMonitor = komorebiDebugMonitorName(komorebi?.currentMonitor);
+  const currentWorkspace = komorebi ? komorebiBarWorkspaceLabel(komorebi) : '?';
+  const focusedMonitor = komorebiDebugMonitorName(komorebi?.focusedMonitor);
+  const focusedWorkspace =
+    komorebi?.focusedMonitor?.focusedWorkspaceIndex != null
+      ? String(komorebi.focusedMonitor.focusedWorkspaceIndex + 1)
+      : '?';
+  const summary =
+    `cur=${currentMonitor}:${currentWorkspace} ` +
+    `focus=${focusedMonitor}:${focusedWorkspace} ` +
+    `paused=${komorebi?.isPaused ? 'yes' : 'no'}`;
+
+  return {
+    currentMonitor,
+    currentWorkspace,
+    focusedMonitor,
+    focusedWorkspace,
+    summary,
+  };
+}
+
+function komorebiDebugMonitorName(monitor: any) {
+  const monitorName = (
+    monitor?.name ??
+    monitor?.device ??
+    monitor?.deviceId ??
+    (monitor?.id != null ? String(monitor.id) : '?')
+  );
+
+  return String(monitorName).replace(/^DISPLAY/i, 'D');
+}
+
+function komorebiDebugDevicePixelRatio() {
+  return Number(window.devicePixelRatio || 1).toFixed(2);
+}
+
+function komorebiDebugTimestamp(timestamp: number | null | undefined) {
+  if (!timestamp) {
+    return 'never';
+  }
+
+  return new Date(timestamp).toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }
 
 function isSameKomorebiMonitor(a: any, b: any) {
@@ -624,6 +825,23 @@ function isSameKomorebiWindow(a: any, b: any) {
   );
 }
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+) {
+  let timeoutId: number | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(message));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    window.clearTimeout(timeoutId);
+  });
+}
+
 function usePolledKomorebiState(
   enabled: boolean,
   baseKomorebi: () => any,
@@ -632,6 +850,19 @@ function usePolledKomorebiState(
   const instanceId = createKomorebiStateInstanceId();
   const [rawState, setRawState] = createSignal<unknown | undefined>(undefined);
   const [state, setState] = createSignal<any | undefined>(undefined);
+  const [debugState, setDebugState] = createSignal<KomorebiPollDebugState>({
+    instanceId,
+    isLeader: false,
+    knownLeaderId: null,
+    queryInFlight: false,
+    refreshAttempts: 0,
+    refreshFailures: 0,
+    refreshSuccesses: 0,
+    lastError: null,
+    lastRefreshCompletedAt: null,
+    lastRefreshStartedAt: null,
+    lastStateReceivedAt: null,
+  });
   let channel: BroadcastChannel | null = null;
   let disposed = false;
   let isLeader = false;
@@ -672,6 +903,10 @@ function usePolledKomorebiState(
   const applyRawState = (nextRawState: unknown | undefined) => {
     if (!disposed) {
       setRawState(nextRawState);
+      setDebugState(value => ({
+        ...value,
+        lastStateReceivedAt: Date.now(),
+      }));
     }
   };
 
@@ -681,9 +916,22 @@ function usePolledKomorebiState(
     }
 
     queryInFlight = true;
+    setDebugState(value => ({
+      ...value,
+      isLeader,
+      knownLeaderId,
+      queryInFlight,
+      refreshAttempts: value.refreshAttempts + 1,
+      lastError: null,
+      lastRefreshStartedAt: Date.now(),
+    }));
 
     try {
-      const result = await zebar.shellExec('komorebic.exe', ['state']);
+      const result = await withTimeout(
+        zebar.shellExec('komorebic.exe', ['state']),
+        KOMOREBI_STATE_QUERY_TIMEOUT,
+        'komorebic state timed out',
+      );
 
       if (result.code !== 0) {
         throw new Error(result.stderr || `exit code ${result.code}`);
@@ -693,6 +941,11 @@ function usePolledKomorebiState(
 
       if (!disposed) {
         applyRawState(nextRawState);
+        setDebugState(value => ({
+          ...value,
+          lastError: null,
+          refreshSuccesses: value.refreshSuccesses + 1,
+        }));
         postChannelMessage({
           type: 'state',
           instanceId,
@@ -702,16 +955,21 @@ function usePolledKomorebiState(
       }
     } catch (error) {
       if (!disposed) {
-        applyRawState(undefined);
-        postChannelMessage({
-          type: 'state',
-          instanceId,
-          timestamp: Date.now(),
-          rawState: undefined,
-        });
+        setDebugState(value => ({
+          ...value,
+          lastError: error instanceof Error ? error.message : String(error),
+          refreshFailures: value.refreshFailures + 1,
+        }));
       }
     } finally {
       queryInFlight = false;
+      setDebugState(value => ({
+        ...value,
+        isLeader,
+        knownLeaderId,
+        queryInFlight,
+        lastRefreshCompletedAt: Date.now(),
+      }));
     }
   };
 
@@ -719,6 +977,11 @@ function usePolledKomorebiState(
     isLeader = false;
     knownLeaderId = leaderId;
     lastLeaderMessageAt = Date.now();
+    setDebugState(value => ({
+      ...value,
+      isLeader,
+      knownLeaderId,
+    }));
     clearClaimTimer();
     clearLeaderTimers();
   };
@@ -731,6 +994,11 @@ function usePolledKomorebiState(
     isLeader = true;
     knownLeaderId = instanceId;
     lastLeaderMessageAt = Date.now();
+    setDebugState(value => ({
+      ...value,
+      isLeader,
+      knownLeaderId,
+    }));
     clearClaimTimer();
     clearLeaderTimers();
     sendHeartbeat();
@@ -840,6 +1108,11 @@ function usePolledKomorebiState(
 
     knownLeaderId = leaderId;
     lastLeaderMessageAt = now;
+    setDebugState(value => ({
+      ...value,
+      isLeader,
+      knownLeaderId,
+    }));
     return true;
   };
 
@@ -883,6 +1156,11 @@ function usePolledKomorebiState(
 
     knownLeaderId = claimantId;
     lastLeaderMessageAt = now;
+    setDebugState(value => ({
+      ...value,
+      isLeader,
+      knownLeaderId,
+    }));
   };
 
   const handleChannelMessage = (message: unknown) => {
@@ -1008,7 +1286,12 @@ function usePolledKomorebiState(
     });
   });
 
-  return state;
+  const stateAccessor = state as typeof state & {
+    debug: typeof debugState;
+  };
+  stateAccessor.debug = debugState;
+
+  return stateAccessor;
 }
 
 function createKomorebiStateInstanceId() {
