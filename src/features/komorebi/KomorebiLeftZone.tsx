@@ -99,7 +99,10 @@ function useKomorebiRevision(key: () => string) {
   return revision;
 }
 
-export function KomorebiLeftZone(props: { komorebi: any }) {
+export function KomorebiLeftZone(props: {
+  komorebi: any;
+  providerEmissionCount: number;
+}) {
   const polledKomorebi = usePolledKomorebiState(
     true,
     () => props.komorebi,
@@ -145,6 +148,7 @@ export function KomorebiLeftZone(props: { komorebi: any }) {
             pollDebug={(polledKomorebi as any).debug?.()}
             polledKomorebi={polledKomorebi()}
             polledRevision={polledRevision()}
+            providerEmissionCount={props.providerEmissionCount}
             providerRevision={providerRevision()}
           />
         </Show>
@@ -242,6 +246,7 @@ function KomorebiDebugChip(props: {
   pollDebug?: KomorebiPollDebugState;
   polledKomorebi: any;
   polledRevision: number;
+  providerEmissionCount: number;
   providerRevision: number;
 }) {
   const providerSnapshot = createMemo(() =>
@@ -260,7 +265,8 @@ function KomorebiDebugChip(props: {
     komorebiFocusState(props.focusWorkspace),
   );
   const label = () =>
-    `P${props.providerRevision}/S${props.polledRevision} ` +
+    `PE${props.providerEmissionCount}/P${props.providerRevision}/` +
+    `S${props.polledRevision} ` +
     `prov=${providerSnapshot().currentMonitor}:${
       providerSnapshot().currentWorkspace
     } poll=${polledSnapshot().currentMonitor}:${
@@ -277,6 +283,9 @@ function KomorebiDebugChip(props: {
   const title = () =>
     [
       'Komorebi debug',
+      `providerEmits=${props.providerEmissionCount}`,
+      `providerChanges=${props.providerRevision}`,
+      `polledChanges=${props.polledRevision}`,
       `provider=${providerSnapshot().summary}`,
       `polled=${polledSnapshot().summary}`,
       `pollRole=${props.pollDebug?.isLeader ? 'leader' : 'follower'}`,
