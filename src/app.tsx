@@ -12,9 +12,12 @@ type AppProps = {
 };
 
 export function App(props: AppProps) {
-  const { output, providerEmissionCounts } = useProviderOutput(
-    props.providers,
-  );
+  const {
+    output,
+    providerEmissionCounts,
+    providerRestartStates,
+    restartProvider,
+  } = useProviderOutput(props.providers);
 
   function renderLeftZone() {
     if (props.variant === 'with-glazewm') {
@@ -26,6 +29,8 @@ export function App(props: AppProps) {
         <KomorebiLeftZone
           komorebi={output.komorebi}
           providerEmissionCount={providerEmissionCounts.komorebi ?? 0}
+          providerRestartState={providerRestartStates.komorebi}
+          restartProvider={() => restartProvider('komorebi')}
         />
       );
     }

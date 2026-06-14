@@ -8,6 +8,7 @@ import {
   onCleanup,
   onMount,
 } from 'solid-js';
+import type { ProviderRestartState } from '../../app/use-provider-output';
 import {
   StatusIconChip,
   SummaryChip,
@@ -40,6 +41,8 @@ const KOMOREBI_STATE_CLAIM_WINDOW = 80;
 const KOMOREBI_STATE_LEADER_TIMEOUT = 2_500;
 const KOMOREBI_STATE_HEARTBEAT_INTERVAL = 1_000;
 const KOMOREBI_STATE_QUERY_TIMEOUT = 1_500;
+const KOMOREBI_PROVIDER_STALL_TIMEOUT = 4_000;
+const KOMOREBI_PROVIDER_RESTART_COOLDOWN = 10_000;
 const KOMOREBI_DEBUG_ENABLED = import.meta.env.VITE_KOMOREBI_DEBUG === '1';
 
 type KomorebiStateChannelMessage =
@@ -99,9 +102,62 @@ function useKomorebiRevision(key: () => string) {
   return revision;
 }
 
+function useKomorebiProviderWatchdog(options: {
+  polledKomorebi: () => any;
+  pollDebug: () => KomorebiPollDebugState | undefined;
+  providerEmissionCount: () => number;
+  providerState: () => any;
+  restartProvider: () => Promise<boolean>;
+}) {
+  let lastProviderEmissionCount = options.providerEmissionCount();
+  let lastProviderEmissionAt = Date.now();
+  let lastRestartRequestedAt = 0;
+  let restartInFlight = false;
+
+  createEffect(() => {
+    const emissionCount = options.providerEmissionCount();
+
+    if (emissionCount !== lastProviderEmissionCount) {
+      lastProviderEmissionCount = emissionCount;
+      lastProviderEmissionAt = Date.now();
+    }
+  });
+
+  createEffect(() => {
+    const pollDebug = options.pollDebug();
+    const providerState = options.providerState();
+    const polledState = options.polledKomorebi();
+    const now = Date.now();
+    const refreshSuccesses = pollDebug?.refreshSuccesses ?? 0;
+
+    if (
+      restartInFlight ||
+      !providerState ||
+      !polledState ||
+      refreshSuccesses === 0 ||
+      !pollDebug?.lastRefreshCompletedAt ||
+      now - pollDebug.lastRefreshCompletedAt > KOMOREBI_STATE_QUERY_TIMEOUT * 2 ||
+      now - lastProviderEmissionAt < KOMOREBI_PROVIDER_STALL_TIMEOUT ||
+      now - lastRestartRequestedAt < KOMOREBI_PROVIDER_RESTART_COOLDOWN ||
+      !hasKomorebiProviderDiverged(providerState, polledState)
+    ) {
+      return;
+    }
+
+    restartInFlight = true;
+    lastRestartRequestedAt = now;
+
+    void options.restartProvider().finally(() => {
+      restartInFlight = false;
+    });
+  });
+}
+
 export function KomorebiLeftZone(props: {
   komorebi: any;
   providerEmissionCount: number;
+  providerRestartState?: ProviderRestartState;
+  restartProvider: () => Promise<boolean>;
 }) {
   const polledKomorebi = usePolledKomorebiState(
     true,
@@ -119,6 +175,13 @@ export function KomorebiLeftZone(props: {
   const polledRevision = useKomorebiRevision(() =>
     komorebiDebugProviderKey(polledKomorebi()),
   );
+  useKomorebiProviderWatchdog({
+    polledKomorebi,
+    pollDebug: () => (polledKomorebi as any).debug?.(),
+    providerEmissionCount: () => props.providerEmissionCount,
+    providerState: () => props.komorebi,
+    restartProvider: props.restartProvider,
+  });
 
   return (
     <Show when={props.komorebi}>
@@ -149,6 +212,7 @@ export function KomorebiLeftZone(props: {
             polledKomorebi={polledKomorebi()}
             polledRevision={polledRevision()}
             providerEmissionCount={props.providerEmissionCount}
+            providerRestartState={props.providerRestartState}
             providerRevision={providerRevision()}
           />
         </Show>
@@ -247,6 +311,7 @@ function KomorebiDebugChip(props: {
   polledKomorebi: any;
   polledRevision: number;
   providerEmissionCount: number;
+  providerRestartState?: ProviderRestartState;
   providerRevision: number;
 }) {
   const providerSnapshot = createMemo(() =>
@@ -277,6 +342,7 @@ function KomorebiDebugChip(props: {
     `focus=${providerSnapshot().focusedMonitor}:${
       providerSnapshot().focusedWorkspace
     } match=${matchedPolledMonitor() ? 'yes' : 'no'} ${focusState()} ` +
+    `subR${props.providerRestartState?.count ?? 0} ` +
     `A${props.pollDebug?.refreshAttempts ?? 0}/` +
     `S${props.pollDebug?.refreshSuccesses ?? 0}/` +
     `E${props.pollDebug?.refreshFailures ?? 0}`;
@@ -285,6 +351,16 @@ function KomorebiDebugChip(props: {
       'Komorebi debug',
       `providerEmits=${props.providerEmissionCount}`,
       `providerChanges=${props.providerRevision}`,
+      `providerRestarts=${props.providerRestartState?.count ?? 0}`,
+      `providerRestarting=${
+        props.providerRestartState?.isRestarting ? 'yes' : 'no'
+      }`,
+      `providerRestartLast=${komorebiDebugTimestamp(
+        props.providerRestartState?.lastRestartedAt,
+      )}`,
+      `providerRestartError=${
+        props.providerRestartState?.lastError ?? 'none'
+      }`,
       `polledChanges=${props.polledRevision}`,
       `provider=${providerSnapshot().summary}`,
       `polled=${polledSnapshot().summary}`,
@@ -469,6 +545,35 @@ function komorebiDebugTimestamp(timestamp: number | null | undefined) {
     minute: '2-digit',
     second: '2-digit',
   });
+}
+
+function hasKomorebiProviderDiverged(providerState: any, polledState: any) {
+  if (!providerState || !polledState) {
+    return false;
+  }
+
+  const polledMonitor = findMatchingKomorebiMonitor(
+    polledState.allMonitors,
+    providerState.currentMonitor,
+  );
+
+  if (!polledMonitor) {
+    return false;
+  }
+
+  const providerWorkspaceIndex =
+    providerState.currentMonitor?.focusedWorkspaceIndex;
+  const providerFocusedWorkspaceIndex =
+    providerState.focusedMonitor?.focusedWorkspaceIndex;
+  const polledFocusedMonitor = findMatchingKomorebiMonitor(
+    polledState.allMonitors,
+    providerState.focusedMonitor,
+  );
+
+  return (
+    providerWorkspaceIndex !== polledMonitor.focusedWorkspaceIndex ||
+    providerFocusedWorkspaceIndex !== polledFocusedMonitor?.focusedWorkspaceIndex
+  );
 }
 
 function isSameKomorebiMonitor(a: any, b: any) {
