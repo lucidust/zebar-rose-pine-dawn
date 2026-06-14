@@ -17,10 +17,10 @@ Komorebi:
 ## Features
 
 - Top bar themed with the official [Rosé Pine Dawn palette](https://rosepinetheme.com/palette/).
-- Full-width rail with modular workspace and system chips.
+- Full-width rail with modular workspace and system status chips.
 - System tray overflow popover, audio, network traffic, weather, date/time, and combined CPU/memory status.
 - Optional Windows Night Light control through [`wnlctl`](https://github.com/lucidust/wnlctl).
-- Local SVG icons bundled with the pack; no remote icon font dependency at runtime.
+- Bundled local SVG icons; no remote icon font dependency at runtime.
 
 ## Chips
 
@@ -33,19 +33,19 @@ Shared chips:
 - Weather.
 - Date and time.
 
-GlazeWM integration:
+GlazeWM:
 
 - Workspace buttons.
 - Focused workspace and window context.
 - Binding mode, pause state, and tiling direction controls.
 
-Komorebi integration:
+Komorebi:
 
 - Workspace buttons.
 - Focused workspace, container, stack, and window context.
 - Layout, pause, tiling, stack, floating, maximized, and monocle focus status.
 
-On non-primary monitors, the right-side system status group is hidden to keep secondary bars lighter.
+On non-primary monitors, the right-side system status group is hidden to keep secondary bars compact.
 
 ## Variants
 
@@ -59,7 +59,7 @@ This pack ships three widget variants:
 
 ### Marketplace
 
-Install the pack from the Zebar marketplace and choose one of the shipped variants.
+Install the pack from the Zebar marketplace, then choose one of the shipped variants.
 
 ### Custom Widget
 
@@ -76,7 +76,7 @@ Zebar loads the generated `dist/` assets through `zpack.json`.
 
 ## Optional Night Light Helper
 
-The Night Light chip requires `wnlctl.exe`. If `wnlctl` is not available on `PATH`, the Night Light control is hidden and the rest of the bar continues to run.
+The Night Light chip requires `wnlctl.exe`. If `wnlctl` is not available on `PATH`, only the Night Light control is hidden.
 
 Install with Scoop:
 
@@ -92,7 +92,7 @@ wnlctl status --json
 wnlctl toggle --json
 ```
 
-`wnlctl` is maintained separately at [lucidust/wnlctl](https://github.com/lucidust/wnlctl). That repository owns Windows registry access, release binaries, and helper-specific limitations.
+For helper details and releases, see [lucidust/wnlctl](https://github.com/lucidust/wnlctl).
 
 ## Recommended GlazeWM Setup
 
@@ -111,7 +111,9 @@ gaps:
 
 ## Recommended Komorebi Setup
 
-Use the `with-komorebi` variant when Komorebi is running and `komorebic.exe` is available to Zebar. The bar uses Zebar's Komorebi provider for live workspace data and `komorebic.exe state` to enrich focus state across tiling, stack, floating, maximized, and monocle workspaces.
+Use the `with-komorebi` variant when Komorebi is running and `komorebic.exe` is available to Zebar. Workspace UI state comes from Zebar's Komorebi provider. The bar also uses `komorebic.exe state` for focus details across tiling, stack, floating, maximized, and monocle workspaces.
+
+If provider updates appear to stall, the bar can restart its Komorebi provider subscription to recover the displayed state.
 
 The pack allows only these Komorebi helper commands:
 
@@ -120,11 +122,11 @@ komorebic state
 komorebic focus-monitor-workspace <monitor-index> <workspace-index>
 ```
 
-The bar is tuned around the same 50px top region as the GlazeWM variant. Configure Komorebi work area or application gaps separately if you want windows to avoid the bar.
+The bar is tuned around the same 50px top region as the GlazeWM variant. Configure Komorebi work area or application gaps separately if windows should avoid the bar.
 
 ### Komorebi Debug Chip
 
-The `with-komorebi` variant has a build-time debug chip for comparing Zebar provider state with `komorebic.exe state` polling. Enable it only for local debug builds by setting `VITE_KOMOREBI_DEBUG=1` before running `pnpm build`; it is disabled in normal builds and has no runtime toggle.
+The `with-komorebi` variant has a build-time debug chip for local troubleshooting. Enable it with `VITE_KOMOREBI_DEBUG=1` before running `pnpm build`. Normal builds hide the chip.
 
 ## Development
 
@@ -144,8 +146,8 @@ Useful files:
 
 ## Notes
 
-- Runtime UI strings and default widget labels are English.
-- This pack is primarily tuned on a horizontal 4K monitor.
+- Runtime UI strings and default widget labels are in English.
+- This pack is primarily tuned for a horizontal 4K monitor.
 
 ## License
 
