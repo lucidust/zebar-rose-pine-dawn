@@ -128,15 +128,15 @@ function useKomorebiProviderWatchdog(options: {
     const providerState = options.providerState();
     const polledState = options.polledKomorebi();
     const now = Date.now();
-    const refreshSuccesses = pollDebug?.refreshSuccesses ?? 0;
+    const latestPolledStateAt =
+      pollDebug?.lastStateReceivedAt ?? pollDebug?.lastRefreshCompletedAt;
 
     if (
       restartInFlight ||
       !providerState ||
       !polledState ||
-      refreshSuccesses === 0 ||
-      !pollDebug?.lastRefreshCompletedAt ||
-      now - pollDebug.lastRefreshCompletedAt > KOMOREBI_STATE_QUERY_TIMEOUT * 2 ||
+      !latestPolledStateAt ||
+      now - latestPolledStateAt > KOMOREBI_STATE_QUERY_TIMEOUT * 2 ||
       now - lastProviderEmissionAt < KOMOREBI_PROVIDER_STALL_TIMEOUT ||
       now - lastRestartRequestedAt < KOMOREBI_PROVIDER_RESTART_COOLDOWN ||
       !hasKomorebiProviderDiverged(providerState, polledState)
