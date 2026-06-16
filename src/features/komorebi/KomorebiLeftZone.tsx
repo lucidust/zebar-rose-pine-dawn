@@ -204,7 +204,7 @@ export function KomorebiLeftZone(props: {
           detail={komorebiFocusedSummaryDetail(focusWorkspace())}
           tone="iris"
         />
-        <Show when={KOMOREBI_DEBUG_ENABLED}>
+        {KOMOREBI_DEBUG_ENABLED ? (
           <KomorebiDebugChip
             focusWorkspace={focusWorkspace()}
             komorebi={props.komorebi}
@@ -215,7 +215,7 @@ export function KomorebiLeftZone(props: {
             providerRestartState={props.providerRestartState}
             providerRevision={providerRevision()}
           />
-        </Show>
+        ) : null}
       </div>
     </Show>
   );
