@@ -49,13 +49,13 @@ Komorebi:
 
 ### 시스템 트레이
 
-시스템 트레이 칩은 바 안에서 tray icon을 inline으로 표시합니다. 트레이 칩을 클릭하면 세 가지 표시 모드가 순서대로 전환됩니다.
+시스템 트레이 칩은 바 안에서 tray icon을 inline으로 표시합니다. 트레이 칩을 클릭하면 현재 사용할 수 있는 표시 모드가 순서대로 전환됩니다.
 
 - `Folded`: tray icon을 숨기고 숨겨진 icon 수를 표시합니다.
-- `Pinned`: pin한 tray icon만 표시하고 나머지 숨겨진 icon 수를 표시합니다.
+- `Pinned`: pin한 tray icon만 표시하고 나머지 숨겨진 icon 수를 표시합니다. 현재 보이는 pinned icon이 없으면 이 모드는 건너뜁니다.
 - `All`: 모든 tray icon을 가로 스크롤 가능한 strip으로 표시합니다.
 
-트레이 칩을 Ctrl+클릭하면 manage mode로 진입합니다. Manage mode에서는 tray icon을 클릭해 pin/unpin할 수 있습니다. 현재 Zebar systray provider에서 보이지 않는 pinned icon은 missing 수로 표시되며, missing indicator를 클릭하면 현재 보이지 않는 pinned entry를 제거합니다. Pinned icon 정보는 로컬에 저장되고, 14일 넘게 missing 상태인 entry는 자동으로 제거됩니다.
+트레이 칩을 Ctrl+클릭하면 manage mode로 진입합니다. Manage mode에서는 tray icon을 클릭해 pin/unpin할 수 있습니다. 현재 Zebar systray provider에서 보이지 않는 pinned icon은 missing 수로 표시되며, missing indicator를 클릭하면 현재 보이지 않는 pinned entry를 제거합니다. Pinned icon 정보는 로컬에 저장됩니다.
 
 ## 변형
 

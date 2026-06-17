@@ -49,13 +49,13 @@ On non-primary monitors, the right-side system status group is hidden to keep se
 
 ### System Tray
 
-The system tray chip keeps tray icons inline with the bar. Click the tray chip to cycle through three display modes:
+The system tray chip keeps tray icons inline with the bar. Click the tray chip to cycle through the available display modes:
 
 - `Folded`: hide tray icons and show the number of hidden icons.
-- `Pinned`: show only pinned tray icons and show the number of remaining hidden icons.
+- `Pinned`: show only pinned tray icons and show the number of remaining hidden icons. This mode is skipped when no pinned icon is currently visible.
 - `All`: show every tray icon in a horizontally scrollable strip.
 
-Ctrl+click the tray chip to enter manage mode. In manage mode, click tray icons to pin or unpin them. Missing pinned icons are counted in the chip, and clicking the missing indicator removes pinned entries that are not currently visible from Zebar's systray provider. Pinned icons are stored locally and entries that stay missing for more than 14 days are removed automatically.
+Ctrl+click the tray chip to enter manage mode. In manage mode, click tray icons to pin or unpin them. Missing pinned icons are counted in the chip, and clicking the missing indicator removes pinned entries that are not currently visible from Zebar's systray provider. Pinned icons are stored locally.
 
 ## Variants
 

@@ -23,7 +23,6 @@ type PinnedTrayIcon = {
 
 const TRAY_MODE_STORAGE_KEY = 'zebar-rpd-tray-mode';
 const PINNED_TRAY_STORAGE_KEY = 'zebar-rpd-pinned-tray-icons';
-const MISSING_PIN_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
 
 export function SystrayStrip(props: { systray: any }) {
   const [mode, setMode] = createSignal<TrayDisplayMode>(readTrayMode());
@@ -73,6 +72,7 @@ export function SystrayStrip(props: { systray: any }) {
 
     return allIcons().length;
   });
+  const hasVisiblePinnedIcons = createMemo(() => matchedPinnedIcons().length > 0);
   const controlTitle = createMemo(() =>
     trayControlTitle(
       mode(),
@@ -80,6 +80,7 @@ export function SystrayStrip(props: { systray: any }) {
       allIcons().length,
       displayedIcons().length,
       hiddenIconCount(),
+      hasVisiblePinnedIcons(),
     ),
   );
 
@@ -120,17 +121,10 @@ export function SystrayStrip(props: { systray: any }) {
   });
 
   onMount(() => {
-    const cleanupTimerId = window.setTimeout(() => {
-      setPinnedIcons(currentPinnedIcons =>
-        pruneExpiredMissingPinnedIcons(currentPinnedIcons, allIcons()),
-      );
-    }, 5_000);
-
     document.addEventListener('pointerdown', closeOnOutsidePointer);
     document.addEventListener('keydown', closeOnEscape);
 
     onCleanup(() => {
-      window.clearTimeout(cleanupTimerId);
       document.removeEventListener('pointerdown', closeOnOutsidePointer);
       document.removeEventListener('keydown', closeOnEscape);
     });
@@ -139,7 +133,7 @@ export function SystrayStrip(props: { systray: any }) {
   const cycleMode = () => {
     setMode(currentMode => {
       if (currentMode === 'folded') {
-        return 'pinned';
+        return hasVisiblePinnedIcons() ? 'pinned' : 'all';
       }
 
       if (currentMode === 'pinned') {
@@ -149,6 +143,12 @@ export function SystrayStrip(props: { systray: any }) {
       return 'folded';
     });
   };
+
+  createEffect(() => {
+    if (mode() === 'pinned' && !hasVisiblePinnedIcons()) {
+      setMode('folded');
+    }
+  });
 
   const togglePin = (trayIcon: any) => {
     setPinnedIcons(currentPinnedIcons => {
@@ -489,34 +489,25 @@ function refreshPinnedTrayIcons(
   return hasChanges ? nextPinnedIcons : pinnedIcons;
 }
 
-function pruneExpiredMissingPinnedIcons(
-  pinnedIcons: PinnedTrayIcon[],
-  trayIcons: any[],
-) {
-  const now = Date.now();
-
-  return pinnedIcons.filter(pinnedIcon => {
-    if (findMatchingTrayIcon(pinnedIcon, trayIcons)) {
-      return true;
-    }
-
-    return now - pinnedIcon.lastSeenAt <= MISSING_PIN_MAX_AGE_MS;
-  });
-}
-
 function trayControlTitle(
   mode: TrayDisplayMode,
   isManaging: boolean,
   iconCount: number,
   visibleIconCount: number,
   hiddenIconCount: number,
+  hasVisiblePinnedIcons: boolean,
 ) {
   if (isManaging) {
     return `Managing ${iconCount} tray icons. Click icons to pin or unpin. Click tray control to leave manage mode.`;
   }
 
   if (mode === 'folded') {
-    return `${iconCount} tray icons hidden. Click to show pinned icons. Ctrl+click to manage pins.`;
+    if (!iconCount) {
+      return 'No tray icons shown. Ctrl+click to manage pins.';
+    }
+
+    const nextMode = hasVisiblePinnedIcons ? 'pinned icons' : 'all icons';
+    return `${iconCount} tray icons hidden. Click to show ${nextMode}. Ctrl+click to manage pins.`;
   }
 
   if (mode === 'pinned') {
