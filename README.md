@@ -18,7 +18,7 @@ Komorebi:
 
 - Top bar themed with the official [Rosé Pine Dawn palette](https://rosepinetheme.com/palette/).
 - Full-width rail with modular workspace and system status chips.
-- System tray overflow popover, audio, network traffic, weather, date/time, and combined CPU/memory status.
+- System tray display modes, audio, network traffic, weather, date/time, and combined CPU/memory status.
 - Optional Windows Night Light control through [`wnlctl`](https://github.com/lucidust/wnlctl).
 - Bundled local SVG icons; no remote icon font dependency at runtime.
 
@@ -27,7 +27,7 @@ Komorebi:
 Shared chips:
 
 - CPU/memory and network traffic.
-- System tray overflow.
+- System tray chip with folded, pinned, and all-icons display modes.
 - Volume.
 - Windows Night Light, when `wnlctl.exe` is installed.
 - Weather.
@@ -46,6 +46,16 @@ Komorebi:
 - Layout, pause, tiling, stack, floating, maximized, and monocle focus status.
 
 On non-primary monitors, the right-side system status group is hidden to keep secondary bars compact.
+
+### System Tray
+
+The system tray chip keeps tray icons inline with the bar. Click the tray chip to cycle through three display modes:
+
+- `Folded`: hide tray icons and show the number of hidden icons.
+- `Pinned`: show only pinned tray icons and show the number of remaining hidden icons.
+- `All`: show every tray icon in a horizontally scrollable strip.
+
+Ctrl+click the tray chip to enter manage mode. In manage mode, click tray icons to pin or unpin them. Missing pinned icons are counted in the chip, and clicking the missing indicator removes pinned entries that are not currently visible from Zebar's systray provider. Pinned icons are stored locally and entries that stay missing for more than 14 days are removed automatically.
 
 ## Variants
 

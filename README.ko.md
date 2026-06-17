@@ -18,7 +18,7 @@ Komorebi:
 
 - 공식 [Rosé Pine Dawn 팔레트](https://rosepinetheme.com/palette/) 기반 테마
 - 화면 상단을 가로지르는 rail과 모듈식 workspace/system status 칩 구성
-- 시스템 트레이, 볼륨, 네트워크 트래픽, 날씨, 날짜/시간, CPU/메모리 상태 표시
+- 시스템 트레이 표시 모드, 볼륨, 네트워크 트래픽, 날씨, 날짜/시간, CPU/메모리 상태 표시
 - [`wnlctl`](https://github.com/lucidust/wnlctl)을 설치하면 Windows Night Light 제어 가능
 - 런타임에서 원격 아이콘 폰트에 의존하지 않는 번들 SVG 아이콘
 
@@ -27,7 +27,7 @@ Komorebi:
 공통 칩:
 
 - CPU/메모리와 네트워크 트래픽
-- 시스템 트레이 오버플로
+- folded, pinned, all-icons 표시 모드를 지원하는 시스템 트레이 칩
 - 볼륨
 - `wnlctl.exe`가 설치된 경우 Windows Night Light
 - 날씨
@@ -46,6 +46,16 @@ Komorebi:
 - layout, pause, tiling, stack, floating, maximized, monocle focus 상태 표시
 
 보조 모니터에서는 바를 간결하게 유지하기 위해 우측 system status 그룹 전체를 숨깁니다.
+
+### 시스템 트레이
+
+시스템 트레이 칩은 바 안에서 tray icon을 inline으로 표시합니다. 트레이 칩을 클릭하면 세 가지 표시 모드가 순서대로 전환됩니다.
+
+- `Folded`: tray icon을 숨기고 숨겨진 icon 수를 표시합니다.
+- `Pinned`: pin한 tray icon만 표시하고 나머지 숨겨진 icon 수를 표시합니다.
+- `All`: 모든 tray icon을 가로 스크롤 가능한 strip으로 표시합니다.
+
+트레이 칩을 Ctrl+클릭하면 manage mode로 진입합니다. Manage mode에서는 tray icon을 클릭해 pin/unpin할 수 있습니다. 현재 Zebar systray provider에서 보이지 않는 pinned icon은 missing 수로 표시되며, missing indicator를 클릭하면 현재 보이지 않는 pinned entry를 제거합니다. Pinned icon 정보는 로컬에 저장되고, 14일 넘게 missing 상태인 entry는 자동으로 제거됩니다.
 
 ## 변형
 
