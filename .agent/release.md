@@ -37,7 +37,27 @@ Runtime validation policy:
 - Daily development can use the local custom widget from this repository.
 - Release validation should also install or load the release candidate separately from the marketplace/custom-pack path when practical.
 - Verify `vanilla`, `with-glazewm`, and `with-komorebi` before publishing when their host integrations are available.
-- If a host integration is unavailable during release validation, document the skipped variant and reason in the release notes.
+- If a host integration is unavailable during release validation, keep that in maintainer notes. Mention it in the public GitHub Release only when the unverified state changes user expectations for a shipped variant.
+
+## GitHub Release Notes
+
+GitHub Release notes are user-facing release communication, not a validation log.
+
+Include:
+
+- `## Highlights` for major user-visible improvements, new variant support, or behavior changes worth calling out first.
+- `## Changes` for concrete shipped changes. Mention affected variants such as `vanilla`, `with-glazewm`, `with-komorebi`, or shared runtime behavior when relevant.
+- `## Compatibility Notes` only when requirements, helper commands, privileges, preview assets, marketplace install behavior, or supported variants changed.
+- `## Known Limitations` only when users should make a decision with incomplete support or runtime validation information.
+- `## Upgrade Notes` only when users need to take action after updating.
+
+Do not include:
+
+- Routine local validation commands such as `pnpm install`, `pnpm validate:pack`, `pnpm typecheck`, or `pnpm build`.
+- Local shell/session details, CI-like command transcripts, or internal debug checks that do not affect user decisions.
+- A standalone `Validation` section in the public GitHub Release.
+
+Keep validation evidence in the release checklist, commit/PR discussion, or maintainer notes. If a validation result reveals a user-facing risk, rewrite it as a `Known Limitations` or `Compatibility Notes` item instead of publishing raw validation output.
 
 ## Publish Steps
 
