@@ -47,6 +47,7 @@ Include:
 
 - `## Highlights` for major user-visible improvements, new variant support, or behavior changes worth calling out first.
 - `## Changes` for concrete shipped changes. Mention affected variants such as `vanilla`, `with-glazewm`, `with-komorebi`, or shared runtime behavior when relevant.
+- Describe fixes in terms of the user-visible symptom and outcome. Include the implementation mechanism only when users must understand or configure it.
 - `## Compatibility Notes` only when requirements, helper commands, privileges, preview assets, marketplace install behavior, or supported variants changed.
 - `## Known Limitations` only when users should make a decision with incomplete support or runtime validation information.
 - `## Upgrade Notes` only when users need to take action after updating.
@@ -55,9 +56,12 @@ Do not include:
 
 - Routine local validation commands such as `pnpm install`, `pnpm validate:pack`, `pnpm typecheck`, or `pnpm build`.
 - Local shell/session details, CI-like command transcripts, or internal debug checks that do not affect user decisions.
+- Build-time environment variable names, internal feature switches, debug-mode implementation details, or release plumbing unless users must configure or act on them.
 - A standalone `Validation` section in the public GitHub Release.
 
 Keep validation evidence in the release checklist, commit/PR discussion, or maintainer notes. If a validation result reveals a user-facing risk, rewrite it as a `Known Limitations` or `Compatibility Notes` item instead of publishing raw validation output.
+
+Before publishing, review every release-note bullet with this question: does a user need this information to decide whether to update, understand changed behavior, or complete an upgrade? Remove the bullet if the answer is no.
 
 ## Publish Steps
 
