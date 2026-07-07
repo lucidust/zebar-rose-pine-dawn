@@ -25,7 +25,8 @@ const TRAY_MODE_STORAGE_KEY = 'zebar-rpd-tray-mode';
 const PINNED_TRAY_STORAGE_KEY = 'zebar-rpd-pinned-tray-icons';
 
 export function SystrayStrip(props: { systray: any }) {
-  const [mode, setMode] = createSignal<TrayDisplayMode>(readTrayMode());
+  const [preferredMode, setPreferredMode] =
+    createSignal<TrayDisplayMode>(readTrayMode());
   const [isManaging, setIsManaging] = createSignal(false);
   const [pinnedIcons, setPinnedIcons] = createSignal<PinnedTrayIcon[]>(
     readPinnedTrayIcons(),
@@ -47,12 +48,20 @@ export function SystrayStrip(props: { systray: any }) {
   const missingPinnedIcons = createMemo(() =>
     pinnedIcons().filter(pinnedIcon => !findMatchingTrayIcon(pinnedIcon, allIcons())),
   );
+  const hasVisiblePinnedIcons = createMemo(() => matchedPinnedIcons().length > 0);
+  const effectiveMode = createMemo<TrayDisplayMode>(() => {
+    if (preferredMode() === 'pinned' && !hasVisiblePinnedIcons()) {
+      return 'folded';
+    }
+
+    return preferredMode();
+  });
   const displayedIcons = createMemo(() => {
-    if (isManaging() || mode() === 'all') {
+    if (isManaging() || effectiveMode() === 'all') {
       return allIcons();
     }
 
-    if (mode() === 'pinned') {
+    if (effectiveMode() === 'pinned') {
       return matchedPinnedIcons().map(match => match.trayIcon);
     }
 
@@ -62,20 +71,19 @@ export function SystrayStrip(props: { systray: any }) {
     () => allIcons().length > 0 || pinnedIcons().length > 0,
   );
   const hiddenIconCount = createMemo(() => {
-    if (isManaging() || mode() === 'all') {
+    if (isManaging() || effectiveMode() === 'all') {
       return 0;
     }
 
-    if (mode() === 'pinned') {
+    if (effectiveMode() === 'pinned') {
       return Math.max(allIcons().length - displayedIcons().length, 0);
     }
 
     return allIcons().length;
   });
-  const hasVisiblePinnedIcons = createMemo(() => matchedPinnedIcons().length > 0);
   const controlTitle = createMemo(() =>
     trayControlTitle(
-      mode(),
+      effectiveMode(),
       isManaging(),
       allIcons().length,
       displayedIcons().length,
@@ -101,7 +109,7 @@ export function SystrayStrip(props: { systray: any }) {
   };
 
   createEffect(() => {
-    window.localStorage.setItem(TRAY_MODE_STORAGE_KEY, mode());
+    window.localStorage.setItem(TRAY_MODE_STORAGE_KEY, preferredMode());
   });
 
   createEffect(() => {
@@ -131,7 +139,12 @@ export function SystrayStrip(props: { systray: any }) {
   });
 
   const cycleMode = () => {
-    setMode(currentMode => {
+    setPreferredMode(currentPreferredMode => {
+      const currentMode =
+        currentPreferredMode === 'pinned' && !hasVisiblePinnedIcons()
+          ? 'folded'
+          : currentPreferredMode;
+
       if (currentMode === 'folded') {
         return hasVisiblePinnedIcons() ? 'pinned' : 'all';
       }
@@ -143,12 +156,6 @@ export function SystrayStrip(props: { systray: any }) {
       return 'folded';
     });
   };
-
-  createEffect(() => {
-    if (mode() === 'pinned' && !hasVisiblePinnedIcons()) {
-      setMode('folded');
-    }
-  });
 
   const togglePin = (trayIcon: any) => {
     setPinnedIcons(currentPinnedIcons => {
@@ -191,7 +198,7 @@ export function SystrayStrip(props: { systray: any }) {
     <Show when={hasTrayState()}>
       <div
         class="chip chip-systray"
-        data-tray-mode={mode()}
+        data-tray-mode={effectiveMode()}
         data-managing={isManaging() ? 'true' : 'false'}
         ref={rootRef}
       >
@@ -234,7 +241,10 @@ export function SystrayStrip(props: { systray: any }) {
             cycleMode();
           }}
         >
-          <span class="tray-control-icon" data-mode={trayControlMode(mode(), isManaging())}>
+          <span
+            class="tray-control-icon"
+            data-mode={trayControlMode(effectiveMode(), isManaging())}
+          >
             <IconBadge node={icon('custom-tray')} tone="foam" />
           </span>
           <Show when={hiddenIconCount() > 0}>
