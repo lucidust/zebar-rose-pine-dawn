@@ -290,6 +290,11 @@ function NetworkChip(props: { network: any }) {
   const baselineStorageKey = (dayKey: string) =>
     `zebar-rpd-traffic-baseline:${dayKey}`;
 
+  const isEmptyTrafficCounter = (
+    totalReceived: number,
+    totalTransmitted: number,
+  ) => totalReceived === 0 && totalTransmitted === 0;
+
   const persistBaseline = (dayKey: string) => {
     try {
       window.localStorage.setItem(
@@ -310,6 +315,16 @@ function NetworkChip(props: { network: any }) {
     totalTransmitted: number,
   ) => {
     if (baselineDayKey === dayKey) {
+      if (
+        isEmptyTrafficCounter(baselineReceived, baselineTransmitted) &&
+        !isEmptyTrafficCounter(totalReceived, totalTransmitted)
+      ) {
+        baselineReceived = totalReceived;
+        baselineTransmitted = totalTransmitted;
+        persistBaseline(dayKey);
+        return;
+      }
+
       if (
         totalReceived < baselineReceived ||
         totalTransmitted < baselineTransmitted
@@ -333,7 +348,24 @@ function NetworkChip(props: { network: any }) {
         };
         baselineReceived = Math.max(0, parsed.received ?? totalReceived);
         baselineTransmitted = Math.max(0, parsed.transmitted ?? totalTransmitted);
+        if (isEmptyTrafficCounter(baselineReceived, baselineTransmitted)) {
+          if (isEmptyTrafficCounter(totalReceived, totalTransmitted)) {
+            baselineDayKey = '';
+            return;
+          }
+
+          baselineReceived = totalReceived;
+          baselineTransmitted = totalTransmitted;
+          persistBaseline(dayKey);
+        }
       } else {
+        if (isEmptyTrafficCounter(totalReceived, totalTransmitted)) {
+          baselineDayKey = '';
+          baselineReceived = 0;
+          baselineTransmitted = 0;
+          return;
+        }
+
         baselineReceived = totalReceived;
         baselineTransmitted = totalTransmitted;
         persistBaseline(dayKey);
